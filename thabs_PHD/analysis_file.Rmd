@@ -161,7 +161,7 @@ tbl_summary(follow_up, missing = "no") %>%
   bold_labels()
 ```
 
-# comparison table
+# comparison table: Outcome (hypoadrenalism status of study paticipants) vs other variables
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 socio_demographics <- final_dataset %>%
   mutate(gender = as.factor(Gender),
@@ -444,4 +444,31 @@ tbl_summary(#follow_up,
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 follow_up
+```
+
+# Patients diagnosed with hypoadrenalism in advanced HIV study, compred to those with normal adreal function
+
+patients with hypoadrenalism with advanced HIV (CD4<100) and not on steriods whether oral or injectable
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+socio_demographics <- final_dataset %>%
+  mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  mutate(gender = as.factor(Gender),
+         ethnicity = as.factor(Ethnicity)) %>%
+  dplyr::select(`Age at enrolment`, gender, ethnicity, outcome_advanced_HIV) %>%
+  tbl_uvregression(
+    socio_demographics[c('outcome_advanced_HIV', 'Age at enrolment', 'gender', 'ethnicity')],
+    method = glm,
+    y = outcome_advanced_HIV,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  )
+  
+tbl_summary(by = outcome, missing = "no") %>% 
+  add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+socio_demographics
+
 ```
