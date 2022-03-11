@@ -52,52 +52,57 @@ tbl_summary(socio_demographics, missing = "no") %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
-# dt01 <- data.frame(`Primary medical conditions` = c(
-#   final_dataset$`Primary medical conditions (1)`,
-#   final_dataset$`Primary medical conditions (2)`,
-#   final_dataset$`Primary medical conditions (3)`,
-#   final_dataset$`Primary medical conditions (4)`,
-#   final_dataset$`Primary medical conditions (5)`,
-#   final_dataset$`Primary medical conditions (6)`,
-#   final_dataset$`Primary medical conditions (7)`,
-#   final_dataset$`Primary medical conditions (8)`,
-#   final_dataset$`Primary medical conditions (9)`,
-#   final_dataset$`Primary medical conditions (10)`
-# )) #%>%
-#   # dplyr::filter(!is.na(`Primary medical conditions`))
-# 
-# dt02 <- data.frame(`Co-existing medical conditions` = c(
-#   final_dataset$`Co-existing medical conditions (1)`,
-#   final_dataset$`Co-existing medical conditions (2)`,
-#   final_dataset$`Co-existing medical conditions (3)`,
-#   final_dataset$`Co-existing medical conditions (4)`,
-#   final_dataset$`Co-existing medical conditions (5)`,
-#   final_dataset$`Co-existing medical conditions (6)`,
-#   final_dataset$`Co-existing medical conditions (7)`,
-#   final_dataset$`Co-existing medical conditions (8)`,
-#   final_dataset$`Co-existing medical conditions (9)`,
-#   final_dataset$`Co-existing medical conditions (10)`
-# )) #%>%
-#   # filter(!is.na(`Co-existing medical conditions`))
-# 
-# dt03 <- data.frame(`Concomitant therapy` = c(
-#   final_dataset$`Concomitant therapy (1)`,
-#   final_dataset$`Concomitant therapy (2)`,
-#   final_dataset$`Concomitant therapy (3)`,
-#   final_dataset$`Concomitant therapy (4)`,
-#   final_dataset$`Concomitant therapy (5)`,
-#   final_dataset$`Concomitant therapy (6)`,
-#   final_dataset$`Concomitant therapy (7)`,
-#   final_dataset$`Concomitant therapy (8)`,
-#   final_dataset$`Concomitant therapy (9)`,
-#   final_dataset$`Concomitant therapy (10)`
-# ))
-# 
-# dt04 <- cbind(dt01, dt02, dt03)
-# tbl_summary(dt04, missing = "no") %>% 
-#   modify_header(label = "Variable") %>% # update the column header
-#   bold_labels()
-  
+dt01 <- final_dataset %>%
+  select(`Hospital folder number`, `Primary medical conditions (1)`,
+`Primary medical conditions (2)`,
+`Primary medical conditions (3)`,
+`Primary medical conditions (4)`,
+`Primary medical conditions (5)`,
+`Primary medical conditions (6)`,
+`Primary medical conditions (7)`,
+`Primary medical conditions (8)`,
+`Primary medical conditions (9)`,
+`Primary medical conditions (10)`) %>%
+  pivot_longer(cols = c(`Primary medical conditions (1)`,
+`Primary medical conditions (2)`,
+`Primary medical conditions (3)`,
+`Primary medical conditions (4)`,
+`Primary medical conditions (5)`,
+`Primary medical conditions (6)`,
+`Primary medical conditions (7)`,
+`Primary medical conditions (8)`,
+`Primary medical conditions (9)`,
+`Primary medical conditions (10)`),
+               names_to = 'col_num',
+               values_to = 'Primary medical conditions') %>%
+  select(`Hospital folder number`, `Primary medical conditions`) %>%
+  filter(!is.na(`Primary medical conditions`))
+
+dt02 <- final_dataset %>%
+  select(`Hospital folder number`, `Co-existing medical conditions (1)`,
+`Co-existing medical conditions (2)`,
+`Co-existing medical conditions (3)`,
+`Co-existing medical conditions (4)`,
+`Co-existing medical conditions (5)`,
+`Co-existing medical conditions (6)`,
+`Co-existing medical conditions (7)`,
+`Co-existing medical conditions (8)`,
+`Co-existing medical conditions (9)`,
+`Co-existing medical conditions (10)`) %>%
+  pivot_longer(cols = c(`Co-existing medical conditions (1)`,
+`Co-existing medical conditions (2)`,
+`Co-existing medical conditions (3)`,
+`Co-existing medical conditions (4)`,
+`Co-existing medical conditions (5)`,
+`Co-existing medical conditions (6)`,
+`Co-existing medical conditions (7)`,
+`Co-existing medical conditions (8)`,
+`Co-existing medical conditions (9)`,
+`Co-existing medical conditions (10)`),
+               names_to = 'col_num',
+               values_to = 'Co-existing medical conditions') %>%
+  select(`Hospital folder number`, `Co-existing medical conditions`) %>%
+  filter(!is.na(`Co-existing medical conditions`))
 
 clinical <- final_dataset %>%
   mutate(`days since employment` = as.Date(`Date of enrolment in study`)- as.Date(`Last Employment date`)) %>%
@@ -619,4 +624,15 @@ tbl_uvregression(
     method.args = list(family = binomial),
     exponentiate = TRUE
   ) 
+```
+
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table_4data <- final_dataset %>%
+  mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         enrol = as.Date(`Date of enrolment in study`, format = '%m/%d/%Y'),
+         diagnosed = as.Date(`HIV, when diagnosed`, format = '%m/%d/%Y')) %>%
+  select(`Hospital folder number`, Ethnicity, Gender, `Total CD4 count...9`, `Total CD4 count...89`, `Random cortisol result`, `Synacthen: 30 minute cortisol result`, `Synacthen: 0 minute cortisol result`, `ACTH result`, Neutrophils, `Lymphocyte count`, Haemoglobin, Sodium, Hypoglycaemia, `BP (systolic)`, `BP (diastolic)`, `Current tuberculosis`, `Duration of current illness`, HIV_duration, `HIV, when diagnosed`, `Date of enrolment in study`) #%>%
+
 ```

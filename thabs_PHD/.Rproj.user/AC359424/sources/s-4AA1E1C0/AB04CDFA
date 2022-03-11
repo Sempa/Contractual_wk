@@ -3,9 +3,9 @@
     "path": "~/GitHub/Contractual_wk/thabs_PHD/analysis_file.Rmd",
     "project_path": "analysis_file.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "3011595427",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1645690596988.0,
     "source_on_save": false,
     "relative_order": 1,
@@ -14,15 +14,15 @@
         "source_window_id": "",
         "Source": "Source",
         "cursorPosition": "635,445",
-        "scrollLine": "619",
-        "last_setup_crc32": "EDD31ADD9dcb1af4"
+        "scrollLine": "615",
+        "last_setup_crc32": ""
     },
     "folds": "",
-    "lastKnownWriteTime": 1646670575,
+    "lastKnownWriteTime": 1647017180,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1646928154932,
+    "last_content_update": 1647017180951,
     "read_only": false,
     "read_only_alternatives": []
 }
