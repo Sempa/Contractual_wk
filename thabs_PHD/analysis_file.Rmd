@@ -446,29 +446,177 @@ tbl_summary(#follow_up,
 follow_up
 ```
 
-# Patients diagnosed with hypoadrenalism in advanced HIV study, compred to those with normal adreal function
+# Table 2: Patients diagnosed with hypoadrenalism in advanced HIV study, compred to those with normal adreal function
 
+## Socio-demographics by outcome (hypoadrenalism (advanced HIV) and without)
 patients with hypoadrenalism with advanced HIV (CD4<100) and not on steriods whether oral or injectable
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
-socio_demographics <- final_dataset %>%
+socio_demographics2 <- final_dataset %>%
   mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
   mutate(gender = as.factor(Gender),
          ethnicity = as.factor(Ethnicity)) %>%
-  dplyr::select(`Age at enrolment`, gender, ethnicity, outcome_advanced_HIV) %>%
+  dplyr::select(outcome_advanced_HIV, `Age at enrolment`, gender, ethnicity)
+  
   tbl_uvregression(
-    socio_demographics[c('outcome_advanced_HIV', 'Age at enrolment', 'gender', 'ethnicity')],
+    socio_demographics2[c('outcome_advanced_HIV', 'Age at enrolment', 'gender', 'ethnicity')],
     method = glm,
     y = outcome_advanced_HIV,
     method.args = list(family = binomial),
     exponentiate = TRUE
   )
-  
-tbl_summary(by = outcome, missing = "no") %>% 
-  add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-socio_demographics
 
+
+```
+
+# Table 2: Signs by outcome (hypoadrenalism (advanced HIV) and without)
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+signs_table12 <- final_dataset %>%
+  mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  mutate(#`log10 viral load` = log(`HIV viral load`, 10),
+         Hypotension = as.factor(Hypotension),
+         Weakness = as.factor(Weakness),
+         Tiredness = as.factor(Tiredness),
+         `Poor appetite` = as.factor(`Poor appetite`),
+         `Weight loss` = as.factor(`Weight loss`),
+         `Increased pigmentation of the skin` = as.factor(`Increased pigmentation of the skin`),
+         Nausea = as.factor(Nausea)
+         ) %>%
+  dplyr::select(`BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, outcome_advanced_HIV) 
+tbl_uvregression(
+    signs_table12[c('BP (systolic)', 'BP (diastolic)', 'Heart rate', 'Hypotension', 'Weakness', 'Tiredness', 'Poor appetite', 'Weight loss', 'Increased pigmentation of the skin', 'Nausea', 'outcome_advanced_HIV')],
+    method = glm,
+    y = outcome_advanced_HIV,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  )
+
+```
+
+
+# Table 2: Signs by outcome (hypoadrenalism (advanced HIV) and without) - Continued 2
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+signs_table22 <- final_dataset %>%
+  mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  mutate(
+         Vomiting = as.factor(Vomiting),
+         `Liking for salt` = as.factor(`Liking for salt`),
+         Hypoglycaemia = as.factor(Hypoglycaemia),
+         `Loss of consciousness` = as.factor(`Loss of consciousness`),
+         Diarrhoea = as.factor(Diarrhoea),
+         Dizziness = as.factor(Dizziness),
+         Shock = as.factor(Shock),
+         Anorexia = as.factor(Anorexia),
+         `Loss of axillary and pubic hair, if female` = as.factor(`Loss of axillary and pubic hair, if female`),
+         `Any postural drop in blood pressure` = as.factor(`Any postural drop in blood pressure`)
+         ) %>%
+  dplyr::select(Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, outcome_advanced_HIV)
+
+tbl_uvregression(
+    signs_table22[c('Vomiting', 'Liking for salt', 'Hypoglycaemia', 'Loss of consciousness', 'Diarrhoea', 'Dizziness', 'Shock', 'Anorexia', 'Loss of axillary and pubic hair, if female', 'Any postural drop in blood pressure', 'outcome_advanced_HIV')],
+    method = glm,
+    y = outcome_advanced_HIV,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  )
+
+```
+
+
+# Table 2: Signs by outcome (hypoadrenalism (advanced HIV) and without) - Continued 3
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+signs_table32 <- final_dataset %>%
+  mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  mutate(`log10 viral load` = log(`HIV viral load`, 10),
+         `Presence of anaemia` = as.factor(`Presence of anaemia`),
+         `Or, HIV viral load = LDL (choice=LDL)` = as.factor(`Or, HIV viral load = LDL (choice=LDL)`),
+         `Current tuberculosis` = as.factor(`Current tuberculosis`),
+         `Past tuberculosis` = as.factor(`Past tuberculosis`),
+         `Electrolytes available` = as.factor(`Electrolytes available`),
+         `Total CD4 count` = `Total CD4 count...89`) %>%
+  dplyr::select(`Presence of anaemia`, `Total CD4 count`, `log10 viral load`, `Or, HIV viral load = LDL (choice=LDL)`, `Current tuberculosis`, `Past tuberculosis`, `Electrolytes available`, Sodium, Potassium, Urea, outcome_advanced_HIV) 
+tbl_uvregression(
+    signs_table32[c('Presence of anaemia', 'Total CD4 count', 'log10 viral load', 'Or, HIV viral load = LDL (choice=LDL)', 'Current tuberculosis', 'Past tuberculosis', 'Sodium', 'Potassium', 'Urea', 'outcome_advanced_HIV')],
+    method = glm,
+    y = outcome_advanced_HIV,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  ) 
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+signs_table42 <- final_dataset %>%
+  mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  mutate(
+    `Full blood count (FBC) result available` = as.factor(`Full blood count (FBC) result available`),
+    `Differential on FBC available` = as.factor(`Differential on FBC available`),
+    `Aetiology of anaemia` = as.factor(`Aetiology of anaemia`)
+    ) %>%
+  dplyr::select(Creatinine, `Full blood count (FBC) result available`, Haemoglobin, `White cell count`, Platelets, MCV, `Differential on FBC available`, Neutrophils, `Lymphocyte count`, Eosinophils, Basophils, `Aetiology of anaemia`, outcome_advanced_HIV) 
+tbl_uvregression(
+    signs_table42[c('Creatinine', 'Full blood count (FBC) result available', 'Haemoglobin', 'White cell count', 'Platelets', 'MCV', 'Differential on FBC available', 'Neutrophils', 'Lymphocyte count', 'Eosinophils', 'Basophils', 'Aetiology of anaemia', 'outcome_advanced_HIV')],
+    method = glm,
+    y = outcome_advanced_HIV,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  ) 
+```
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+ctscan2 <- final_dataset %>%
+  mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  mutate(`CT scan done` = as.factor(`CT scan done`),
+         Nodularity = as.factor(Nodularity),
+         `Bilateral adrenal enlargement` = as.factor(`Bilateral adrenal enlargement`),
+         `Calcification` = as.factor(`Calcification`),
+         Atrophy = as.factor(Atrophy),
+         Haemorrhage = as.factor(Haemorrhage),
+         `Outcome of hospitalization` = as.factor(`Outcome of hospitalization`)) %>%
+  dplyr::select(`CT scan done`, `Bilateral adrenal enlargement`, `Calcification`, Atrophy, Haemorrhage, Nodularity, `Outcome of hospitalization`, outcome_advanced_HIV) 
+# tbl_uvregression(
+#     ctscan2[c(#'CT scan done', 
+#               # 'Bilateral adrenal enlargement', 
+#               # 'Calcification', 
+#               # 'Atrophy', 
+#               # 'Haemorrhage', 'Nodularity', 
+#               'Outcome of hospitalization', 'outcome_advanced_HIV')],
+#     method = glm,
+#     y = outcome_advanced_HIV,
+#     method.args = list(family = binomial),
+#     exponentiate = TRUE
+#   ) 
+```
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+follow_up2 <- final_dataset %>%
+  mutate(outcome_advanced_HIV = ifelse(outcome==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  mutate(`3 followup_done` = as.factor(`3 followup_done`),
+         `3 followup_patientstatus` = as.factor(`3 followup_patientstatus`),
+         `3 followup_patientcondition` = as.factor(`3 followup_patientcondition`),
+         `6 followup_done` = as.factor(`6 followup_done`),
+         `6 followup_patientstatus` = as.factor(`6 followup_patientstatus`),
+         `6 followup_patientcondition` = as.factor(`6 followup_patientcondition`),
+         `12 followup_done` = as.factor(`12 followup_done`),
+         `12 followup_patientstatus` = as.factor(`12 followup_patientstatus`),
+         `12 followup_patientcondition` = as.factor(`12 followup_patientcondition`),
+         `If deceased, cause of death` = as.factor(`If deceased, cause of death`)
+         ) %>%
+  dplyr::select(`3 followup_done`, `3 followup_patientstatus`, `3 followup_patientcondition`, `6 followup_done`, `6 followup_patientstatus`, `6 followup_patientcondition`, `12 followup_done`, `12 followup_patientstatus`, `12 followup_patientcondition`, `If deceased, cause of death`, outcome_advanced_HIV)
+tbl_uvregression(
+    follow_up2[c('3 followup_done', '3 followup_patientstatus', '3 followup_patientcondition', '6 followup_done', '6 followup_patientstatus', '6 followup_patientcondition', '12 followup_done', '12 followup_patientstatus', '12 followup_patientcondition', 'If deceased, cause of death', 'outcome_advanced_HIV')],
+    method = glm,
+    y = outcome_advanced_HIV,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  ) 
 ```
