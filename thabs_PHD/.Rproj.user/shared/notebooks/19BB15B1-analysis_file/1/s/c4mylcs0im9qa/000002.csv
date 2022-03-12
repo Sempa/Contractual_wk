@@ -1,0 +1,31 @@
+"0","tbl_summary(opportunistic_infections,
+            missing = ""no"",
+            by = addisons_disease
+            ) %>%
+add_p() %>%
+add_n() 
+"
+"2","113 observations missing `addisons_disease` have been removed. To include these observations, use `forcats::fct_explicit_na()` on `addisons_disease` column before passing to `tbl_summary()`.
+"
+"2","Warning: stack imbalance in '$', 227 then 228
+"
+"2","Warning: stack imbalance in '$', 222 then 220
+"
+"2","Warning: stack imbalance in '{', 217 then 216
+"
+"2","Warning: stack imbalance in '[[', 199 then 198
+"
+"2","Warning: stack imbalance in '{', 195 then 194
+"
+"2","Warning: stack imbalance in '.Call', 181 then 180
+"
+"2","Warning: stack imbalance in '{', 177 then 176
+"
+"2","Warning: stack imbalance in 'lapply', 165 then 164
+"
+"2","There was an error in 'add_p()/add_difference()' for variable 'Toxoplasmosis', p-value omitted:
+Error in stats::chisq.test(x = structure(c(1L, 1L, 1L, 1L, 1L, 1L, 1L, : 'x' and 'y' must have at least 2 levels
+"
+"2","There was an error in 'add_p()/add_difference()' for variable 'Mycobacterium avium-intracellulare', p-value omitted:
+Error in stats::chisq.test(x = structure(c(1L, 1L, 1L, 1L, 1L, 1L, 1L, : 'x' and 'y' must have at least 2 levels
+"
