@@ -1,0 +1,9 @@
+"0","# exp(ci(model$finalModel)[2:4,1:3]) %>%
+  kable(data.fram(exp(ci(model$finalModel)[2:4,1:3])), caption = ""Cross validation model"") %>%
+  kable_paper(""hover"", full_width = F) %>%
+  kable_classic(full_width = F, html_font = ""Arial"")%>%
+  kable_styling(latex_options = ""HOLD_position"")
+"
+"2","Error in data.fram(exp(ci(model$finalModel)[2:4, 1:3])) : 
+  could not find function ""data.fram""
+"

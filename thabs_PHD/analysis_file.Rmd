@@ -55,7 +55,8 @@ final_dataset <- read_csv("final_dataset.csv", show_col_types = F) %>%
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 socio_demographics <- final_dataset %>%
   dplyr::select(`Age at enrolment`, Gender, Ethnicity)
-tbl_summary(socio_demographics, missing = "no") %>% 
+tbl_summary(socio_demographics, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
@@ -114,40 +115,46 @@ dt02 <- final_dataset %>%
 clinical <- final_dataset %>%
   mutate(`days since employment` = as.Date(`Date of enrolment in study`)- as.Date(`Last Employment date`)) %>%
   dplyr::select(`HIV-positive, confirmed on ELISA`, `Total CD4 count...9`, `CD4 < 100`, `Opportunistic infection present`, `Oral or inhaled steroids in the last three months`, `days since employment`, `Duration of current illness`)
-tbl_summary(clinical, missing = "no") %>% 
+tbl_summary(clinical, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 opportunistic_infections <- final_dataset %>%
   dplyr::select(`Opportunistic infection  (choice=Tuberculosis)`, `Opportunistic infection  (choice=Cryptococcus neoformans)`, `Opportunistic infection  (choice=Toxoplasmosis)`, `Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`, `Opportunistic infection  (choice=Kaposis sarcoma)`, `Opportunistic infection  (choice=Cytomegalovirus)`, `Opportunistic infection  (choice=Other)`) #, `Other, specify...67`
-tbl_summary(opportunistic_infections, missing = "no") %>% 
+tbl_summary(opportunistic_infections, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
 signs_table1 <- final_dataset %>%
   mutate(`log10 viral load` = log(`HIV viral load`, 10)) %>%
   dplyr::select(`BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea)
-tbl_summary(signs_table1, missing = "no") %>% 
+tbl_summary(signs_table1, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
 signs_table2 <- final_dataset %>%
   mutate(`log10 viral load` = log(`HIV viral load`, 10)) %>%
   dplyr::select(Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`)
-tbl_summary(signs_table2, missing = "no") %>% 
+tbl_summary(signs_table2, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
 signs_table3 <- final_dataset %>%
   mutate(`log10 viral load` = log(`HIV viral load`, 10)) %>%
   dplyr::select(`Presence of anaemia`, `Total CD4 count...89`, `log10 viral load`, `Or, HIV viral load = LDL (choice=LDL)`, `Current tuberculosis`, `Past tuberculosis`, `Electrolytes available`, Sodium, Potassium, Urea)
-tbl_summary(signs_table3, missing = "no") %>% 
+tbl_summary(signs_table3, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
 signs_table4 <- final_dataset %>%
   mutate(`log10 viral load` = log(`HIV viral load`, 10)) %>%
   dplyr::select(Creatinine, `Full blood count (FBC) result available`, Haemoglobin, `White cell count`, Platelets, MCV, `Differential on FBC available`, Neutrophils, `Lymphocyte count`, Eosinophils, Basophils, `Aetiology of anaemia`) #, `Other, specify...112`
-tbl_summary(signs_table4, missing = "no") %>% 
+tbl_summary(signs_table4, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
@@ -156,19 +163,22 @@ outcome_variables <- final_dataset %>%
          `ACTH result coded` = cut(`ACTH result`, breaks = c(0, 13.9, 500))
          ) %>%
   dplyr::select(`Random cortisol result`, `Random cortisol result coded`, `ACTH result`, `ACTH result coded`, `Antibodies sample drawn`, `Confirm random cortisol < 500 nmol/L`, `Confirm patient not on steroids for past 3 months`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
-tbl_summary(outcome_variables, missing = "no") %>% 
+tbl_summary(outcome_variables, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
 ctscan <- final_dataset %>%
   dplyr::select(`CT scan done`, `Bilateral adrenal enlargement`, `Calcification`, Atrophy, Haemorrhage, Nodularity, `Outcome of hospitalization`)
-tbl_summary(ctscan, missing = "no") %>% 
+tbl_summary(ctscan, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
 follow_up <- final_dataset %>%
   dplyr::select( `3 followup_done`, `3 followup_patientstatus`, `3 followup_patientcondition`, `6 followup_done`, `6 followup_patientstatus`, `6 followup_patientcondition`, `12 followup_done`, `12 followup_patientstatus`, `12 followup_patientcondition`, `If deceased, cause of death`)
-tbl_summary(follow_up, missing = "no") %>% 
+tbl_summary(follow_up, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")) %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 ```
