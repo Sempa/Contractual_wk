@@ -1,0 +1,408 @@
+---
+title: "The incidence of dysglycaemia, dyslipidaemia and changes in body composition in HIV-infected subjects initiated on antiretroviral treatment in the Free State: A cohort study - Baseline"
+author: "Dr Joseph B Sempa"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    fig_caption: yes
+    toc: yes
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+  html_document:
+    fig_caption: yes
+    toc: yes
+  html_notebook:
+    toc: yes
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(results = 'asis')
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(tinytex)
+library(gmodels)
+library(readxl)
+library(gtsummary)
+library(caret)
+library(leaps)
+library(MASS)
+library(predtools)
+library(randomForest)
+library(mice)
+library(psfmi)
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# library(readr)
+baseline <- read_csv("baseline_visit_Jan_2022.csv")[, -c(332:337)] %>%
+  filter(!is.na(pt_id))
+secondVisit <- read_csv("second_visit_Jan_2022.csv")[, -c(332:348)] %>%
+  filter(!is.na(pt_id))
+
+```
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+final_dataset <- rbind(baseline, secondVisit) %>%
+  filter(!is.na(pt_id)) %>%
+  mutate(group = ifelse((hiv_control == 'control' | hiv_control == 'CONTROL'), 'CONTROL', ifelse(hiv_control == 'HIV' | hiv_control == 'hiv', 'HIV', ''))) %>%
+  mutate(gender = as.factor(ifelse((gender == 'N' | gender == 'M'),'M', gender))) %>%
+  filter(group!='')
+```
+# Demographics
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt01 <- final_dataset %>%
+  filter(visit == 0) %>%
+  mutate(`age of respondents` = cut(age, breaks = c(21,30,40,50,80))) %>%
+  dplyr::select(`age of respondents`, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata(
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no") %>% 
+      bold_labels() %>%
+      add_overall() %>%
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+dt01
+```
+
+# Table 3-7: Heading= Do you suffer from or take medication for following diseases?
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table2 <- final_dataset %>%
+  filter(visit == 0) %>%
+  # filter(!is.na(take_meds_regularly_Hypertention)) %>%
+  # filter(!is.na(take_meds_regularly_Diabetes_mellitus)) %>%
+  # filter(!is.na(take_meds_regularly_High_blood_cholesterol)) %>%
+  mutate(take_meds_regularly_other = ifelse(take_meds_regularly_other=='y', 'Y', take_meds_regularly_other)) %>%
+  # filter(!is.na(take_meds_regularly_other)) %>%
+  
+  dplyr::select(take_meds_regularly_Hypertention, take_meds_regularly_Diabetes_mellitus, take_meds_regularly_High_blood_cholesterol, take_meds_regularly_other, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata(
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no") %>% 
+      bold_labels()%>%
+      add_overall() %>%
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+table2
+```
+
+# Table 9: give data as how many medications a subject is using...eg. 1 meds= 2
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table3 <- final_dataset %>%
+  dplyr::select(pt_id, gender, group, list_regular_meds,
+  list_regular_meds1,
+  list_regular_meds2,
+  list_regular_meds3,
+  list_regular_meds4,
+  list_regular_meds5,
+  list_regular_meds6,
+  list_regular_meds7) %>%
+  pivot_longer(cols = c(list_regular_meds,
+  list_regular_meds1,
+  list_regular_meds2,
+  list_regular_meds3,
+  list_regular_meds4,
+  list_regular_meds5,
+  list_regular_meds6,
+  list_regular_meds7),
+               names_to = 'col_num',
+               values_to = 'list_regular_meds') %>%
+  dplyr::select(pt_id, list_regular_meds, gender, group, ) %>%
+  filter(!is.na(list_regular_meds)) %>%
+  filter(list_regular_meds!='NONE') %>%
+  group_by(pt_id) %>%
+  mutate(`Number of meds` = max(1:length(pt_id))) %>%
+  mutate(`Number of meds` = as.character(ifelse(`Number of meds`>=5, '5', `Number of meds`))) %>%
+  mutate(`Number of meds` = as.character(ifelse(`Number of meds`=='5', '> = 5', `Number of meds`))) %>%
+  ungroup() %>%
+    dplyr::select(`Number of meds`, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata(#dt12,
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no") %>% 
+      bold_labels()%>%
+      add_overall() %>%
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  ) 
+table3
+
+```
+
+# Table 10-19: Heading= Family history of participants
+we should edit this table a bit
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+table4 <- final_dataset %>%
+  filter(visit == 0) %>%
+  # filter(!is.na(take_meds_regularly_Hypertention)) %>%
+  # filter(!is.na(take_meds_regularly_Diabetes_mellitus)) %>%
+  # filter(!is.na(take_meds_regularly_High_blood_cholesterol)) %>%
+  mutate(`Heart disease` = ifelse(family_history_heartdiseasespecify=='n\a', '', family_history_heartdiseasespecify),
+         Stroke = ifelse(family_history_stroke=='n\a', '', family_history_stroke),
+         Cancer = ifelse(family_history_cancer=='n\a', '', family_history_cancer),
+         Hypertension = ifelse(family_history_HTNorHBP=='n\a', '', family_history_HTNorHBP),
+         Diabetes = ifelse(family_history_diabetes=='n\a', '', family_history_diabetes)) %>%
+  # filter(!is.na(take_meds_regularly_other)) %>%
+  
+  dplyr::select(`Heart disease`, Stroke, Cancer, Hypertension, Diabetes, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata(
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no") %>% 
+      bold_labels()%>%
+      add_overall() %>%
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+table4
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table5 <- final_dataset %>%
+  filter(visit == 0) %>%
+  # filter(!is.na(`1.8 Do you drink alcohol?`)) %>%
+  mutate(`1.8 Do you drink alcohol?` = ifelse(`1.8 Do you drink alcohol?`=='n', 'N', ifelse(`1.8 Do you drink alcohol?`=='N/Y', '', `1.8 Do you drink alcohol?`))) %>%
+  mutate(`Do you drink alcohol?` = as.factor(ifelse(`1.8 Do you drink alcohol?`=='y' | `1.8 Do you drink alcohol?`=='Y7', 'Y', ifelse(`1.8 Do you drink alcohol?`=='2', 'N', `1.8 Do you drink alcohol?`)))
+         ) %>%
+  mutate(`Do you use drugs?` = as.factor(ifelse(`1.9 Do you use drugs?`=='n', 'N', `1.9 Do you use drugs?`)),
+         `Do you smoke tobacco?` = as.factor(`1.7 Do you smoke tobacco?`),
+         `Think you eat healthy diet` = as.factor(ifelse(think_you_eat_healthy_diet=='y', 'Y', ifelse(think_you_eat_healthy_diet=='N/Y', '', think_you_eat_healthy_diet))),
+         `Diagnosed with diabete when pregnant` = as.factor(ifelse(`22.  Were you ever diagnosed with diabetes during pregnancy? (females):`=='n', 'N', ifelse(`22.  Were you ever diagnosed with diabetes during pregnancy? (females):`=='N/A', '', `22.  Were you ever diagnosed with diabetes during pregnancy? (females):`)))
+         
+         ) %>%
+  mutate(`23. How many years of your life have you spent in the city?` = ifelse(`23. How many years of your life have you spent in the city?`=='6MONTHS', '.5', `23. How many years of your life have you spent in the city?`)) %>%
+  mutate(`23. How many years of your life have you spent in the city?` = ifelse(`23. How many years of your life have you spent in the city?`=='15 MONTHS', '1.25', `23. How many years of your life have you spent in the city?`)) %>%
+  mutate(`23. How many years of your life have you spent in the city?` = ifelse(`23. How many years of your life have you spent in the city?`=='15 MONTHS', '1', `23. How many years of your life have you spent in the city?`)) %>%
+  mutate(`Years living in bloem` = as.numeric(`23. How many years of your life have you spent in the city?`)
+         ) %>%
+  dplyr::select(`Do you drink alcohol?`, `Do you smoke tobacco?`, `Do you use drugs?`, `Think you eat healthy diet`, `Diagnosed with diabete when pregnant`, `Years living in bloem`, gender, group) %>%
+  # mutate(gender = paste("gender", gender)) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+      bold_labels()%>% 
+      add_overall() %>%#
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  ) %>%
+  
+  modify_table_body(filter, !(variable == "Do you drink alcohol?" & label == "")) %>%
+  modify_table_body(filter, !(variable == "Think you eat healthy diet" & label == "")) %>%
+  modify_table_body(filter, !(variable == "Diagnosed with diabete when pregnant" & label == ""))
+
+table5
+
+```
+
+# Tables 40-69 and give results as number positive(no need for intensity like 1, 2 etc.)..also divided in total, Hiv, control, female, male
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table6 <- final_dataset %>%
+  filter(visit == 0) %>%
+  dplyr::select(`difficulty concentrating`, `pain`, `lack of energy`, `cough`, `changes in skin`, `dry mouth`, `nausea`, `feeling drowsy`, `numbness_tingling in hands and feet`, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+      bold_labels()%>% 
+      add_overall() %>%#
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+
+table6
+
+```
+
+
+# Tables 40-69 and give results as number positive(no need for intensity like 1, 2 etc.)..also divided in total, Hiv, control, female, male - continued
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table7 <- final_dataset %>%
+  filter(visit == 0) %>%
+  dplyr::select(`difficulty sleeping`, `feeling bloated`, `problems with urination`, `vomiting`, `shortness of breath`, `diarrhea`, `sweats`, `mouth sores`, `problems with sexual interest or activity`, `itching`, `lack of appetite`, `dizziness`, `difficulty swallowing`, `change in the way food taste`, `weight loss`, `hair loss`, `constipation`, `swelling of arms or legs`, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+      bold_labels()%>% 
+      add_overall() %>%#
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+
+table7
+
+```
+
+# Tables 40-69 and give results as number positive(no need for intensity like 1, 2 etc.)..also divided in total, Hiv, control, female, male - continued
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+table8 <- final_dataset %>%
+  filter(visit == 0) %>%
+  dplyr::select(`i don't look like myself`, `any other symptoms during the past week?`, `difficulty swallowing`, `change in the way food taste`, `weight loss`, `hair loss`, `constipation`, `swelling of arms or legs`, `i don't look like myself`, `any other symptoms during the past week?`, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+      bold_labels()%>% 
+      add_overall() %>%#
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+
+table8
+
+```
+
+# Table 70-73.divided in total, Hiv, control, female, male
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table9 <- final_dataset %>%
+  filter(visit == 0) %>%
+  mutate(
+    `Feeling sad` = `commonly_listed_symptoms_feelingsad`,
+    `Worrying` = `commonly_listed_symptoms_worrying`,
+    `Feeling irritable` = `commonly_listed_symptoms_feelingirritable`,
+    `Feeling nervous` = `commonly_listed_symptoms_feelingnervous`
+  ) %>%
+  dplyr::select(`Feeling sad`, `Worrying`, `Feeling irritable`, `Feeling nervous`, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+      bold_labels()%>% 
+      add_overall() %>%#
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+
+table9
+
+```
+
+# Tables 139-142 divided in total, Hiv, control, female, male
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table10 <- final_dataset %>%
+  filter(visit == 0) %>%
+  mutate(Occupation = case_when(#51#98
+      occupation =='CARE WORKER' | occupation == 'CLEANER' | occupation == 'CLEANING' | occupation == 'DOMESTIC' | occupation == 'DOMESTIC WORK' | occupation == 'DOMESTIC WORKER'| occupation == 'EMPLOYED CARE WORKER' | occupation == 'GARDENER' | occupation == 'GENERAL WORKER' | occupation == 'KID CARE' | occupation == 'NANNY' | occupation == 'PIECE JOBS' ~ 'Casual worker',
+occupation == 'ADMIN CLERK' | occupation == 'ANIMAL CLINIC' | occupation == 'ASSISTANCE' |
+occupation == 'BOUNCER' | occupation == 'CASHIER' | occupation == 'CATERING' | occupation == 'CHEF' | occupation == 'CLERK' | occupation == 'CONSTRUCTION' | occupation == 'CONTRACT' |
+occupation == 'CONTRACT BUILDER' | occupation == 'CONTROLLER' | occupation == 'COUNSELOR' |
+occupation == 'DATA CAPTURER' | occupation == 'DAY CARE' | occupation == 'DRIVER' | occupation == 'EMPLOYED' | occupation == 'EMPLOYED CASHIER' | occupation == 'EMPLOYED CON' | occupation == 'EMPLOYED PETROL ATTENDER' | occupation == 'EMPLOYED SECURITY' | occupation == 'EMPOYED' |
+occupation == 'LAY COUNSELLOR' | occupation == 'MACHANDISER' | occupation == 'MACHINE OPERATOR' | occupation == 'MAINTANANCE' | occupation == 'NURSE' | occupation == 'OFS FRIDGEMAKER' | occupation == 'OPERATOR' | occupation == 'PAINTER' | occupation == 'PANELBEATER' | occupation == 'PART TIME ADMIN' | occupation == 'POLICE' | occupation == 'SEAMSTRESS' | occupation == 'SECURITY' | occupation == 'SUPERVISOR' | occupation == 'TAXI DRIVER' | occupation == 'TEACHER' | occupation == 'TEMP JOB' | occupation == 'TRADE' | occupation == 'TRANSNET' | occupation == 'TRUCK DRIVER' | occupation == 'VODACOM' | occupation == 'WAITRESS' | occupation == 'WAREHOUSE' | occupation == 'WELDER' | occupation == 'WORKING' ~ 'Employed',
+occupation == 'PENSIONER' ~ 'Pensoner',
+occupation == 'SELF EMPLOYED' ~ 'Self employed',
+occupation == 'STUDENT' |
+occupation == 'STUDENT NURSING' ~ 'Student',
+occupation == 'UNEMPLOYED' |
+occupation == 'UNEMPLYED' ~ 'Unemployed'
+    )) %>%
+  mutate(
+    `Marital status` = ifelse(`maritalStatus`=='DIVORCE' | maritalStatus =='DIVORCED', 'DIVORCED', maritalStatus),
+    `Number of dependants` = as.character(ifelse(`number of dependants`>3, 4, `number of dependants`)),
+    ) %>%
+  mutate(
+    `Number of dependants` = ifelse(`Number of dependants`=='4', '4 or more', `Number of dependants`)
+  ) %>%
+  dplyr::select(Occupation, `Marital status`, `Number of dependants`, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+      bold_labels() %>%
+      add_overall() %>%#
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+
+table10
+
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table11 <- final_dataset %>%
+  filter(visit == 0) %>%
+  dplyr::select(pt_id, `home language`, gender, group) %>%
+  separate(col = `home language`, into = c('language 1', 'language 2'), sep = ',') %>%
+  pivot_longer(cols = c(`language 1`, `language 2`),
+               names_to = 'col_num',
+               values_to = 'language') %>%
+  mutate(language = ifelse(language=='SHONA' | language=='SONAH', 'SHONA', ifelse(language=='SESOTHO' | language=='SOTHO', 'SOTHO', ifelse(language==' TSWANA', 'TSWANA', language)))) %>%
+  dplyr::select(language, gender, group) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
+    strata = gender,
+    .tbl_fun =
+      ~ .x %>%
+      # tbl_cross(`age of respondents`, group, margin = NULL) %>%
+       tbl_summary(by = group, missing = "no",
+            statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+      bold_labels()%>% 
+      add_overall() %>%#
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+
+table11
+
+
+```
