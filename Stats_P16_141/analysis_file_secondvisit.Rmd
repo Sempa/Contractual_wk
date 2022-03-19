@@ -1,0 +1,4140 @@
+---
+title: "The incidence of dysglycaemia, dyslipidaemia and changes in body composition in HIV-infected subjects initiated on antiretroviral treatment in the Free State: A cohort study - Secondline"
+author: "Dr Joseph B Sempa"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+  word_document:
+    fig_caption: yes
+    toc: yes
+  html_document:
+    fig_caption: yes
+    toc: yes
+  html_notebook:
+    toc: yes
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(results = 'asis')
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(tinytex)
+library(gmodels)
+library(readxl)
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# library(readr)
+baseline <- read_csv("baseline_visit_Jan_2022.csv")[, -c(332:337)] %>%
+  filter(!is.na(pt_id))
+secondVisit <- read_csv("second_visit_Jan_2022.csv")[, -c(332:348)] %>%
+  filter(!is.na(pt_id))
+```
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+final_dataset <- rbind(baseline, secondVisit) %>%
+  filter(!is.na(pt_id))
+```
+# Demographics
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt01 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(gender = ifelse(gender=='N', 'M', gender)) %>%
+  filter(!is.na(gender)) %>%
+  group_by(gender) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt01 %>%
+  kbl(caption = "Gender of the respondents") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$gender)))), notation = "none")
+
+# shapiro.test(final_dataset$age)
+dt02 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(gender)) %>%
+  summarise(
+    N = n(), `Mean` = round(mean(age, na.rm = T), 2), 
+    `standard devaition` = round(sd(age, na.rm = T), 2),
+    minimum = round(min(age, na.rm = T), 2), 
+    maximum = max(age, na.rm = T)
+  )
+dt02 %>%
+  kbl(caption = "Age of the respondents") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$age)))), notation = "none")
+
+```
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt03 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(take_meds_regularly_Hypertention)) %>%
+  mutate(take_meds_regularly_Hypertention = ifelse(take_meds_regularly_Hypertention=='n', 'N', take_meds_regularly_Hypertention)) %>%
+  group_by(take_meds_regularly_Hypertention) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt03 %>%
+  kbl(caption = "take meds regularly for hypertention") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$take_meds_regularly_Hypertention)))), notation = "none")
+
+dt04 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(take_meds_regularly_Diabetes_mellitus)) %>%
+  mutate(take_meds_regularly_Diabetes_mellitus = ifelse(take_meds_regularly_Diabetes_mellitus=='n', 'N', take_meds_regularly_Diabetes_mellitus)) %>%
+  group_by(take_meds_regularly_Diabetes_mellitus) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt04 %>%
+  kbl(caption = "take meds regularly for Diabetes mellitus") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$take_meds_regularly_Diabetes_mellitus)))), notation = "none")
+
+dt05 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(take_meds_regularly_High_blood_cholesterol)) %>%
+  mutate(take_meds_regularly_High_blood_cholesterol = ifelse((take_meds_regularly_High_blood_cholesterol=='n' |take_meds_regularly_High_blood_cholesterol =='NNN'), 'N', take_meds_regularly_Diabetes_mellitus)) %>%
+  group_by(take_meds_regularly_High_blood_cholesterol) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt05 %>%
+  kbl(caption = "take meds regularly for High blood Cholesterol") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$take_meds_regularly_High_blood_cholesterol)))), notation = "none")
+
+dt06 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(take_meds_regularly_other = ifelse(take_meds_regularly_other=='y', 'Y', take_meds_regularly_other)) %>%
+  filter(!is.na(take_meds_regularly_other)) %>%
+  group_by(take_meds_regularly_other) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt06 %>%
+  kbl(caption = "take meds regularly for other diseases") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$take_meds_regularly_other)))), notation = "none")
+
+dt07 <- final_dataset %>%
+  # select(pt_id, visit, take_meds_regularly_other, take_meds_regularly_others_specify) %>%
+  filter(visit == 1) %>%
+  filter(take_meds_regularly_other=='Y') %>%
+  filter(!is.na(take_meds_regularly_others_specify)) %>%
+  # separate(col = take_meds_regularly_others_specify, into = c("left", "right"), sep = ";") %>% #,\\?\\:\\.\\;
+  filter(!is.na(take_meds_regularly_others_specify)) %>%
+  group_by(take_meds_regularly_others_specify) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt07 %>%
+  kbl(caption = "take meds regularly for other diseases specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) #%>%
+  # add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$take_meds_regularly_others_specify)))), notation = "none")
+
+# dt08 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   # mutate(take_meds_regularly_other = ifelse(take_meds_regularly_other=='y', 'Y', take_meds_regularly_other)) %>%
+#   filter(!is.na(diagnosed_physical_health_condition)) %>%
+#   group_by(diagnosed_physical_health_condition) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt08 %>%
+#   kbl(caption = "Diagnosed physical health condition") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$diagnosed_physical_health_condition)))), notation = "none")
+# 
+# dt09 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(diagnosed_physical_health_condition=='Y') %>%
+#   filter(!is.na(diagnosed_physical_health_condition_specify)) %>%
+#   group_by(diagnosed_physical_health_condition_specify) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt09 %>%
+#   kbl(caption = "Diagnosed physical health condition specify") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$diagnosed_physical_health_condition_specify)))), notation = "none")
+# 
+# dt10 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   # mutate(take_meds_regularly_other = ifelse(take_meds_regularly_other=='y', 'Y', take_meds_regularly_other)) %>%
+#   filter(!is.na(trt_physical_health_condition)) %>%
+#   group_by(trt_physical_health_condition) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt10 %>%
+#   kbl(caption = "Treatment for physical health condition") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$trt_physical_health_condition)))), notation = "none")
+# 
+# dt11 <- final_dataset %>%
+#   filter(trt_physical_health_condition == 'Y')
+# dt11_1 <- data.frame(trt_physical_health = c(
+#   dt11$trt_physical_health_condition_specify_trt,
+#   dt11$trt_physical_health_condition_specify_trt1,
+#   dt11$trt_physical_health_condition_specify_trt2
+# )) %>%
+#   filter(!is.na(trt_physical_health)) %>%
+#   group_by(trt_physical_health) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# 
+# dt11_1 %>%
+#   kable(booktabs = TRUE, longtable = TRUE, caption = "Treatment for physical health condition") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") 
+
+dt12 <- data.frame(regular_meds = c(
+  final_dataset$list_regular_meds,
+  final_dataset$list_regular_meds1,
+  final_dataset$list_regular_meds2,
+  final_dataset$list_regular_meds3,
+  final_dataset$list_regular_meds4,
+  final_dataset$list_regular_meds5,
+  final_dataset$list_regular_meds6,
+  final_dataset$list_regular_meds7
+)) %>%
+  filter(!is.na(regular_meds)) %>%
+  filter(regular_meds != 'N/A') %>%
+  filter(regular_meds != 'n/a') %>%
+  filter(regular_meds != 'nill') %>%
+  filter(regular_meds != 'nil') %>%
+  filter(regular_meds != 'none') %>%
+  filter(regular_meds != 'None') %>%
+  filter(regular_meds != '????') %>%
+  filter(regular_meds != '0') %>%
+  group_by(regular_meds) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt12 %>%
+  kable(format = "latex", longtable = T, booktabs  = T, caption = "Treatment for physical health condition specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", "repeat_header"))
+
+```
+
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt13 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(problems_with_meds)) %>%
+  group_by(problems_with_meds) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt13 %>%
+  kbl(caption = "4. Do you have a disability or impairment") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'repeat_header')) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$problems_with_meds)))), notation = "none")
+
+dt14 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(problems_with_meds=='Y') %>%
+  filter(!is.na(problems_with_meds_details)) %>%
+  group_by(problems_with_meds_details) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt14 %>%
+  kbl(caption = "details of disabilities or impairments") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$problems_with_meds_details)))), notation = "none")
+
+dt15 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(need_information_about_meds)) %>%
+  group_by(need_information_about_meds) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt15 %>%
+  kbl(caption = "Need information about meds") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$need_information_about_meds)))), notation = "none")
+
+dt17 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(disability_impairment)) %>%
+  group_by(disability_impairment) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt17 %>%
+  kbl(caption = "Disability impairment") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$disability_impairment)))), notation = "none")
+
+dt18 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(disability_impairment)) %>%
+  group_by(disability_impairment_specify) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt18 %>%
+  kbl(caption = "Disability impairment specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) #%>%
+  # add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$disability_impairment)))), notation = "none")
+
+```
+
+# Have any immediate family  or deceased relative (parents, siblings) had any of the folowing conditions
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt19 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_heartdiseasespecify!='n/a') %>%
+  filter(!is.na(family_history_heartdiseasespecify)) %>%
+  group_by(family_history_heartdiseasespecify) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt19 %>%
+  kbl(caption = "Family history of heart disease") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$family_history_heartdiseasespecify)))), notation = "none")
+
+dt20 <- final_dataset %>%
+  filter(visit == 1) %>%
+  separate(col = `family_history_heartdisease`,
+           sep = ',',
+           into = c('col1', 'col2', 'col3'),
+    remove = FALSE
+    ) %>%
+  dplyr::select(pt_id, col1, col2, col3) %>%
+  pivot_longer(cols = c(col1, col2, col3),
+               names_to = 'col_num',
+               values_to = 'family_history_heartdisease') %>%
+  filter(!is.na(family_history_heartdisease)) %>%
+  mutate(family_history_heartdisease = ifelse((family_history_heartdisease == "PARENTS" | family_history_heartdisease == "PARENTSS"), 'PARENT', family_history_heartdisease)) %>%
+  mutate(family_history_heartdisease = ifelse((family_history_heartdisease == " GRANDMOTHER" | family_history_heartdisease == "GRANDMA"), 'GRANDMOTHER', family_history_heartdisease)) %>%
+  mutate(family_history_heartdisease = ifelse((family_history_heartdisease == "SISTER " | family_history_heartdisease == " SISTER"), 'SISTER', family_history_heartdisease)) %>%
+  mutate(family_history_heartdisease = ifelse((family_history_heartdisease == " ONCLE"), 'UNCLE', family_history_heartdisease)) %>%
+  mutate(family_history_heartdisease = ifelse((family_history_heartdisease == " BROTHER"), 'BROTHER', family_history_heartdisease)) %>%
+  mutate(family_history_heartdisease = ifelse((family_history_heartdisease == " SIBLING"), 'SIBLING', family_history_heartdisease)) %>%
+  group_by(family_history_heartdisease) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+
+dt20 %>%
+  kbl(caption = "Family history of heart disease specify members") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position")
+
+dt21 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_stroke!='n/a') %>%
+  filter(!is.na(family_history_stroke)) %>%
+  group_by(family_history_stroke) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt21 %>%
+  kbl(caption = "Family history of stroke") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$family_history_stroke)))), notation = "none")
+
+dt22 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_strokespecify!='n/a') %>%
+  filter(!is.na(family_history_strokespecify)) %>%
+  group_by(family_history_strokespecify) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt22 %>%
+  kbl(caption = "Family history of stroke member specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position")
+
+dt23 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_cancer!='n/a') %>%
+  filter(!is.na(family_history_cancer)) %>%
+  group_by(family_history_cancer) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt23 %>%
+  kbl(caption = "Family history of Cancer") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$family_history_cancer)))), notation = "none")
+
+dt24 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_cancerspecify!='n/a') %>%
+  filter(!is.na(family_history_cancerspecify)) %>%
+  separate(col = `family_history_cancerspecify`,
+           sep = ',',
+           into = c('col1', 'col2', 'col3'),
+    remove = FALSE
+    ) %>%
+  dplyr::select(pt_id, col1, col2, col3) %>%
+  pivot_longer(cols = c(col1, col2, col3),
+               names_to = 'col_num',
+               values_to = 'family_history_cancerspecify') %>%
+  filter(!is.na(family_history_cancerspecify)) %>%
+  mutate(family_history_cancerspecify = ifelse((family_history_cancerspecify == "PARENTS" | family_history_cancerspecify == "PARENTSS"), 'PARENT', family_history_cancerspecify)) %>%
+  mutate(family_history_cancerspecify = ifelse((family_history_cancerspecify == " GRANDMOTHER" | family_history_cancerspecify == "GRANDMA"), 'GRANDMOTHER', family_history_cancerspecify)) %>%
+  mutate(family_history_cancerspecify = ifelse((family_history_cancerspecify == "SISTER " | family_history_cancerspecify == " SISTER"), 'SISTER', family_history_cancerspecify)) %>%
+  mutate(family_history_cancerspecify = ifelse((family_history_cancerspecify == " ONCLE"), 'UNCLE', family_history_cancerspecify)) %>%
+  mutate(family_history_cancerspecify = ifelse((family_history_cancerspecify == " BROTHER"), 'BROTHER', family_history_cancerspecify)) %>%
+  mutate(family_history_cancerspecify = ifelse((family_history_cancerspecify == " SIBLING"), 'SIBLING', family_history_cancerspecify)) %>%
+  group_by(family_history_cancerspecify) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt24 %>%
+  kbl(caption = "Family history of Cancer member specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position")
+
+dt25 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_HTNorHBP!='n/a') %>%
+  filter(!is.na(family_history_HTNorHBP)) %>%
+  mutate(family_history_HTNorHBP = ifelse(family_history_HTNorHBP=='not sure', 'NOT SURE', family_history_HTNorHBP)) %>%
+  group_by(family_history_HTNorHBP) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt25 %>%
+  kbl(caption = "Family history of HTN or HBP") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$family_history_HTNorHBP)))), notation = "none")
+
+dt26 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_HTNorHBPspecify!='n/a') %>%
+  filter(!is.na(family_history_HTNorHBPspecify)) %>%
+  separate(col = `family_history_HTNorHBPspecify`,
+           sep = ',',
+           into = c('col1', 'col2', 'col3'),
+    remove = FALSE
+    ) %>%
+  dplyr::select(pt_id, col1, col2, col3) %>%
+  pivot_longer(cols = c(col1, col2, col3),
+               names_to = 'col_num',
+               values_to = 'family_history_HTNorHBPspecify') %>%
+  filter(!is.na(family_history_HTNorHBPspecify)) %>%
+  mutate(family_history_HTNorHBPspecify = ifelse((family_history_HTNorHBPspecify == "PARENTS" | family_history_HTNorHBPspecify == "PARENTSS" | family_history_HTNorHBPspecify == " PARENT"), 'PARENT', family_history_HTNorHBPspecify)) %>%
+  mutate(family_history_HTNorHBPspecify = ifelse((family_history_HTNorHBPspecify == " GRANDMOTHER" | family_history_HTNorHBPspecify == "GRANDMA"), 'GRANDMOTHER', family_history_HTNorHBPspecify)) %>%
+  mutate(family_history_HTNorHBPspecify = ifelse((family_history_HTNorHBPspecify == "SISTER " | family_history_HTNorHBPspecify == " SISTER"), 'SISTER', family_history_HTNorHBPspecify)) %>%
+  mutate(family_history_HTNorHBPspecify = ifelse((family_history_HTNorHBPspecify == " ONCLE"), 'UNCLE', family_history_HTNorHBPspecify)) %>%
+  mutate(family_history_HTNorHBPspecify = ifelse((family_history_HTNorHBPspecify == " BROTHER"), 'BROTHER', family_history_HTNorHBPspecify)) %>%
+  mutate(family_history_HTNorHBPspecify = ifelse((family_history_HTNorHBPspecify == " SIBLING"), 'SIBLING', family_history_HTNorHBPspecify)) %>%
+  group_by(family_history_HTNorHBPspecify) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt26 %>%
+  kable(format = "latex", longtable = T, booktabs  = T, caption = "Family history of HTN or HBP member specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position")
+
+dt27 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_diabetes!='n/a') %>%
+  filter(!is.na(family_history_diabetes)) %>%
+  mutate(family_history_diabetes = ifelse(family_history_diabetes=='DOES NOT KNOW', 'UNKNOWN', family_history_diabetes)) %>%
+  group_by(family_history_diabetes) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt27 %>%
+  kbl(caption = "Family history of diabetes") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$family_history_diabetes)))), notation = "none")
+
+dt28 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(family_history_diabetesspecify!='n/a') %>%
+  filter(!is.na(family_history_diabetesspecify)) %>%
+  separate(col = `family_history_diabetesspecify`,
+           sep = ',',
+           into = c('col1', 'col2', 'col3'),
+    remove = FALSE
+    ) %>%
+  dplyr::select(pt_id, col1, col2, col3) %>%
+  pivot_longer(cols = c(col1, col2, col3),
+               names_to = 'col_num',
+               values_to = 'family_history_diabetesspecify') %>%
+  filter(!is.na(family_history_diabetesspecify)) %>%
+  mutate(family_history_diabetesspecify = ifelse((family_history_diabetesspecify == "PARENTS" | family_history_diabetesspecify == "PARENTSS" | family_history_diabetesspecify == " PARENT"), 'PARENT', family_history_diabetesspecify)) %>%
+  mutate(family_history_diabetesspecify = ifelse((family_history_diabetesspecify == " GRANDMOTHER" | family_history_diabetesspecify == "GRANDMA"), 'GRANDMOTHER', family_history_diabetesspecify)) %>%
+  mutate(family_history_diabetesspecify = ifelse((family_history_diabetesspecify == "SISTER " | family_history_diabetesspecify == " SISTER"), 'SISTER', family_history_diabetesspecify)) %>%
+  mutate(family_history_diabetesspecify = ifelse((family_history_diabetesspecify == " ONCLE"), 'UNCLE', family_history_diabetesspecify)) %>%
+  mutate(family_history_diabetesspecify = ifelse((family_history_diabetesspecify == " BROTHER"), 'BROTHER', family_history_diabetesspecify)) %>%
+  mutate(family_history_diabetesspecify = ifelse((family_history_diabetesspecify == " SIBLING"), 'SIBLING', family_history_diabetesspecify)) %>%
+  group_by(family_history_diabetesspecify) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt28 %>%
+  kbl(caption = "Family history of diabetes member specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position")
+
+
+```
+<!-- # Do you think you eat a healthy diet -->
+<!-- ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+<!-- dt29 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   mutate(think_you_eat_healthy_diet = ifelse(think_you_eat_healthy_diet=='y', 'Y', think_you_eat_healthy_diet)) %>% -->
+<!--   filter(!is.na(think_you_eat_healthy_diet)) %>% -->
+<!--   group_by(think_you_eat_healthy_diet) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt29 %>% -->
+<!--   kbl(caption = "Do you think you eat healthy") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$think_you_eat_healthy_diet)))), notation = "none") -->
+
+<!-- dt30 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   # mutate(think_you_eat_healthy_diet = ifelse(think_you_eat_healthy_diet=='y', 'Y', think_you_eat_healthy_diet)) %>% -->
+<!--   filter(!is.na(think_you_eat_healthy_diet_specify)) %>% -->
+<!--   group_by(think_you_eat_healthy_diet_specify) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt30 %>% -->
+<!--   kbl(caption = "Do you think you eat healthy, Specify") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = c("HOLD_position", 'scale_down')) -->
+
+<!-- ``` -->
+
+<!-- # How many meals did you have yesterday? -->
+<!-- ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+<!-- dt31 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`8. How many meals have you had yesterday?`)) %>% -->
+<!--   group_by(`8. How many meals have you had yesterday?`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt31 %>% -->
+<!--   kbl(caption = "8. How many meals have you had yesterday?") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`8. How many meals have you had yesterday?`)))), notation = "none") -->
+
+<!-- dt32 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`9. At what time have you had meal 1`)) %>% -->
+<!--   group_by(`9. At what time have you had meal 1`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt32 %>% -->
+<!--   kbl(caption = "9. At what time have you had meal 1") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`9. At what time have you had meal 1`)))), notation = "none") -->
+
+<!-- dt33 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`10. At what time have you had meal 2`)) %>% -->
+<!--   group_by(`10. At what time have you had meal 2`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt33 %>% -->
+<!--   kbl(caption = "10. At what time have you had meal 2") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`10. At what time have you had meal 2`)))), notation = "none") -->
+
+<!-- dt34 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`11. At what time have you had meal 3`)) %>% -->
+<!--   group_by(`11. At what time have you had meal 3`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt34 %>% -->
+<!--   kbl(caption = "11. At what time have you had meal 3") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`11. At what time have you had meal 3`)))), notation = "none") -->
+
+<!-- dt35 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`12. At what time have you had meal 4`)) %>% -->
+<!--   group_by(`12. At what time have you had meal 4`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt35 %>% -->
+<!--   kbl(caption = "12. At what time have you had meal 4") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`12. At what time have you had meal 4`)))), notation = "none") -->
+
+<!-- ``` -->
+
+# Respondents lifestyle
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+# dt36 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(`do you take part in any physical activity or exercise`)) %>%
+#   group_by(`do you take part in any physical activity or exercise`) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt36 %>%
+#   kbl(caption = "do you take part in any physical activity or exercise") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`do you take part in any physical activity or exercise`)))), notation = "none")
+# 
+# dt37 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(`if yes what do you do and how often`)) %>%
+#   group_by(`if yes what do you do and how often`) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt37 %>%
+#   kbl(caption = "if yes what do you do and how often") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`if yes what do you do and how often`)))), notation = "none")
+
+dt38 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`1.7 Do you smoke tobacco?`)) %>%
+  group_by(`1.7 Do you smoke tobacco?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt38 %>%
+  kbl(caption = "1.7 Do you smoke tobacco?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`1.7 Do you smoke tobacco?`)))), notation = "none")
+
+dt39 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`14. how many cigarettes do you smoke per day?`)) %>%
+  group_by(`14. how many cigarettes do you smoke per day?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt39 %>%
+  kbl(caption = "14. how many cigarettes do you smoke per day?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`14. how many cigarettes do you smoke per day?`)))), notation = "none")
+
+dt40 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`15. should you smoke or use tabacco in any other form, please elaborate`)) %>%
+  mutate(`other forms of tobacco usage` = `15. should you smoke or use tabacco in any other form, please elaborate`) %>%
+  group_by(`15. should you smoke or use tabacco in any other form, please elaborate`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt40 %>%
+  kbl(caption = "15. should you smoke or use tabacco in any other form, please elaborate") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`15. should you smoke or use tabacco in any other form, please elaborate`)))), notation = "none")
+
+dt41 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(`15. should you smoke or use tabacco in any other form, please elaborate`=='N') %>%
+  filter(!is.na(`16. have you smoked in the past?`)) %>%
+  mutate(`16. have you smoked in the past?` = ifelse(`16. have you smoked in the past?`=='n', 'N', `16. have you smoked in the past?`)) %>%
+  group_by(`16. have you smoked in the past?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt41 %>%
+  kbl(caption = "16. if no, have you smoked in the past") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") #%>%
+  # add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`16. if no, have you smoked in the past`)))), notation = "none")
+
+dt42 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(`16. have you smoked in the past?`=='Y') %>%
+  filter(!is.na(`17. If yes, when did you quit?`)) %>%
+  group_by(`17. If yes, when did you quit?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt42 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "17. If yes, when did you quit?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", "repeat_header")) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`17. If yes, when did you quit?`)))), notation = "none")
+
+dt43 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`1.8 Do you drink alcohol?`)) %>%
+  mutate(`1.8 Do you drink alcohol?` = ifelse(`1.8 Do you drink alcohol?`=='n', 'N', `1.8 Do you drink alcohol?`)) %>%
+  mutate(`1.8 Do you drink alcohol?` = ifelse(`1.8 Do you drink alcohol?`=='y' | `1.8 Do you drink alcohol?`=='Y7', 'Y', `1.8 Do you drink alcohol?`)) %>%
+  group_by(`1.8 Do you drink alcohol?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt43 %>%
+  kbl(caption = "1.8 Do you drink alcohol?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`1.8 Do you drink alcohol?`)))), notation = "none")
+
+dt44 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(`1.8 Do you drink alcohol?`=='Y')  %>%
+  filter(!is.na(`If yes, how often have you had 6 or more units (female), or 8 or more (male), on a single occasion in the last year?`)) %>%
+  mutate(`alcohol intake` = `If yes, how often have you had 6 or more units (female), or 8 or more (male), on a single occasion in the last year?`) %>%
+  group_by(`alcohol intake`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt44 %>%
+  kbl(caption = "If yes, how often have you had 6 or more units (female), or 8 or more (male), on a single occasion in the last year?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & final_dataset$`1.8 Do you drink alcohol?`=='Y' & is.na(final_dataset$`If yes, how often have you had 6 or more units (female), or 8 or more (male), on a single occasion in the last year?`)))), notation = "none")
+
+dt45 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`are you aware of the recommended mazimum units of alcoho; per day?`)) %>%
+  group_by(`are you aware of the recommended mazimum units of alcoho; per day?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt45 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "are you aware of the recommended mazimum units of alcoho; per day?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`are you aware of the recommended mazimum units of alcoho; per day?`)))), notation = "none")
+
+dt46 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(`are you aware of the recommended mazimum units of alcoho; per day?`== 'N') %>%
+  filter(!is.na(`if no, would you like more information in this?`)) %>%
+  group_by(`if no, would you like more information in this?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt46 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "if no, would you like more information in this?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`if no, would you like more information in this?`)))), notation = "none")
+
+dt47 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(`1.9 Do you use drugs?` = ifelse(`1.9 Do you use drugs?`=='n', 'N', `1.9 Do you use drugs?`)) %>%
+  filter(!is.na(`1.9 Do you use drugs?`)) %>%
+  group_by(`1.9 Do you use drugs?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt47 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "1.9 Do you use drugs?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`1.9 Do you use drugs?`)))), notation = "none")
+
+# dt48 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(`20. If YES, what do you use?`)) %>%
+#   group_by(`20. If YES, what do you use?`) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt48 %>%
+#   kable(booktabs = TRUE, longtable = TRUE, caption = "20. If YES, what do you use?") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`20. If YES, what do you use?`)))), notation = "none")
+# 
+# dt49 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(`21. How often do you use these drug or drugs per week?`)) %>%
+#   group_by(`21. How often do you use these drug or drugs per week?`) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt49 %>%
+#   kable(booktabs = TRUE, longtable = TRUE, caption = "21. How often do you use these drug or drugs per week?") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`21. How often do you use these drug or drugs per week?`)))), notation = "none")
+
+# dt50 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(`stopped using drugs mentioned in 19.`)) %>%
+#   group_by(`stopped using drugs mentioned in 19.`) %>%
+#   summarise(Freq = n()) %>%
+#   mutate(
+#     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+#     `cumulative percentage` = cumsum(percentage)
+#   )
+# dt50 %>%
+#   kable(booktabs = TRUE, longtable = TRUE, caption = "stopped using drugs mentioned in 19.") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`stopped using drugs mentioned in 19.`)))), notation = "none")
+
+dt51 <- final_dataset %>%
+  filter(gender == 'F') %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`22.  Were you ever diagnosed with diabetes during pregnancy? (females):`)) %>%
+  mutate(diagnosed_with_diabete_females = ifelse(`22.  Were you ever diagnosed with diabetes during pregnancy? (females):`=='n', 'N', `22.  Were you ever diagnosed with diabetes during pregnancy? (females):`)) %>%
+  group_by(`diagnosed_with_diabete_females`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt51 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "22.Were you ever diagnosed with diabetes during pregnancy? (females):") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`22.  Were you ever diagnosed with diabetes during pregnancy? (females):`)))), notation = "none")
+
+dt52 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`23. How many years of your life have you spent in the city?`)) %>%
+  mutate(`time spent in bloem` = as.numeric(`23. How many years of your life have you spent in the city?`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`time spent in bloem`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`time spent in bloem`, na.rm = T), 2),
+    Minimum = min(`time spent in bloem`, na.rm = T),
+    Maximum = max(`time spent in bloem`, na.rm = T)
+  )
+
+dt52 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "23. How many years of your life have you spent in the city?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`23. How many years of your life have you spent in the city?`)))), notation = "none")
+
+dt53 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`24.  information and support on_improvingdiet`)) %>%
+  group_by(`24.  information and support on_improvingdiet`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt53 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "24. Improving diet") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`24.  information and support on_improvingdiet`)))), notation = "none")
+
+dt54 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`24.  information and support on_increasephysicalactivity`)) %>%
+  group_by(`24.  information and support on_increasephysicalactivity`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt54 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "24. Increase physical activity") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  kable_styling(latex_options = "scale_down") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`24.  information and support on_increasephysicalactivity`)))), notation = "none")
+
+dt55 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`24.  information and support on_stopingreducingsmoking`)) %>%
+  group_by(`24.  information and support on_stopingreducingsmoking`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt55 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "24.Stoping or reducing smoking") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`24.  information and support on_stopingreducingsmoking`)))), notation = "none")
+
+dt56 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`24.  information and support on_reducealcoholintake`)) %>%
+  group_by(`24.  information and support on_reducealcoholintake`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt56 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "24. reduce alcohol in-take") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`24.  information and support on_reducealcoholintake`)))), notation = "none")
+
+dt57 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`24.  information and support on_stopreducedrugs`)) %>%
+  group_by(`24.  information and support on_stopreducedrugs`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt57 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "24. Stoping reducing drug usage") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`24.  information and support on_stopreducedrugs`)))), notation = "none")
+
+```
+
+<!-- # Symptoms  checklist -->
+<!-- ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+
+<!-- dt58 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_increasedthirst`)) %>% -->
+<!--   group_by(`symptoms checklist_increasedthirst`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt58 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist increased thirst") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_increasedthirst`)))), notation = "none") -->
+
+<!-- dt59 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_urination`)) %>% -->
+<!--   group_by(`symptoms checklist_urination`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt59 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist urination") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_urination`)))), notation = "none") -->
+
+<!-- dt60 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_breathlessness`)) %>% -->
+<!--   group_by(`symptoms checklist_breathlessness`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt60 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist breathlessness") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_breathlessness`)))), notation = "none") -->
+
+<!-- dt61 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_unexpectedweightgain`)) %>% -->
+<!--   group_by(`symptoms checklist_unexpectedweightgain`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt61 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist unexpected weight gain") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_unexpectedweightgain`)))), notation = "none") -->
+
+<!-- dt62 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_unexpectedweightloss`)) %>% -->
+<!--   group_by(`symptoms checklist_unexpectedweightloss`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt62 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist unexpected weight loss") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_unexpectedweightloss`)))), notation = "none") -->
+
+<!-- dt63 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_fitsblackouts`)) %>% -->
+<!--   group_by(`symptoms checklist_fitsblackouts`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt63 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist fits blackout") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_fitsblackouts`)))), notation = "none") -->
+
+<!-- dt64 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_constipation`)) %>% -->
+<!--   group_by(`symptoms checklist_constipation`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt64 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist constipation") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_constipation`)))), notation = "none") -->
+
+<!-- dt65 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_diffhavingsex`)) %>% -->
+<!--   group_by(`symptoms checklist_diffhavingsex`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt65 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist difficulty having sex") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_diffhavingsex`)))), notation = "none") -->
+
+<!-- dt66 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_chestpain`)) %>% -->
+<!--   group_by(`symptoms checklist_chestpain`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt66 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist chest pain") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_chestpain`)))), notation = "none") -->
+
+<!-- dt67 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_difficultiessleeping`)) %>% -->
+<!--   group_by(`symptoms checklist_difficultiessleeping`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt67 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist difficulty sleeping") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_difficultiessleeping`)))), notation = "none") -->
+
+<!-- dt68 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`symptoms checklist_losssensationfeet`)) %>% -->
+<!--   group_by(`symptoms checklist_losssensationfeet`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt68 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "symptoms checklist loss sensation feet") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`symptoms checklist_losssensationfeet`)))), notation = "none") -->
+
+<!-- ``` -->
+
+
+<!-- ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+<!-- dt69 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`when last did you visit your clinic?`)) %>% -->
+<!--   group_by(`when last did you visit your clinic?`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt69 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "when last did you visit your clinic?") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`when last did you visit your clinic?`)))), notation = "none") -->
+
+<!-- dt70 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   # mutate(`reason for visit or results of test` = `reason for visit/results of test...137`) %>% -->
+<!--   filter(!is.na(`reason for visit or results of test`)) %>% -->
+<!--   group_by(`reason for visit or results of test`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt70 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "reason for visit or results of test") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`reason for visit or results of test`)))), notation = "none") -->
+
+<!-- dt71 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`when last did you visit your doctor?`)) %>% -->
+<!--   group_by(`when last did you visit your doctor?`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt71 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "When last did you visit your doctor?") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`when last did you visit your doctor?`)))), notation = "none") -->
+
+<!-- dt72 <- final_dataset %>% -->
+<!--   filter(visit == 1) %>% -->
+<!--   filter(!is.na(`when last did you visit your doctor?`)) %>% -->
+<!--   group_by(`when last did you visit your doctor?`) %>% -->
+<!--   summarise(Freq = n()) %>% -->
+<!--   mutate( -->
+<!--     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!--     `cumulative percentage` = cumsum(percentage) -->
+<!--   ) -->
+<!-- dt72 %>% -->
+<!--   kable(booktabs = TRUE, longtable = TRUE, caption = "When last did you visit your doctor?") %>% -->
+<!--   kable_paper("hover", full_width = F) %>% -->
+<!--   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!--   kable_styling(latex_options = "HOLD_position") %>% -->
+<!--   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`when last did you visit your doctor?`)))), notation = "none") -->
+
+<!-- ``` -->
+
+# memorial symptom assessment scale
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt73 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`difficulty concentrating`)) %>%
+  group_by(`difficulty concentrating`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt73 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "difficulty concentrating") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`difficulty concentrating`)))), notation = "none")
+
+dt74 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`pain`)) %>%
+  group_by(`pain`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt74 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "pain") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`pain`)))), notation = "none")
+
+dt75 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`lack of energy`)) %>%
+  group_by(`lack of energy`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt75 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "lack of energy") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`lack of energy`)))), notation = "none")
+
+dt76 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`cough`)) %>%
+  group_by(`cough`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt76 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "cough ") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`cough`)))), notation = "none")
+
+dt77 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`changes in skin`)) %>%
+  group_by(`changes in skin`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt77 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "changes in skin") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`changes in skin`)))), notation = "none")
+
+dt78 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`dry mouth`)) %>%
+  group_by(`dry mouth`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt78 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "dry mouth") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`dry mouth`)))), notation = "none")
+
+dt79 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`nausea`)) %>%
+  group_by(`nausea`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt79 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "nausea") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`nausea`)))), notation = "none")
+
+dt80 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`feeling drowsy`)) %>%
+  group_by(`feeling drowsy`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt80%>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "feeling drowsy") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`feeling drowsy`)))), notation = "none")
+
+dt81 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`numbness_tingling in hands and feet`)) %>%
+  group_by(`numbness_tingling in hands and feet`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt81 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "numbness or tingling in hands and feet") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`numbness_tingling in hands and feet`)))), notation = "none")
+
+dt82 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`difficulty sleeping`)) %>%
+  group_by(`difficulty sleeping`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt82 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "difficulty sleeping") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`difficulty sleeping`)))), notation = "none")
+
+dt83 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`feeling bloated`)) %>%
+  group_by(`feeling bloated`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt83 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "feeling bloated") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`feeling bloated`)))), notation = "none")
+
+dt84 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`problems with urination`)) %>%
+  group_by(`problems with urination`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt84 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "problems with urination") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`problems with urination`)))), notation = "none")
+
+dt85 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`vomiting`)) %>%
+  group_by(`vomiting`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt85 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "vomiting") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`vomiting`)))), notation = "none")
+
+dt86 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`shortness of breath`)) %>%
+  group_by(`shortness of breath`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt86 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "shortness of breath") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`shortness of breath`)))), notation = "none")
+
+dt87 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`diarrhea`)) %>%
+  group_by(`diarrhea`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt87 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "diarrhea") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`diarrhea`)))), notation = "none")
+
+dt88 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`sweats`)) %>%
+  group_by(`sweats`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt88 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "sweats") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`sweats`)))), notation = "none")
+
+dt89 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`mouth sores`)) %>%
+  group_by(`mouth sores`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt89 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "mouth sores") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`mouth sores`)))), notation = "none")
+
+dt90 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`problems with sexual interest or activity`)) %>%
+  group_by(`problems with sexual interest or activity`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt90 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "problems with sexual interest or activity") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = c("HOLD_position", 'scale_down')) %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`problems with sexual interest or activity`)))), notation = "none")
+
+dt91 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`itching`)) %>%
+  group_by(`itching`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt91 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "itching") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`itching`)))), notation = "none")
+
+dt92 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`lack of appetite`)) %>%
+  group_by(`lack of appetite`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt92 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "lack of appetite") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`lack of appetite`)))), notation = "none")
+
+dt93 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`dizziness`)) %>%
+  group_by(`dizziness`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt93 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "dizziness") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`dizziness`)))), notation = "none")
+
+dt94 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`difficulty swallowing`)) %>%
+  group_by(`difficulty swallowing`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt94 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "difficulty swallowing") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`difficulty swallowing`)))), notation = "none")
+
+dt95 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`change in the way food taste`)) %>%
+  group_by(`change in the way food taste`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt95 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "change in the way food taste") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`change in the way food taste`)))), notation = "none")
+
+dt96 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`weight loss`)) %>%
+  group_by(`weight loss`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt96 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "weight loss") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`weight loss`)))), notation = "none")
+
+dt91 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`hair loss`)) %>%
+  group_by(`hair loss`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt91 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "hair loss") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`hair loss`)))), notation = "none")
+
+dt92 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`constipation`)) %>%
+  group_by(`constipation`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt92 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "constipation") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`constipation`)))), notation = "none")
+
+dt93 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`swelling of arms or legs`)) %>%
+  group_by(`swelling of arms or legs`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt93 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "swelling of arms or legs") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`swelling of arms or legs`)))), notation = "none")
+
+dt94 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`i don't look like myself`)) %>%
+  group_by(`i don't look like myself`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt94 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "i don't look like myself") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`i don't look like myself`)))), notation = "none")
+
+dt95 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`any other symptoms during the past week?`)) %>%
+  group_by(`any other symptoms during the past week?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt95 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "any other symptoms during the past week?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`any other symptoms during the past week?`)))), notation = "none")
+
+dt96 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`any_other_symptom_specify`)) %>%
+  group_by(`any_other_symptom_specify`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt96 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "any other symptom specify") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`any_other_symptom_specify`)))), notation = "none")
+
+```
+
+# Other commonly listed symptoms. please indicate if you have had the symptoms
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt97 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`commonly_listed_symptoms_feelingsad`)) %>%
+  group_by(`commonly_listed_symptoms_feelingsad`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt97 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "commonly listed symptoms feeling sad") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`commonly_listed_symptoms_feelingsad`)))), notation = "none")
+
+dt98 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`commonly_listed_symptoms_worrying`)) %>%
+  group_by(`commonly_listed_symptoms_worrying`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt98 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "commonly listed symptoms worrying") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`commonly_listed_symptoms_worrying`)))), notation = "none")
+
+dt99 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`commonly_listed_symptoms_feelingirritable`)) %>%
+  group_by(`commonly_listed_symptoms_feelingirritable`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt99 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "commonly listed symptoms feeling irritable") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`commonly_listed_symptoms_feelingirritable`)))), notation = "none")
+
+dt100 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`commonly_listed_symptoms_feelingnervous`)) %>%
+  group_by(`commonly_listed_symptoms_feelingnervous`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt100 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "commonly listed symptoms feeling nervous") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`commonly_listed_symptoms_feelingnervous`)))), notation = "none")
+
+```
+
+# Type 2 Diabetes risk assessment
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# shapiro.test(final_dataset$diabetes_age)
+dt101 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`diabetes_age`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(diabetes_age, na.rm = T), 2),
+    `Std. deviation` = round(sd(diabetes_age, na.rm = T), 2),
+    Minimum = min(diabetes_age, na.rm = T),
+    Maximum = max(diabetes_age, na.rm = T)
+  )
+dt101 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "At what age were you diagnosed with diabetes") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`diabetes_age`)))), notation = "none")
+
+dt102 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_age`)) %>%
+  group_by(`type2Diabetes_age`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt102 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "Age") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_age`)))), notation = "none")
+
+dt103 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_BMI`)) %>%
+  group_by(`type2Diabetes_BMI`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt103 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "BMI") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_BMI`)))), notation = "none")
+
+dt104 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_waistCircum_men`)) %>%
+  group_by(`type2Diabetes_waistCircum_men`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt104 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "waist circumfrance - men") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_waistCircum_men`)))), notation = "none")
+
+dt105 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_waistCircum_women`)) %>%
+  group_by(`type2Diabetes_waistCircum_women`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt105 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "waist circumfrance - women") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_waistCircum_women`)))), notation = "none")
+
+dt106 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_physicalactivities`)) %>%
+  group_by(`type2Diabetes_physicalactivities`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt106 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "30 mins of physical activities") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_physicalactivities`)))), notation = "none")
+
+dt107 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_eatvegsfruitsberries`)) %>%
+  group_by(`type2Diabetes_eatvegsfruitsberries`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt107 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "Eating vegetable fruits and berries") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_eatvegsfruitsberries`)))), notation = "none")
+
+dt108 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_medsforHBP`)) %>%
+  group_by(`type2Diabetes_medsforHBP`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt108 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "taken meds for high blood pressure") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_medsforHBP`)))), notation = "none")
+
+dt109 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_foundtohaveHBG`)) %>%
+  group_by(`type2Diabetes_foundtohaveHBG`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt109 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "have you ever been found to have high blood pressure") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_foundtohaveHBG`)))), notation = "none")
+
+dt110 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_diabetes`)) %>%
+  group_by(`type2Diabetes_diabetes`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt110 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "immediate family been diagnosed with diabetes") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_diabetes`)))), notation = "none")
+
+dt111 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`type2Diabetes_familyhistorydiabetes`)) %>%
+  separate(col = `type2Diabetes_familyhistorydiabetes`,
+           sep = ',',
+           into = c('col1', 'col2', 'col3'),
+    remove = FALSE
+    ) %>%
+  dplyr::select(pt_id, col1, col2, col3) %>%
+  pivot_longer(cols = c(col1, col2, col3),
+               names_to = 'col_num',
+               values_to = 'type2Diabetes_familyhistorydiabetes') %>%
+  filter(!is.na(type2Diabetes_familyhistorydiabetes)) %>%
+  mutate(type2Diabetes_familyhistorydiabetes = ifelse((type2Diabetes_familyhistorydiabetes == "PARENTS" | type2Diabetes_familyhistorydiabetes == "PARENTSS"), 'PARENT', type2Diabetes_familyhistorydiabetes)) %>%
+  mutate(type2Diabetes_familyhistorydiabetes = ifelse((type2Diabetes_familyhistorydiabetes == "SISTER " | type2Diabetes_familyhistorydiabetes == " SISTER"), 'SISTER', type2Diabetes_familyhistorydiabetes)) %>%
+  mutate(type2Diabetes_familyhistorydiabetes = ifelse((type2Diabetes_familyhistorydiabetes == " ONCLE"), 'UNCLE', type2Diabetes_familyhistorydiabetes)) %>%
+  mutate(type2Diabetes_familyhistorydiabetes = ifelse((type2Diabetes_familyhistorydiabetes == " BROTHER"), 'BROTHER', type2Diabetes_familyhistorydiabetes)) %>%
+  group_by(`type2Diabetes_familyhistorydiabetes`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt111 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "which immediate family members diagnosed with diabetes") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`type2Diabetes_familyhistorydiabetes`)))), notation = "none")
+
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# shapiro.test(final_dataset$temperature)
+dt112 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`temperature`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`temperature`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`temperature`, na.rm = T), 2),
+    Minimum = min(`temperature`, na.rm = T),
+    Maximum = max(`temperature`, na.rm = T)
+  )
+dt112 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "Temperature") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`temperature`)))), notation = "none")
+
+dt113 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`has the subject fasted at least since 22:00?`)) %>%
+  group_by(`has the subject fasted at least since 22:00?`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt113 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "has the subject fasted at least since 22:00?") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`has the subject fasted at least since 22:00?`)))), notation = "none")
+
+dt114 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`fasting capillary glucose(finger prick)`)) %>%
+  mutate(`finger prick` = as.numeric(`fasting capillary glucose(finger prick)`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`finger prick`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`finger prick`, na.rm = T), 2),
+    Minimum = min(`finger prick`, na.rm = T),
+    Maximum = max(`finger prick`, na.rm = T)
+  )
+dt114 %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "fasting capillary glucose(finger prick)") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`fasting capillary glucose(finger prick)`)))), notation = "none")
+
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt115 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_leucocytes`)) %>%
+  group_by(`urineMultistix_leucocytes`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt115 %>%
+  kable(caption = "Urine Multistix Leucocytes") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_leucocytes`)))), notation = "none")
+
+dt116 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_nitrite`)) %>%
+  group_by(`urineMultistix_nitrite`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt116 %>%
+  kable(caption = "Urine Multistix Nitrite") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_nitrite`)))), notation = "none")
+
+dt117 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_urobilinogen`)) %>%
+  group_by(`urineMultistix_urobilinogen`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt117 %>%
+  kable(caption = "Urine Multistix Urobilinogen") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_urobilinogen`)))), notation = "none")
+
+dt118 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_protein`)) %>%
+  group_by(`urineMultistix_protein`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt118 %>%
+  kable(caption = "Urine Multistix Protein") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_protein`)))), notation = "none")
+
+# shapiro.test(final_dataset$urineMultistix_pH)
+dt119 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_pH`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`urineMultistix_pH`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`urineMultistix_pH`, na.rm = T), 2),
+    Minimum = min(`urineMultistix_pH`, na.rm = T),
+    Maximum = max(`urineMultistix_pH`, na.rm = T)
+  )
+
+dt119 %>%
+  kable(caption = "Urine Multistix pH") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_pH`)))), notation = "none")
+
+dt120 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_blood`)) %>%
+  group_by(`urineMultistix_blood`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt120 %>%
+  kable(caption = "Urine Multistix Blood") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_blood`)))), notation = "none")
+
+dt121 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_specificgravity`)) %>%
+  group_by(`urineMultistix_specificgravity`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt121 %>%
+  kable(caption = "Urine Multistix Specific gravity") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_specificgravity`)))), notation = "none")
+
+dt122 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_ketones`)) %>%
+  group_by(`urineMultistix_ketones`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt122 %>%
+  kable(caption = "Urine Multistix Ketones") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_ketones`)))), notation = "none")
+
+dt123 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_bilirubin`)) %>%
+  group_by(`urineMultistix_bilirubin`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt123 %>%
+  kable(caption = "Urine Multistix Bilirubin") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_bilirubin`)))), notation = "none")
+
+dt124 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`urineMultistix_glucose`)) %>%
+  group_by(`urineMultistix_glucose`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt124 %>%
+  kable(caption = "Urine Multistix Glucose") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`urineMultistix_glucose`)))), notation = "none")
+
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# shapiro.test(final_dataset$heigth)
+# shapiro.test(final_dataset$Weight)
+# shapiro.test(final_dataset$`waist circumference`)
+# shapiro.test(final_dataset$`midarm circumfrance`)
+# shapiro.test(final_dataset$omronBodycomposition_BMI)
+# shapiro.test(final_dataset$omronBodycomposition_bodyfat)
+dt125 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`heigth`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`heigth`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`heigth`, na.rm = T), 2),
+    Minimum = min(`heigth`, na.rm = T),
+    Maximum = max(`heigth`, na.rm = T)
+  )
+
+dt125 %>%
+  kable(caption = "Height") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`heigth`)))), notation = "none")
+
+dt126 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`Weight`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`Weight`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`Weight`, na.rm = T), 2),
+    Minimum = min(`Weight`, na.rm = T),
+    Maximum = max(`Weight`, na.rm = T)
+  )
+
+dt126 %>%
+  kable(caption = "Weight") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`Weight`)))), notation = "none")
+
+dt127 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`waist circumference`)) %>%
+  mutate(waist_circumfrance = ifelse(`waist circumference`=='NOT DONE', NA, as.numeric(`waist circumference`))) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`waist_circumfrance`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`waist_circumfrance`, na.rm = T), 2),
+    Minimum = min(`waist_circumfrance`, na.rm = T),
+    Maximum = max(`waist_circumfrance`, na.rm = T)
+  )
+
+dt127 %>%
+  kable(caption = "Waist circumfrance") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`waist circumference`)))), notation = "none")
+
+dt128 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`midarm circumfrance`)) %>%
+  mutate(midarm_circumfrance = ifelse(`midarm circumfrance`=='NOT DONE', NA, as.numeric(`midarm circumfrance`))) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`midarm_circumfrance`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`midarm_circumfrance`, na.rm = T), 2),
+    Minimum = min(`midarm_circumfrance`, na.rm = T),
+    Maximum = max(`midarm_circumfrance`, na.rm = T)
+  )
+
+dt128 %>%
+  kable(caption = "Waist circumfrance") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`midarm circumfrance`)))), notation = "none")
+
+dt129 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`omronBodycomposition_BMI`)) %>%
+  mutate(omronBodycomposition_BMI = ifelse(omronBodycomposition_BMI=='ERROR' | omronBodycomposition_BMI=='ERROR 4 UNDERWEIGHT' | omronBodycomposition_BMI=='UNABLE TO MEASURE' | omronBodycomposition_BMI=='ERROR 2'  | omronBodycomposition_BMI=='ERROR 4 ON OMRON' | omronBodycomposition_BMI=='ERROR 4' | omronBodycomposition_BMI=='UNDERWEIGHT', NA, as.numeric(omronBodycomposition_BMI))) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`omronBodycomposition_BMI`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`omronBodycomposition_BMI`, na.rm = T), 2),
+    Minimum = min(`omronBodycomposition_BMI`, na.rm = T),
+    Maximum = max(`omronBodycomposition_BMI`, na.rm = T)
+  )
+
+dt129 %>%
+  kable(caption = "omron Body composition BMI") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$omronBodycomposition_BMI)))), notation = "none")
+
+dt130 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`omronBodycomposition_bodyfat`)) %>%
+  mutate(omronBodycomposition_bodyfat = ifelse(omronBodycomposition_bodyfat=='UNMEASURABLE' | omronBodycomposition_bodyfat=='UNABLE TO CALCULATE UNDERWIEGHT' | omronBodycomposition_bodyfat=='ERROR 3 ON SCALE' | omronBodycomposition_bodyfat=='ERROR 4 UNDERWEIGHT'  | omronBodycomposition_bodyfat=='UNDERWEIGHT ERROR 4' | omronBodycomposition_bodyfat=='ERROR 4' | omronBodycomposition_bodyfat=='UNDERWEIGHT', NA, as.numeric(omronBodycomposition_bodyfat))) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`omronBodycomposition_bodyfat`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`omronBodycomposition_bodyfat`, na.rm = T), 2),
+    Minimum = min(`omronBodycomposition_bodyfat`, na.rm = T),
+    Maximum = max(`omronBodycomposition_bodyfat`, na.rm = T)
+  )
+
+dt130 %>%
+  kable(caption = "omron Body composition bodyfat") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$omronBodycomposition_bodyfat)))), notation = "none")
+
+dt131 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`omronBodycomposition_bodywater`)) %>%
+  mutate(omronBodycomposition_bodywater = ifelse(omronBodycomposition_bodywater=='UNABLE TE GET READINGS', NA, as.numeric(omronBodycomposition_bodywater))) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`omronBodycomposition_bodywater`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`omronBodycomposition_bodywater`, na.rm = T), 2),
+    Minimum = min(`omronBodycomposition_bodywater`, na.rm = T),
+    Maximum = max(`omronBodycomposition_bodywater`, na.rm = T)
+  )
+
+dt131 %>%
+  kable(caption = "omron Body composition body water") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$omronBodycomposition_bodywater)))), notation = "none")
+
+dt132 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`omronBodycomposition_visaerakfat`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`omronBodycomposition_visaerakfat`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`omronBodycomposition_visaerakfat`, na.rm = T), 2),
+    Minimum = min(`omronBodycomposition_visaerakfat`, na.rm = T),
+    Maximum = max(`omronBodycomposition_visaerakfat`, na.rm = T)
+  )
+
+dt132 %>%
+  kable(caption = "omron Body composition visaerak fat") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$omronBodycomposition_visaerakfat)))), notation = "none")
+
+dt133 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`omronBodycomposition_metabolicrate`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`omronBodycomposition_metabolicrate`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`omronBodycomposition_metabolicrate`, na.rm = T), 2),
+    Minimum = min(`omronBodycomposition_metabolicrate`, na.rm = T),
+    Maximum = max(`omronBodycomposition_metabolicrate`, na.rm = T)
+  )
+
+dt133 %>%
+  kable(caption = "omron Body composition metabolic rate") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$omronBodycomposition_metabolicrate)))), notation = "none")
+
+dt134 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`omronBodycomposition_muscle`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`omronBodycomposition_muscle`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`omronBodycomposition_muscle`, na.rm = T), 2),
+    Minimum = min(`omronBodycomposition_muscle`, na.rm = T),
+    Maximum = max(`omronBodycomposition_muscle`, na.rm = T)
+  )
+
+dt134 %>%
+  kable(caption = "omron Body composition Muscle") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$omronBodycomposition_muscle)))), notation = "none")
+
+```
+
+# Blood pressure after 5min seated:right arn supported and cuff at level of the heart
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt134 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`bloodpressuresmin_sbp1`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`bloodpressuresmin_sbp1`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`bloodpressuresmin_sbp1`, na.rm = T), 2),
+    Minimum = min(`bloodpressuresmin_sbp1`, na.rm = T),
+    Maximum = max(`bloodpressuresmin_sbp1`, na.rm = T)
+  )
+
+dt134 %>%
+  kable(caption = "Blood pressure: SBP1") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$bloodpressuresmin_sbp1)))), notation = "none")
+
+dt135 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`bloodpressuresmin_dbp1`)) %>%
+  # mutate(bloodpressuresmin_dbp1 = `bloodpressuresmin_sbp1...209`) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`bloodpressuresmin_dbp1`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`bloodpressuresmin_dbp1`, na.rm = T), 2),
+    Minimum = min(`bloodpressuresmin_dbp1`, na.rm = T),
+    Maximum = max(`bloodpressuresmin_dbp1`, na.rm = T)
+  )
+
+dt135 %>%
+  kable(caption = "Blood pressure: DBP1") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$bloodpressuresmin_sbp1...209)))), notation = "none")
+
+# dt136 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(bloodpressuresmin_sbp2)) %>%
+#   # mutate(bloodpressuresmin_sbp2 = `bloodpressuresmin_sbp2...210`) %>%
+#   summarise(
+#     N = n(),
+#     Mean = round(mean(`bloodpressuresmin_sbp2`, na.rm = T), 2),
+#     `Std. deviation` = round(sd(`bloodpressuresmin_sbp2`, na.rm = T), 2),
+#     Minimum = min(`bloodpressuresmin_sbp2`, na.rm = T),
+#     Maximum = max(`bloodpressuresmin_sbp2`, na.rm = T)
+#   )
+# 
+# dt136 %>%
+#   kable(caption = "Blood pressure: SBP2") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$bloodpressuresmin_sbp2)))), notation = "none")
+# 
+# dt137 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(bloodpressuresmin_dbp2)) %>%
+#   # mutate(bloodpressuresmin_dbp2 = `bloodpressuresmin_dbp2`) %>%
+#   summarise(
+#     N = n(),
+#     Mean = round(mean(`bloodpressuresmin_dbp2`, na.rm = T), 2),
+#     `Std. deviation` = round(sd(`bloodpressuresmin_dbp2`, na.rm = T), 2),
+#     Minimum = min(`bloodpressuresmin_dbp2`, na.rm = T),
+#     Maximum = max(`bloodpressuresmin_dbp2`, na.rm = T)
+#   )
+# 
+# dt137 %>%
+#   kable(caption = "Blood pressure: DBP2") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$bloodpressuresmin_dbp2)))), notation = "none")
+# 
+# dt138 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(bloodpressuresmin_sbp3)) %>%
+#   # mutate(bloodpressuresmin_sbp3 = `bloodpressuresmin_sbp3...212`) %>%
+#   summarise(
+#     N = n(),
+#     Mean = round(mean(`bloodpressuresmin_sbp3`, na.rm = T), 2),
+#     `Std. deviation` = round(sd(`bloodpressuresmin_sbp3`, na.rm = T), 2),
+#     Minimum = min(`bloodpressuresmin_sbp3`, na.rm = T),
+#     Maximum = max(`bloodpressuresmin_sbp3`, na.rm = T)
+#   )
+# 
+# dt138 %>%
+#   kable(caption = "Blood pressure: SBP3") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$bloodpressuresmin_sbp3)))), notation = "none")
+# 
+# dt139 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   filter(!is.na(bloodpressuresmin_dbp3)) %>%
+#   # mutate(bloodpressuresmin_dbp3 = `bloodpressuresmin_sbp3`) %>%
+#   summarise(
+#     N = n(),
+#     Mean = round(mean(`bloodpressuresmin_dbp3`, na.rm = T), 2),
+#     `Std. deviation` = round(sd(`bloodpressuresmin_dbp3`, na.rm = T), 2),
+#     Minimum = min(`bloodpressuresmin_dbp3`, na.rm = T),
+#     Maximum = max(`bloodpressuresmin_dbp3`, na.rm = T)
+#   )
+# 
+# dt139 %>%
+#   kable(caption = "Blood pressure: DBP3") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$bloodpressuresmin_dbp3)))), notation = "none")
+
+```
+
+<!-- # ECG results -->
+<!-- #```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+<!-- # dt140 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_heart rate1`)) %>% -->
+<!-- #   summarise( -->
+<!-- #     N = n(), -->
+<!-- #     Mean = round(mean(`ECG_heart rate1`, na.rm = T), 2), -->
+<!-- #     `Std. deviation` = round(sd(`ECG_heart rate1`, na.rm = T), 2), -->
+<!-- #     Minimum = min(`ECG_heart rate1`, na.rm = T), -->
+<!-- #     Maximum = max(`ECG_heart rate1`, na.rm = T) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt140 %>% -->
+<!-- #   kable(caption = "ECG: heart rate") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = c("HOLD_position", "repeat_header", 'scale_down')) %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_heart rate1`)))), notation = "none") -->
+
+<!-- # dt141 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm1_1`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm1_1`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt141 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 1") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = c("HOLD_position", "repeat_header", 'scale_down')) %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm1_1`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt142 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm2_1`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm2_1`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt142 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = c("HOLD_position", "repeat_header", 'scale_down')) %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm2_1`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt143 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm3_1`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm3_1`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt143 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = c("HOLD_position", "repeat_header", 'scale_down')) %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm3_1`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt144 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm4_1`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm4_1`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt144 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 4") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = c("HOLD_position", "repeat_header", 'scale_down')) %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm4_1`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt145 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_results1`)) %>% -->
+<!-- #   group_by(`ECG_results3`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt145 %>% -->
+<!-- #   kable(caption = "ECG: ECG results1") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_results1`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt146 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_unconfirmedreport1`)) %>% -->
+<!-- #   group_by(`ECG_unconfirmedreport1`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt146 %>% -->
+<!-- #   kable(caption = "ECG: unconfirmedreport1") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_unconfirmedreport1`)))), notation = "none") -->
+<!-- #  -->
+<!-- # ``` -->
+<!-- #  -->
+<!-- # # ECG  results 2 -->
+<!-- # ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+<!-- # dt147 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_heart rate2`)) %>% -->
+<!-- #   summarise( -->
+<!-- #     N = n(), -->
+<!-- #     Mean = round(mean(`ECG_heart rate2`, na.rm = T), 2), -->
+<!-- #     `Std. deviation` = round(sd(`ECG_heart rate2`, na.rm = T), 2), -->
+<!-- #     Minimum = min(`ECG_heart rate2`, na.rm = T), -->
+<!-- #     Maximum = max(`ECG_heart rate2`, na.rm = T) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt147 %>% -->
+<!-- #   kable(caption = "ECG: heart rate 2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_heart rate2`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt148 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm1_2`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm1_2`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt148 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm2 2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm1_2`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt149 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm2_2`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm2_2`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt149 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm2 2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm2_2`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt150 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm3_2`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm3_2`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt150 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm3 2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm3_2`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt151 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm4_2`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm4_2`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt151 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm4 2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm4_2`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt152 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_results2`)) %>% -->
+<!-- #   group_by(`ECG_results2`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt152 %>% -->
+<!-- #   kable(caption = "ECG: results 2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_results2`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt153 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_unconfirmedreport2`)) %>% -->
+<!-- #   group_by(`ECG_unconfirmedreport2`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt153 %>% -->
+<!-- #   kable(caption = "ECG: unconfirmedreport2") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_unconfirmedreport2`)))), notation = "none") -->
+<!-- #  -->
+<!-- # ``` -->
+<!-- #  -->
+<!-- # # ECG results 3 -->
+<!-- # ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+<!-- # dt154 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_heart rate3`)) %>% -->
+<!-- #   summarise( -->
+<!-- #     N = n(), -->
+<!-- #     Mean = round(mean(`ECG_heart rate3`, na.rm = T), 2), -->
+<!-- #     `Std. deviation` = round(sd(`ECG_heart rate3`, na.rm = T), 2), -->
+<!-- #     Minimum = min(`ECG_heart rate3`, na.rm = T), -->
+<!-- #     Maximum = max(`ECG_heart rate3`, na.rm = T) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt154 %>% -->
+<!-- #   kable(caption = "ECG: heart rate 3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_heart rate3`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt155 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm1_3`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm1_3`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt155 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm1_3`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt156 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm2_3`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm2_3`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt156 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm2_3`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt157 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm3_3`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm3_3`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt157 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm3_3`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt158 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_sinus rhythm4_3`)) %>% -->
+<!-- #   group_by(`ECG_sinus rhythm4_3`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt158 %>% -->
+<!-- #   kable(caption = "ECG: sinus rythm 3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_sinus rhythm4_3`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt157 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_results3`)) %>% -->
+<!-- #   group_by(`ECG_results3`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt157 %>% -->
+<!-- #   kable(caption = "ECG: results 3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_results3`)))), notation = "none") -->
+<!-- #  -->
+<!-- # dt158 <- final_dataset %>% -->
+<!-- #   filter(visit == 1) %>% -->
+<!-- #   filter(!is.na(`ECG_unconfirmedreport3`)) %>% -->
+<!-- #   group_by(`ECG_unconfirmedreport3`) %>% -->
+<!-- #   summarise(Freq = n()) %>% -->
+<!-- #   mutate( -->
+<!-- #     percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq), -->
+<!-- #     `cumulative percentage` = cumsum(percentage) -->
+<!-- #   ) -->
+<!-- #  -->
+<!-- # dt158 %>% -->
+<!-- #   kable(caption = "ECG: unconfirmedreport3") %>% -->
+<!-- #   kable_paper("hover", full_width = F) %>% -->
+<!-- #   kable_classic(full_width = F, html_font = "Arial")%>% -->
+<!-- #   kable_styling(latex_options = "HOLD_position") %>% -->
+<!-- #   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`ECG_unconfirmedreport3`)))), notation = "none") -->
+
+<!-- ``` -->
+
+# NHLS results: 
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt159 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_haematology_HB = as.numeric(ifelse(NHLS_haematology_HB=='rejected' | NHLS_haematology_HB == 'BLOED EERS 2 DAE na trek ontleed' | NHLS_haematology_HB == 'UNSUTABLE FOR TEST' | NHLS_haematology_HB == 'CLOTTED' | NHLS_haematology_HB == 'REJECTED' | NHLS_haematology_HB == 'UNSUITABLE FOR TEST' | NHLS_haematology_HB == 'UNSUITABLE' | NHLS_haematology_HB == 'NOT DETECTED', 'NA', NHLS_haematology_HB))) %>%
+  filter(!is.na(`NHLS_haematology_HB`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_haematology_HB`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_haematology_HB`, na.rm = T), 2),
+    Minimum = min(`NHLS_haematology_HB`, na.rm = T),
+    Maximum = max(`NHLS_haematology_HB`, na.rm = T)
+  )
+
+dt159 %>%
+  kable(caption = "NHLS haematology HB") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_haematology_HB)))), notation = "none")
+
+dt160 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`NHLS_chemicalpathology_creatinine`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_chemicalpathology_creatinine`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_chemicalpathology_creatinine`, na.rm = T), 2),
+    Minimum = min(`NHLS_chemicalpathology_creatinine`, na.rm = T),
+    Maximum = max(`NHLS_chemicalpathology_creatinine`, na.rm = T)
+  )
+
+dt160 %>%
+  kable(caption = "NHLS chemicalpathology creatinine") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_chemicalpathology_creatinine)))), notation = "none")
+
+dt161 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`NHLS_glucoseFasting`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_glucoseFasting`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_glucoseFasting`, na.rm = T), 2),
+    Minimum = min(`NHLS_glucoseFasting`, na.rm = T),
+    Maximum = max(`NHLS_glucoseFasting`, na.rm = T)
+  )
+
+dt161 %>%
+  kable(caption = "NHLS glucose Fasting") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_glucoseFasting)))), notation = "none")
+
+dt162 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`NHLS_glucose30min`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_glucose30min`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_glucose30min`, na.rm = T), 2),
+    Minimum = min(`NHLS_glucose30min`, na.rm = T),
+    Maximum = max(`NHLS_glucose30min`, na.rm = T)
+  )
+
+dt162 %>%
+  kable(caption = "NHLS glucose 30 min") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_glucose30min)))), notation = "none")
+
+dt163 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_bloodChem_glucose120min = as.numeric(ifelse(NHLS_bloodChem_glucose120min=='NO BLOOD' | NHLS_bloodChem_glucose120min=='VEINS DIFFICULT', '', NHLS_bloodChem_glucose120min))) %>%
+  filter(!is.na(`NHLS_bloodChem_glucose120min`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_bloodChem_glucose120min`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_bloodChem_glucose120min`, na.rm = T), 2),
+    Minimum = min(`NHLS_bloodChem_glucose120min`, na.rm = T),
+    Maximum = max(`NHLS_bloodChem_glucose120min`, na.rm = T)
+  )
+
+dt163 %>%
+  kable(caption = "NHLS blood Chem glucose 120min") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_bloodChem_glucose120min)))), notation = "none")
+
+dt164 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_bloodChem_insulinFasting = as.numeric(NHLS_bloodChem_insulinFasting)) %>%
+  filter(!is.na(`NHLS_bloodChem_insulinFasting`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_bloodChem_insulinFasting`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_bloodChem_insulinFasting`, na.rm = T), 2),
+    Minimum = min(`NHLS_bloodChem_insulinFasting`, na.rm = T),
+    Maximum = max(`NHLS_bloodChem_insulinFasting`, na.rm = T)
+  )
+
+dt164 %>%
+  kable(caption = "NHLS blood Chem insulin Fasting") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_bloodChem_insulinFasting)))), notation = "none")
+
+
+dt165 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_bloodChem_insulin30min = as.numeric(NHLS_bloodChem_insulin30min)) %>%
+  filter(!is.na(`NHLS_bloodChem_insulin30min`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_bloodChem_insulin30min`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_bloodChem_insulin30min`, na.rm = T), 2),
+    Minimum = min(`NHLS_bloodChem_insulin30min`, na.rm = T),
+    Maximum = max(`NHLS_bloodChem_insulin30min`, na.rm = T)
+  )
+
+dt165 %>%
+  kable(caption = "NHLS blood Chem insulin 30min") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_bloodChem_insulin30min)))), notation = "none")
+
+dt166 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_bloodChem_insulin120min = as.numeric(ifelse(NHLS_bloodChem_insulin120min=='SPECIMEN NOT RECEIVED' | NHLS_bloodChem_insulin120min=='NO BLOOD' | NHLS_bloodChem_insulin120min=='VEINS DIFFICULT' | NHLS_bloodChem_insulin120min=='HAART0108', 'NA', NHLS_bloodChem_insulin120min))) %>%
+  filter(!is.na(`NHLS_bloodChem_insulin120min`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_bloodChem_insulin120min`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_bloodChem_insulin120min`, na.rm = T), 2),
+    Minimum = min(`NHLS_bloodChem_insulin120min`, na.rm = T),
+    Maximum = max(`NHLS_bloodChem_insulin120min`, na.rm = T)
+  )
+
+dt166 %>%
+  kable(caption = "NHLS blood Chem insulin 120min") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_bloodChem_insulin120min)))), notation = "none")
+
+dt167 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_HbA1_NGSP = ifelse(NHLS_HbA1_NGSP=='4,2', '4.2', NHLS_HbA1_NGSP)) %>%
+  mutate(NHLS_HbA1_NGSP = ifelse(NHLS_HbA1_NGSP=='CLOTTED', '', NHLS_HbA1_NGSP)) %>%
+  mutate(NHLS_HbA1_NGSP = as.numeric(ifelse(NHLS_HbA1_NGSP=='unsuitable for test', '', NHLS_HbA1_NGSP))) %>%
+  filter(!is.na(`NHLS_HbA1_NGSP`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_HbA1_NGSP`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_HbA1_NGSP`, na.rm = T), 2),
+    Minimum = min(`NHLS_HbA1_NGSP`, na.rm = T),
+    Maximum = max(`NHLS_HbA1_NGSP`, na.rm = T)
+  )
+
+dt167 %>%
+  kable(caption = "NHLS HbA1C NGSP") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_HbA1_NGSP)))), notation = "none")
+
+dt168 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_HbA1C_IFCC = as.numeric(ifelse(NHLS_HbA1C_IFCC=='CLOTTED', '', NHLS_HbA1C_IFCC))) %>%
+  filter(!is.na(`NHLS_HbA1C_IFCC`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_HbA1C_IFCC`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_HbA1C_IFCC`, na.rm = T), 2),
+    Minimum = min(`NHLS_HbA1C_IFCC`, na.rm = T),
+    Maximum = max(`NHLS_HbA1C_IFCC`, na.rm = T)
+  )
+
+dt168 %>%
+  kable(caption = "NHLS HbA1C IFCC") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_HbA1C_IFCC)))), notation = "none")
+
+dt169 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_HbA1C_eAG = as.numeric(ifelse(NHLS_HbA1C_eAG=='CLOTTED', '', NHLS_HbA1C_eAG))) %>%
+  filter(!is.na(`NHLS_HbA1C_eAG`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_HbA1C_eAG`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_HbA1C_eAG`, na.rm = T), 2),
+    Minimum = min(`NHLS_HbA1C_eAG`, na.rm = T),
+    Maximum = max(`NHLS_HbA1C_eAG`, na.rm = T)
+  )
+
+dt169 %>%
+  kable(caption = "NHLS HbA1C eAG") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_HbA1C_eAG)))), notation = "none")
+
+dt170 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_uricacid = as.numeric(ifelse(NHLS_uricacid=='TEST REJECTED', '', NHLS_uricacid))) %>%
+  filter(!is.na(`NHLS_uricacid`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_uricacid`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_uricacid`, na.rm = T), 2),
+    Minimum = min(`NHLS_uricacid`, na.rm = T),
+    Maximum = max(`NHLS_uricacid`, na.rm = T)
+  )
+
+dt170 %>%
+  kable(caption = "NHLS uricacid") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_uricacid)))), notation = "none")
+
+dt171 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_lipids_totalcholestrol = as.numeric(ifelse(NHLS_lipids_totalcholestrol=='TEST REJECTED', '', NHLS_lipids_totalcholestrol))) %>%
+  filter(!is.na(`NHLS_lipids_totalcholestrol`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_lipids_totalcholestrol`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_lipids_totalcholestrol`, na.rm = T), 2),
+    Minimum = min(`NHLS_lipids_totalcholestrol`, na.rm = T),
+    Maximum = max(`NHLS_lipids_totalcholestrol`, na.rm = T)
+  )
+
+dt171 %>%
+  kable(caption = "NHLS lipids total cholestrol") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_lipids_totalcholestrol)))), notation = "none")
+
+dt172 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_lipids_triglyceride = as.numeric(ifelse(NHLS_lipids_triglyceride=='TEST REJECTED' | NHLS_lipids_triglyceride=='HAART0108', '', NHLS_lipids_triglyceride))) %>%
+  filter(!is.na(`NHLS_lipids_triglyceride`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_lipids_triglyceride`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_lipids_triglyceride`, na.rm = T), 2),
+    Minimum = min(`NHLS_lipids_triglyceride`, na.rm = T),
+    Maximum = max(`NHLS_lipids_triglyceride`, na.rm = T)
+  )
+
+dt172 %>%
+  kable(caption = "NHLS lipids triglyceride") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_lipids_triglyceride)))), notation = "none")
+
+dt173 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_lipids_HDLcholesterol = as.numeric(ifelse(NHLS_lipids_HDLcholesterol=='TEST REJECTED' | NHLS_lipids_HDLcholesterol=='HAART0108', '', NHLS_lipids_HDLcholesterol))) %>%
+  filter(!is.na(`NHLS_lipids_HDLcholesterol`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_lipids_HDLcholesterol`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_lipids_HDLcholesterol`, na.rm = T), 2),
+    Minimum = min(`NHLS_lipids_HDLcholesterol`, na.rm = T),
+    Maximum = max(`NHLS_lipids_HDLcholesterol`, na.rm = T)
+  )
+
+dt173 %>%
+  kable(caption = "NHLS lipids HDL cholesterol") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_lipids_HDLcholesterol)))), notation = "none")
+
+dt174 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_lipids_LDLcholesterol = as.numeric(ifelse(NHLS_lipids_LDLcholesterol=='TEST REJECTED' | NHLS_lipids_LDLcholesterol=='HAART0108', '', NHLS_lipids_LDLcholesterol))) %>%
+  filter(!is.na(`NHLS_lipids_LDLcholesterol`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_lipids_LDLcholesterol`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_lipids_LDLcholesterol`, na.rm = T), 2),
+    Minimum = min(`NHLS_lipids_LDLcholesterol`, na.rm = T),
+    Maximum = max(`NHLS_lipids_LDLcholesterol`, na.rm = T)
+  )
+
+dt174 %>%
+  kable(caption = "NHLS lipids LDL cholesterol") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_lipids_LDLcholesterol)))), notation = "none")
+
+dt175 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_haematinicsFerritin = as.numeric(ifelse(NHLS_haematinicsFerritin=='TEST REJECTED' | NHLS_haematinicsFerritin=='HAART0108', '', NHLS_haematinicsFerritin))) %>%
+  filter(!is.na(`NHLS_haematinicsFerritin`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_haematinicsFerritin`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_haematinicsFerritin`, na.rm = T), 2),
+    Minimum = min(`NHLS_haematinicsFerritin`, na.rm = T),
+    Maximum = max(`NHLS_haematinicsFerritin`, na.rm = T)
+  )
+
+dt175 %>%
+  kable(caption = "NHLS haematinics Ferritin") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_haematinicsFerritin)))), notation = "none")
+
+dt176 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_serumHBindex = ifelse(NHLS_serumHBindex=='traces' | NHLS_serumHBindex=='TRACE', 'trace', NHLS_serumHBindex)) %>%
+  mutate(NHLS_serumHBindex = ifelse(NHLS_serumHBindex=='NOT DETECTED', 'trace', NHLS_serumHBindex)) %>%
+  filter(!is.na(NHLS_serumHBindex)) %>%
+  group_by(`NHLS_serumHBindex`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt176 %>%
+  kable(caption = "NHLS serum HBindex") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_serumHBindex)))), notation = "none")
+
+dt177 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_serumBilirubinindex = ifelse(NHLS_serumBilirubinindex=='traces' | NHLS_serumBilirubinindex=='TRACE', 'trace', NHLS_serumBilirubinindex)) %>%
+  mutate(NHLS_serumBilirubinindex = ifelse(NHLS_serumBilirubinindex=='NOT DETECTED', 'trace', NHLS_serumBilirubinindex)) %>%
+  filter(!is.na(NHLS_serumBilirubinindex)) %>%
+  group_by(`NHLS_serumBilirubinindex`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt177 %>%
+  kable(caption = "NHLS serum HBindex") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_serumBilirubinindex)))), notation = "none")
+
+dt178 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_serumlipaemiaIndex = ifelse(NHLS_serumlipaemiaIndex=='NOT DERECTED' | NHLS_serumlipaemiaIndex=='NOT DETECTED', 'not detected', NHLS_serumlipaemiaIndex)) %>%
+  filter(!is.na(NHLS_serumlipaemiaIndex)) %>%
+  group_by(`NHLS_serumlipaemiaIndex`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt178 %>%
+  kable(caption = "NHLS serum HBindex") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_serumlipaemiaIndex)))), notation = "none")
+
+dt179 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_urine_creatinine = as.numeric(ifelse(NHLS_urine_creatinine=='TEST REJECTED' | NHLS_urine_creatinine=='HAART0108', '', NHLS_urine_creatinine))) %>%
+  filter(!is.na(`NHLS_urine_creatinine`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_urine_creatinine`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_urine_creatinine`, na.rm = T), 2),
+    Minimum = min(`NHLS_urine_creatinine`, na.rm = T),
+    Maximum = max(`NHLS_urine_creatinine`, na.rm = T)
+  )
+
+dt179 %>%
+  kable(caption = "NHLS urine creatinine") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_urine_creatinine)))), notation = "none")
+
+dt180 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_urine_albumin = as.numeric(ifelse(NHLS_urine_albumin=='TEST REJECTED' | NHLS_urine_albumin=='HAART0108', '', NHLS_urine_albumin))) %>%
+  filter(!is.na(`NHLS_urine_albumin`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_urine_albumin`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_urine_albumin`, na.rm = T), 2),
+    Minimum = min(`NHLS_urine_albumin`, na.rm = T),
+    Maximum = max(`NHLS_urine_albumin`, na.rm = T)
+  )
+
+dt180 %>%
+  kable(caption = "NHLS urine albumin") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_urine_albumin)))), notation = "none")
+
+dt181 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_urinealbuminCreatratio = as.numeric(ifelse(NHLS_urinealbuminCreatratio=='TEST REJECTED' | NHLS_urinealbuminCreatratio=='HAART0108', '', NHLS_urinealbuminCreatratio))) %>%
+  filter(!is.na(`NHLS_urinealbuminCreatratio`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_urinealbuminCreatratio`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_urinealbuminCreatratio`, na.rm = T), 2),
+    Minimum = min(`NHLS_urinealbuminCreatratio`, na.rm = T),
+    Maximum = max(`NHLS_urinealbuminCreatratio`, na.rm = T)
+  )
+
+dt181 %>%
+  kable(caption = "NHLS urine albumin Creatratio") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_urinealbuminCreatratio)))), notation = "none")
+
+dt182 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_urineProtein = as.numeric(ifelse(NHLS_urineProtein=='TEST REJECTED' | NHLS_urineProtein=='HAART0108', '', NHLS_urineProtein))) %>%
+  filter(!is.na(`NHLS_urineProtein`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_urineProtein`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_urineProtein`, na.rm = T), 2),
+    Minimum = min(`NHLS_urineProtein`, na.rm = T),
+    Maximum = max(`NHLS_urineProtein`, na.rm = T)
+  )
+
+dt182 %>%
+  kable(caption = "NHLS urine Protein") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_urineProtein)))), notation = "none")
+
+dt183 <- final_dataset %>%
+  filter(visit == 1) %>%
+  mutate(NHLS_urineProteinCreatratio = as.numeric(ifelse(NHLS_urineProteinCreatratio=='TEST REJECTED' | NHLS_urineProteinCreatratio=='HAART0108', '', NHLS_urineProteinCreatratio))) %>%
+  filter(!is.na(`NHLS_urineProteinCreatratio`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`NHLS_urineProteinCreatratio`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`NHLS_urineProteinCreatratio`, na.rm = T), 2),
+    Minimum = min(`NHLS_urineProteinCreatratio`, na.rm = T),
+    Maximum = max(`NHLS_urineProteinCreatratio`, na.rm = T)
+  )
+
+dt183 %>%
+  kable(caption = "NHLS urine Protein") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_urineProteinCreatratio)))), notation = "none")
+
+# dt184 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   mutate(NHLS_ferritin = as.numeric(ifelse(NHLS_ferritin=='TEST REJECTED' | NHLS_ferritin=='HAART0108', '', NHLS_ferritin))) %>%
+#   filter(!is.na(`NHLS_ferritin`)) %>%
+#   summarise(
+#     N = n(),
+#     Mean = round(mean(`NHLS_ferritin`, na.rm = T), 2),
+#     `Std. deviation` = round(sd(`NHLS_ferritin`, na.rm = T), 2),
+#     Minimum = min(`NHLS_ferritin`, na.rm = T),
+#     Maximum = max(`NHLS_ferritin`, na.rm = T)
+#   )
+# 
+# dt184 %>%
+#   kable(caption = "NHLS ferritin") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_ferritin)))), notation = "none")
+# 
+# dt185 <- final_dataset %>%
+#   filter(visit == 1) %>%
+#   mutate(NHLS_hb = as.numeric(ifelse(NHLS_hb=='TEST REJECTED' | NHLS_hb=='HAART0108', '', NHLS_hb))) %>%
+#   filter(!is.na(`NHLS_hb`)) %>%
+#   summarise(
+#     N = n(),
+#     Mean = round(mean(`NHLS_hb`, na.rm = T), 2),
+#     `Std. deviation` = round(sd(`NHLS_hb`, na.rm = T), 2),
+#     Minimum = min(`NHLS_hb`, na.rm = T),
+#     Maximum = max(`NHLS_hb`, na.rm = T)
+#   )
+
+# dt185 %>%
+#   kable(caption = "NHLS hb") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position") %>%
+#   add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$NHLS_hb)))), notation = "none")
+# 
+
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt186 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`occupation`)) %>%
+  group_by(`occupation`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt186 %>%
+  kable(caption = "Respondents occupation") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") #%>%
+  # add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`occupation`)))), notation = "none")
+
+dt187 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`maritalStatus`)) %>%
+  group_by(`maritalStatus`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt187 %>%
+  kable(caption = "Respondents marital Status") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") #%>%
+  # add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`maritalStatus`)))), notation = "none")
+
+dt188 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`number of dependants`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`number of dependants`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`number of dependants`, na.rm = T), 2),
+    Minimum = min(`number of dependants`, na.rm = T),
+    Maximum = max(`number of dependants`, na.rm = T)
+  )
+
+dt188 %>%
+  kable(caption = "number of dependants") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") #%>%
+  # add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`number of dependants`)))), notation = "none")
+
+dt189 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`home language`)) %>%
+  group_by(`home language`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt189 %>%
+  kable(caption = "home language") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") #%>%
+  # add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`home language`)))), notation = "none")
+
+
+```
+
+# HIV screening
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt191 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_whatisHIVAIDS`)) %>%
+  group_by(`rapidtest_whatisHIVAIDS`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt191 %>%
+  kable(caption = "rapidtest: what is HIV or AIDS") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_whatisHIVAIDS`)))), notation = "none")
+
+dt192 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_it has been explained to you how the test is done`)) %>%
+  mutate(`explianed how test is done` = `rapidtest_it has been explained to you how the test is done`) %>%
+  group_by(`explianed how test is done`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt192 %>%
+  kable(caption = "rapidtest it has been explained to you how the test is done") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_it has been explained to you how the test is done`)))), notation = "none")
+
+dt193 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_the advantages of the test been explained to you`)) %>%
+  mutate(`advantages explained` = `rapidtest_the advantages of the test been explained to you`) %>%
+  group_by(`advantages explained`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt193 %>%
+  kable(caption = "rapidtest the advantages of the test been explained to you") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_the advantages of the test been explained to you`)))), notation = "none")
+
+dt194 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_the disadvantages of the test been explained to you`)) %>%
+  mutate(`disadvantages explained` = `rapidtest_the disadvantages of the test been explained to you`) %>%
+  group_by(`disadvantages explained`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt194 %>%
+  kable(caption = "rapidtest the disadvantages of the test been explained to you") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_the disadvantages of the test been explained to you`)))), notation = "none")
+
+dt195 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_it has been explianed to you`)) %>%
+  mutate(`has been explianed` = `rapidtest_it has been explianed to you`) %>%
+  group_by(`has been explianed`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt195 %>%
+  kable(caption = "rapidtest it has been explianed to you") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_it has been explianed to you`)))), notation = "none")
+
+dt196 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_what a negative result means`)) %>%
+  mutate(`negative results` = `rapidtest_what a negative result means`) %>%
+  group_by(`negative results`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt196 %>%
+  kable(caption = "rapidtest what a negative result means") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_what a negative result means`)))), notation = "none")
+
+dt197 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_what is meant by the window period`)) %>%
+  mutate(`window period` = `rapidtest_what is meant by the window period`) %>%
+  group_by(`window period`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt197 %>%
+  kable(caption = "rapidtest what is meant by the window period") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_what is meant by the window period`)))), notation = "none")
+
+dt198 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_the importance of positive living`)) %>%
+  mutate(`importance of positive living` = `rapidtest_the importance of positive living`) %>%
+  group_by(`importance of positive living`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt198 %>%
+  kable(caption = "rapidtest the importance of positive living") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_the importance of positive living`)))), notation = "none")
+
+dt199 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_it has been explianed what shared`)) %>%
+  mutate(`explianed what is shared` = `rapidtest_it has been explianed what shared`) %>%
+  group_by(`explianed what is shared`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt199 %>%
+  kable(caption = "rapidtest it has been explianed what shared") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_it has been explianed what shared`)))), notation = "none")
+
+dt200 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_available resources for positive`)) %>%
+  mutate(`resources for positive` = `rapidtest_available resources for positive`) %>%
+  group_by(`resources for positive`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt200 %>%
+  kable(caption = "rapidtest available resources for positive") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_available resources for positive`)))), notation = "none")
+
+dt201 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_the importance of disclosing my`)) %>%
+  mutate(`disclosing my status` = `rapidtest_the importance of disclosing my`) %>%
+  group_by(`disclosing my status`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt201 %>%
+  kable(caption = "rapidtest the importance of disclosing my HIV status") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_the importance of disclosing my`)))), notation = "none")
+
+```
+
+# TB screening
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt202 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`Tbscreening_coughfor morethan 2 weeks`)) %>%
+  mutate(`cough for 2weeks` = `Tbscreening_coughfor morethan 2 weeks`) %>%
+  group_by(`cough for 2weeks`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt202 %>%
+  kable(caption = "Tbscreening coughfor morethan 2 weeks") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`Tbscreening_coughfor morethan 2 weeks`)))), notation = "none")
+
+dt203 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`Tbscreening_unexplianed weight loss`)) %>%
+  mutate(`unexplianed weight loss` = `Tbscreening_unexplianed weight loss`) %>%
+  group_by(`unexplianed weight loss`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt203 %>%
+  kable(caption = "Tbscreening unexplianed weight loss") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`Tbscreening_unexplianed weight loss`)))), notation = "none")
+
+dt204 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`Tbscreening_night sweats`)) %>%
+  mutate(`night sweats` = `Tbscreening_night sweats`) %>%
+  group_by(`night sweats`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt204 %>%
+  kable(caption = "Tbscreening night sweats") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`Tbscreening_night sweats`)))), notation = "none")
+
+dt204 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`Tbscreening_loss of appetite`)) %>%
+  mutate(`loss of appetite` = `Tbscreening_loss of appetite`) %>%
+  group_by(`loss of appetite`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt204 %>%
+  kable(caption = "Tbscreening loss of appetite") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`Tbscreening_loss of appetite`)))), notation = "none")
+
+dt205 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`Tbscreening_fever of unexplianed origin`)) %>%
+  mutate(`fever of unexplianed origin` = `Tbscreening_fever of unexplianed origin`) %>%
+  group_by(`fever of unexplianed origin`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt205 %>%
+  kable(caption = "Tbscreening fever of unexplianed origin") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`Tbscreening_fever of unexplianed origin`)))), notation = "none")
+
+dt206 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`rapidtest_done`)) %>%
+  group_by(`rapidtest_done`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt206 %>%
+  kable(caption = "Tbscreening fever of unexplianed origin") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`rapidtest_done`)))), notation = "none")
+
+
+```
+
+# COVID-19 screening
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt207 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_gender`)) %>%
+  group_by(`covid_gender`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt207 %>%
+  kable(caption = "COVID-19 screening Gender") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_gender`)))), notation = "none")
+
+dt208 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_temperature`)) %>%
+  summarise(
+    N = n(),
+    Mean = round(mean(`covid_temperature`, na.rm = T), 2),
+    `Std. deviation` = round(sd(`covid_temperature`, na.rm = T), 2),
+    Minimum = min(`covid_temperature`, na.rm = T),
+    Maximum = max(`covid_temperature`, na.rm = T)
+  )
+dt208 %>%
+  kable(caption = "COVID-19 screening Temperature") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_temperature`)))), notation = "none")
+
+dt209 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_fever`)) %>%
+  group_by(`covid_fever`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt209 %>%
+  kable(caption = "COVID-19 screening Fever") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_fever`)))), notation = "none")
+
+dt210 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_sorethroat`)) %>%
+  group_by(`covid_sorethroat`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt210 %>%
+  kable(caption = "COVID-19 screening Sore throat") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_sorethroat`)))), notation = "none")
+
+dt211 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_cough`)) %>%
+  group_by(`covid_cough`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt211 %>%
+  kable(caption = "COVID-19 screening Cough") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_cough`)))), notation = "none")
+
+dt211 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_chills`)) %>%
+  group_by(`covid_chills`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt211 %>%
+  kable(caption = "COVID-19 Chills") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_chills`)))), notation = "none")
+
+dt212 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_difficult breathing`)) %>%
+  group_by(`covid_difficult breathing`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt212 %>%
+  kable(caption = "COVID-19 screening difficult breathing") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_difficult breathing`)))), notation = "none")
+
+dt213 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_diarrhoea`)) %>%
+  group_by(`covid_diarrhoea`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt213 %>%
+  kable(caption = "COVID-19 screening Diarrhoea") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_diarrhoea`)))), notation = "none")
+
+dt214 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_diabetes`)) %>%
+  group_by(`covid_diabetes`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt214 %>%
+  kable(caption = "COVID-19 screening Diabetes") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_diabetes"`)))), notation = "none")
+
+dt215 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_asthma`)) %>%
+  group_by(`covid_asthma`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt215 %>%
+  kable(caption = "COVID-19 screening Diabetes") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_asthma`)))), notation = "none")
+
+dt216 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_highbloodpressure`)) %>%
+  group_by(`covid_highbloodpressure`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt216 %>%
+  kable(caption = "COVID-19 screening High blood pressure") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_highbloodpressure`)))), notation = "none")
+
+dt217 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_respiratory illness`)) %>%
+  group_by(`covid_respiratory illness`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt217 %>%
+  kable(caption = "COVID-19 screening Respiratory illness") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_respiratory illness`)))), notation = "none")
+
+dt218 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_cancer`)) %>%
+  group_by(`covid_cancer`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt218 %>%
+  kable(caption = "COVID-19 screening Cancer") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_cancer`)))), notation = "none")
+
+dt219 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_recent travel to other provinces`)) %>%
+  group_by(`covid_recent travel to other provinces`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt219 %>%
+  kable(caption = "COVID-19 screening Travel to other provinces") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_recent travel to other provinces`)))), notation = "none")
+
+dt220 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_any contact with confirmed covid19`)) %>%
+  group_by(`covid_any contact with confirmed covid19`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt220 %>%
+  kable(caption = "COVID-19 screening contact with confirmed COVID19") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_any contact with confirmed covid19`)))), notation = "none")
+
+dt221 <- final_dataset %>%
+  filter(visit == 1) %>%
+  filter(!is.na(`covid_where you admited at hospital`)) %>%
+  group_by(`covid_where you admited at hospital`) %>%
+  summarise(Freq = n()) %>%
+  mutate(
+    percentage = round((Freq / (sum(Freq))) * 100, 1), `cumulative frequency` = cumsum(Freq),
+    `cumulative percentage` = cumsum(percentage)
+  )
+dt221 %>%
+  kable(caption = "COVID-19 screening Where you admited to hospital") %>%
+  kable_paper("hover", full_width = F) %>%
+  kable_classic(full_width = F, html_font = "Arial")%>%
+  kable_styling(latex_options = "HOLD_position") %>%
+  add_footnote(paste0('missing = ', length(which(final_dataset$visit == 1 & is.na(final_dataset$`covid_where you admited at hospital`)))), notation = "none")
+
+```
