@@ -3393,7 +3393,7 @@ dt177 <- final_dataset %>%
     `cumulative percentage` = cumsum(percentage)
   )
 dt177 %>%
-  kable(booktabs = TRUE, longtable = TRUE, caption = "NHLS serum HBindex") %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "NHLS serum Bilirubinindex") %>%
   kable_paper("hover", full_width = F) %>%
   kable_classic(full_width = F, html_font = "Arial")%>%
   kable_styling(latex_options = "HOLD_position") %>%
@@ -3410,7 +3410,7 @@ dt178 <- final_dataset %>%
     `cumulative percentage` = cumsum(percentage)
   )
 dt178 %>%
-  kable(booktabs = TRUE, longtable = TRUE, caption = "NHLS serum HBindex") %>%
+  kable(booktabs = TRUE, longtable = TRUE, caption = "NHLS serum lipidaemia index") %>%
   kable_paper("hover", full_width = F) %>%
   kable_classic(full_width = F, html_font = "Arial")%>%
   kable_styling(latex_options = "HOLD_position") %>%

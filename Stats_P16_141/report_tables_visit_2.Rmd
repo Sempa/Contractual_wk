@@ -1,5 +1,5 @@
 ---
-title: "The incidence of dysglycaemia, dyslipidaemia and changes in body composition in HIV-infected subjects initiated on antiretroviral treatment in the Free State: A cohort study - Baseline"
+title: "The incidence of dysglycaemia, dyslipidaemia and changes in body composition in HIV-infected subjects initiated on antiretroviral treatment in the Free State: A cohort study - Follow up"
 author: "Dr Joseph B Sempa"
 date: "`r Sys.Date()`"
 output:
@@ -61,7 +61,7 @@ final_dataset <- rbind(baseline, secondVisit) %>%
 # Demographics
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt01 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(`age of respondents` = cut(age, breaks = c(21,30,40,50,80))) %>%
   dplyr::select(`age of respondents`, gender, group) %>%
   mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
@@ -82,7 +82,7 @@ dt01
 # Table 3-7: Heading= Do you suffer from or take medication for following diseases?
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table2 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   # filter(!is.na(take_meds_regularly_Hypertention)) %>%
   # filter(!is.na(take_meds_regularly_Diabetes_mellitus)) %>%
   # filter(!is.na(take_meds_regularly_High_blood_cholesterol)) %>%
@@ -156,7 +156,7 @@ we should edit this table a bit
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
 table4 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   # filter(!is.na(take_meds_regularly_Hypertention)) %>%
   # filter(!is.na(take_meds_regularly_Diabetes_mellitus)) %>%
   # filter(!is.na(take_meds_regularly_High_blood_cholesterol)) %>%
@@ -186,7 +186,7 @@ table4
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table5 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   # filter(!is.na(`1.8 Do you drink alcohol?`)) %>%
   mutate(`1.8 Do you drink alcohol?` = ifelse(`1.8 Do you drink alcohol?`=='n', 'N', ifelse(`1.8 Do you drink alcohol?`=='N/Y', '', `1.8 Do you drink alcohol?`))) %>%
   mutate(`Do you drink alcohol?` = as.factor(ifelse(`1.8 Do you drink alcohol?`=='y' | `1.8 Do you drink alcohol?`=='Y7', 'Y', ifelse(`1.8 Do you drink alcohol?`=='2', 'N', `1.8 Do you drink alcohol?`)))
@@ -230,7 +230,7 @@ table5
 # Tables 40-69 and give results as number positive(no need for intensity like 1, 2 etc.)..also divided in total, Hiv, control, female, male
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table6 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(`Difficulty concentrating` = ifelse(`difficulty concentrating` =='1' | `difficulty concentrating` =='2' | `difficulty concentrating` == '3' | `difficulty concentrating` == '4' |
                                              `difficulty concentrating` == 'Y', 'Y', `difficulty concentrating`),
          `Pain` = ifelse(`pain` =='1' | `pain` =='2' | `pain` == '3' | `pain` == '4' |
@@ -268,7 +268,7 @@ table6
 # Tables 40-69 and give results as number positive(no need for intensity like 1, 2 etc.)..also divided in total, Hiv, control, female, male - continued
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table7 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   dplyr::select(`difficulty sleeping`, `feeling bloated`, `problems with urination`, `vomiting`, `shortness of breath`, `diarrhea`, `sweats`, `mouth sores`, `problems with sexual interest or activity`, `itching`, `lack of appetite`, `dizziness`, `difficulty swallowing`, `change in the way food taste`, `weight loss`, `hair loss`, `constipation`, `swelling of arms or legs`, gender, group) %>%
   mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
   tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
@@ -293,7 +293,7 @@ table7
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
 table8 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   dplyr::select(`i don't look like myself`, `any other symptoms during the past week?`, `difficulty swallowing`, `change in the way food taste`, `weight loss`, `hair loss`, `constipation`, `swelling of arms or legs`, `i don't look like myself`, `any other symptoms during the past week?`, gender, group) %>%
   mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
   tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
@@ -317,7 +317,7 @@ table8
 # Table 70-73.divided in total, Hiv, control, female, male
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table9 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(
     `Feeling sad` = `commonly_listed_symptoms_feelingsad`,
     `Worrying` = `commonly_listed_symptoms_worrying`,
@@ -347,7 +347,7 @@ table9
 # Tables 139-142 divided in total, Hiv, control, female, male
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table10 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(Occupation = case_when(#51#98
       occupation =='CARE WORKER' | occupation == 'CLEANER' | occupation == 'CLEANING' | occupation == 'DOMESTIC' | occupation == 'DOMESTIC WORK' | occupation == 'DOMESTIC WORKER'| occupation == 'EMPLOYED CARE WORKER' | occupation == 'GARDENER' | occupation == 'GENERAL WORKER' | occupation == 'KID CARE' | occupation == 'NANNY' | occupation == 'PIECE JOBS' ~ 'Casual worker',
 occupation == 'ADMIN CLERK' | occupation == 'ANIMAL CLINIC' | occupation == 'ASSISTANCE' |
@@ -392,7 +392,7 @@ table10
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table11 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   dplyr::select(pt_id, `home language`, gender, group) %>%
   separate(col = `home language`, into = c('language 1', 'language 2'), sep = ',') %>%
   pivot_longer(cols = c(`language 1`, `language 2`),
@@ -423,7 +423,7 @@ table11
 # Tables 76-84
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table12 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(`Type II Diabetes: BMI` = ifelse(`type2Diabetes_BMI`=='ERROR 2', '', `type2Diabetes_BMI`),
          `Type II Diabetes: waist circumfrance: Men` = `type2Diabetes_waistCircum_men`,
          `Type II Diabetes: waist circumfrance: Women` = `type2Diabetes_waistCircum_women`,
@@ -455,7 +455,7 @@ table12 <- final_dataset %>%
 table12
 
 table13 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(type2Diabetes_diabetes = ifelse(type2Diabetes_diabetes=='3P;5P', '3P,5P', type2Diabetes_diabetes)) %>%
   mutate(type2Diabetes_diabetes = ifelse(type2Diabetes_diabetes=='0p', '0P', type2Diabetes_diabetes)) %>%
   mutate(type2Diabetes_diabetes = ifelse(type2Diabetes_diabetes==' 5p' | type2Diabetes_diabetes=='5p', '5P', type2Diabetes_diabetes)) %>%
@@ -492,7 +492,7 @@ table13 <- final_dataset %>%
 table13
 
 table14 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   separate(col = `type2Diabetes_familyhistorydiabetes`,
            sep = ',',
            into = c('col1', 'col2', 'col3'),
@@ -531,7 +531,7 @@ table14
 # Tables 86, 88
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table15 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(`urine Multistix: Leucocytes` = `urineMultistix_leucocytes`
          ) %>%
   dplyr::select(`has the subject fasted at least since 22:00?`, `urine Multistix: Leucocytes`,
@@ -557,7 +557,7 @@ table15
 # Tables 89-110
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table16 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(`Urine Multistix: Nitrite` = `urineMultistix_nitrite`,
          `Urine Multistix: Urobilinogen` = `urineMultistix_urobilinogen`,
          `Urine Multistix: Protein` = `urineMultistix_protein`,
@@ -605,7 +605,7 @@ table16
 # Tables 111-135
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table17 <- final_dataset %>%
-  filter(visit == 0) %>%
+  filter(visit == 1) %>%
   mutate(`Blood Pressures: SBP1` = `bloodpressuresmin_sbp1`,
          `Blood Pressures: DBP1` = `bloodpressuresmin_dbp1`,
          `Blood Pressures: SBP2` = bloodpressuresmin_sbp2,
@@ -671,4 +671,3 @@ table17 <- final_dataset %>%
 table17
 
 ```
-
