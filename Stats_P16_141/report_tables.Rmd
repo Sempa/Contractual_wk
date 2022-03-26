@@ -3,13 +3,13 @@ title: "The incidence of dysglycaemia, dyslipidaemia and changes in body composi
 author: "Dr Joseph B Sempa"
 date: "`r Sys.Date()`"
 output:
-  word_document:
+  html_document:
     fig_caption: yes
     toc: yes
   pdf_document:
     fig_caption: yes
     toc: yes
-  html_document:
+  word_document:
     fig_caption: yes
     toc: yes
   html_notebook:
@@ -269,7 +269,18 @@ table6
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table7 <- final_dataset %>%
   filter(visit == 0) %>%
-  dplyr::select(`difficulty sleeping`, `feeling bloated`, `problems with urination`, `vomiting`, `shortness of breath`, `diarrhea`, `sweats`, `mouth sores`, `problems with sexual interest or activity`, `itching`, `lack of appetite`, `dizziness`, `difficulty swallowing`, `change in the way food taste`, `weight loss`, `hair loss`, `constipation`, `swelling of arms or legs`, gender, group) %>%
+  mutate(`Difficulty sleeping` = ifelse(`difficulty sleeping` =='1' | `difficulty sleeping` =='2' | `difficulty sleeping` == '3' | `difficulty sleeping` == '0' | `difficulty sleeping` == '4' | `difficulty sleeping` == 'Y', 'Y', `difficulty sleeping`),
+         `Feeling bloated` = ifelse(`feeling bloated` =='1' | `feeling bloated` =='2' | `feeling bloated` == '3' | `feeling bloated` == '0' | `feeling bloated` == '4' | `feeling bloated` == 'Y', 'Y', `feeling bloated`),
+         `Problems with urination` = ifelse(`problems with urination` =='1' | `problems with urination` =='2' | `problems with urination` == '3' | `problems with urination` == '0' | `problems with urination` == '4' | `problems with urination` == 'Y', 'Y', `problems with urination`),
+         `Vomiting` = ifelse(`vomiting` =='1' | `vomiting` =='2' | `vomiting` == '3' | `vomiting` == '0' | `vomiting` == '4' | `vomiting` == 'Y', 'Y', `vomiting`),
+         `Shortness of breath` = ifelse(`shortness of breath` =='1' | `shortness of breath` =='2' | `shortness of breath` == '3' | `shortness of breath` == '0' | `shortness of breath` == '4' | `shortness of breath` == 'Y', 'Y', `shortness of breath`),
+         `Diarrhea` = ifelse(`diarrhea` =='1' | `diarrhea` =='2' | `diarrhea` == '3' | `diarrhea` == '0' | `diarrhea` == '4' | `diarrhea` == 'Y', 'Y', `diarrhea`),
+         `Sweats` = ifelse(`sweats` =='1' | `sweats` =='2' | `sweats` == '3' | `sweats` == '0' | `sweats` == '4' | `sweats` == 'Y', 'Y', `sweats`),
+         `Mouth sores` = ifelse(`mouth sores` =='1' | `mouth sores` =='2' | `mouth sores` == '3' | `mouth sores` == '0' | `mouth sores` == '4' | `mouth sores` == 'Y', 'Y', `mouth sores`),
+         `Problems with sexual interest or activity` = ifelse(`problems with sexual interest or activity` =='1' | `problems with sexual interest or activity` =='2' | `problems with sexual interest or activity` == '3' | `problems with sexual interest or activity` == '0' | `problems with sexual interest or activity` == '4' | `problems with sexual interest or activity` == 'Y', 'Y', `problems with sexual interest or activity`),
+         `Itching` = ifelse(`itching` =='1' | `itching` =='2' | `itching` == '3' | `itching` == '0' | `itching` == '4' | `itching` == 'Y', 'Y', `itching`)
+         ) %>%
+  dplyr::select(`Difficulty sleeping`, `Feeling bloated`, `Problems with urination`, `Vomiting`, `Shortness of breath`, `Diarrhea`, `Sweats`, `Mouth sores`, `Problems with sexual interest or activity`, `Itching`, gender, group) %>%
   mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
   tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
     strata = gender,
@@ -294,7 +305,18 @@ table7
 
 table8 <- final_dataset %>%
   filter(visit == 0) %>%
-  dplyr::select(`i don't look like myself`, `any other symptoms during the past week?`, `difficulty swallowing`, `change in the way food taste`, `weight loss`, `hair loss`, `constipation`, `swelling of arms or legs`, `i don't look like myself`, `any other symptoms during the past week?`, gender, group) %>%
+  mutate(`Lack of appetite` = ifelse(`lack of appetite` =='1' | `lack of appetite` =='2' | `lack of appetite` == '3' | `lack of appetite` == '0' | `lack of appetite` == '4' | `lack of appetite` == 'Y', 'Y', `lack of appetite`),
+         `Dizziness` = ifelse(`dizziness` =='1' | `dizziness` =='2' | `dizziness` == '3' | `dizziness` == '0' | `dizziness` == '4' | `dizziness` == 'Y', 'Y', `dizziness`),
+         `Difficulty swallowing` = ifelse(`difficulty swallowing` =='1' | `difficulty swallowing` =='2' | `difficulty swallowing` == '3' | `difficulty swallowing` == '0' | `difficulty swallowing` == '4' | `difficulty swallowing` == 'Y', 'Y', `difficulty swallowing`),
+         `Change in the way food taste` = ifelse(`change in the way food taste` =='1' | `change in the way food taste` =='2' | `change in the way food taste` == '3' | `change in the way food taste` == '0' | `change in the way food taste` == '4' | `change in the way food taste` == 'Y', 'Y', `change in the way food taste`),
+         `Weight loss` = ifelse(`weight loss` =='1' | `weight loss` =='2' | `weight loss` == '3' | `weight loss` == '0' | `weight loss` == '4' | `weight loss` == 'Y', 'Y', `weight loss`),
+         `Hair loss` = ifelse(`hair loss` =='1' | `hair loss` =='2' | `hair loss` == '3' | `hair loss` == '0' | `hair loss` == '4' | `hair loss` == 'Y', 'Y', `hair loss`),
+         `Constipation` = ifelse(`constipation` =='1' | `constipation` =='2' | `constipation` == '3' | `constipation` == '0' | `constipation` == '4' | `constipation` == 'Y', 'Y', `constipation`),
+         `Swelling of arms or legs` = ifelse(`swelling of arms or legs` =='1' | `swelling of arms or legs` =='2' | `swelling of arms or legs` == '3' | `swelling of arms or legs` == '0' | `swelling of arms or legs` == '4' | `swelling of arms or legs` == 'Y', 'Y', `swelling of arms or legs`),
+         `I don't look like myself` = ifelse(`i don't look like myself` =='0' | `i don't look like myself` =='1' | `i don't look like myself` == '2' | `i don't look like myself` == '3' | `i don't look like myself` == '4' | `i don't look like myself` == 'Y', 'Y', `i don't look like myself`),
+         `Any other symptoms during the past week?` = ifelse(`any other symptoms during the past week?` =='0' | `any other symptoms during the past week?` =='1' | `any other symptoms during the past week?` == '2' | `any other symptoms during the past week?` == '3' | `any other symptoms during the past week?` == '4' | `any other symptoms during the past week?` == 'Y', 'Y', `any other symptoms during the past week?`)
+         ) %>%
+  dplyr::select(`Lack of appetite`, `Dizziness`, `Difficulty swallowing`, `Change in the way food taste`, `Weight loss`, `Hair loss`, `Constipation`, `Swelling of arms or legs`, `I don't look like myself`, `Any other symptoms during the past week?`, gender, group) %>%
   mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
   tbl_strata( statistic = all_continuous() ~ "{mean} ({sd})",
     strata = gender,
