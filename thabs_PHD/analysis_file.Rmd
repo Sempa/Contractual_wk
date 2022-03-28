@@ -715,15 +715,11 @@ model <- train(mortality ~ .,
   method = "glm",
   family = binomial()
 )
-
+# sjPlot::tab_model(model, show.icc = FALSE, show.re.var = FALSE)
 final_table <- data.frame(exp(ci(model$finalModel)[2:4,1:3])) %>%
   mutate(Variable = c("Addison's disease advanced HIV", "Lymphocyte count", "BP diastolic")) %>%
   dplyr::select(Variable, Estimate, CI.lower, CI.upper)
 row.names(final_table) <- 1:length(final_table$Variable)
-final_table %>%
-  kable(caption = "Cross validation model") %>%
-  kable_paper("hover", full_width = F) %>%
-  kable_classic(full_width = F, html_font = "Arial")%>%
-  kable_styling(latex_options = "HOLD_position")
+write.csv(final_table, 'final_table.csv') 
 
 ```
