@@ -40,6 +40,7 @@ library(predtools)
 library(randomForest)
 library(mice)
 library(psfmi)
+library(survival)
 ```
 
 
@@ -621,13 +622,35 @@ table_mortality1 <- table_mortality %>%
   mutate(mortality = max(mortality)) %>%
   distinct(`Hospital folder number`, .keep_all = T) 
 
+time_to_death <- final_dataset%>%
+  dplyr::select(`Hospital folder number`, `3 followup_patientstatus`, 
+                `6 followup_patientstatus`, `12 followup_patientstatus`
+                ) %>%
+  mutate(flag1 = ifelse(`3 followup_patientstatus` == "Deceased --> EXIT form", 3, NA),
+         flag2 = ifelse(`6 followup_patientstatus` == "Deceased --> EXIT form", 6, NA),
+         flag3 = ifelse(`12 followup_patientstatus` == "Deceased --> EXIT form", 12, NA)) %>%
+  dplyr::select(`Hospital folder number`, flag1:flag3) %>%
+  pivot_longer(cols = c(flag1:flag3),
+               names_to = 'col_num',
+               values_to = 'time to death') %>%
+  dplyr::select(`Hospital folder number`, `time to death`) %>%
+  group_by(`Hospital folder number`) %>%
+  mutate(ttdeath = min(`time to death`, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(ttdeath = ifelse(is.infinite(ttdeath), NA, ttdeath)) %>%
+  distinct(`Hospital folder number`, .keep_all = T) %>%
+    dplyr::select(`Hospital folder number`, ttdeath)
+  
+table_mortality1 <- table_mortality1 %>%
+  left_join(time_to_death, by = 'Hospital folder number')
+
 table_4data <- final_dataset %>%
   left_join(table_mortality1, by = 'Hospital folder number') %>%
   mutate(addisons_disease_advanced_HIV = ifelse(addisons_disease==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
   mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
          enrol = as.Date(`Date of enrolment in study`, format = '%m/%d/%Y'),
          diagnosed = as.Date(`HIV, when diagnosed`, format = '%m/%d/%Y')) %>%
-  dplyr::select(`Hospital folder number`, Ethnicity, Gender, `Total CD4 count...9`, `Random cortisol result`, `Synacthen: 30 minute cortisol result`, `Synacthen: 0 minute cortisol result`, `ACTH result`, Neutrophils, `Lymphocyte count`, Haemoglobin, Sodium, Hypoglycaemia, `BP (systolic)`, `BP (diastolic)`, `Current tuberculosis`, `Duration of current illness`, HIV_duration, addisons_disease_advanced_HIV, mortality) %>%
+  dplyr::select(`Hospital folder number`, Ethnicity, Gender, `Total CD4 count...9`, `Random cortisol result`, `Synacthen: 30 minute cortisol result`, `Synacthen: 0 minute cortisol result`, `ACTH result`, Neutrophils, `Lymphocyte count`, Haemoglobin, Sodium, Hypoglycaemia, `BP (systolic)`, `BP (diastolic)`, `Current tuberculosis`, `Duration of current illness`, HIV_duration, addisons_disease_advanced_HIV, mortality, ttdeath) %>%
   left_join(dt03, by = 'Hospital folder number')
 
 ```
@@ -649,6 +672,21 @@ tbl_summary(#clinical,
 
 table_4Adata_1
 
+table_4Adata_1_1 <- table_4data %>%
+  mutate(`Total CD4 count` = `Total CD4 count...9`) %>%
+  dplyr::select(Ethnicity, Gender, `Total CD4 count`, `Random cortisol result`, `Synacthen: 30 minute cortisol result`, `Synacthen: 0 minute cortisol result`, `ACTH result`, Neutrophils, `Lymphocyte count`, Haemoglobin, mortality, ttdeath) #%>%
+tbl_uvregression(
+    table_4Adata_1_1[c("ttdeath", "mortality", 'Ethnicity', 'Gender', 'Total CD4 count', 'Random cortisol result', 'Synacthen: 30 minute cortisol result', 'Synacthen: 0 minute cortisol result', 'ACTH result', 'Neutrophils', 'Lymphocyte count', 'Haemoglobin')],
+    method = coxph,
+    y = Surv(ttdeath, mortality),
+    exponentiate = TRUE,
+    pvalue_fun = function(x) style_pvalue(x, digits = 2)
+  ) %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+
+# table_4Adata_1_1
+
 ```
 
 # Table 4 (Mortality): Predictors of recurrent admission, mortality, including basal cortisol, stimulated cortisol, incremental cortisol - continued
@@ -667,6 +705,23 @@ tbl_summary(
   bold_labels()
 
 table_4Adata_2
+
+table_4Adata_2_1 <- table_4data %>%
+  mutate(`HIV duration` = HIV_duration,
+         `Number of primary med conditions` = n_primary_med_conditions,
+        `Number Coexisting medical conditions`  = n_Coexisting_medical_conditions, 
+         `Addisons disease advanced HIV` = addisons_disease_advanced_HIV) %>%
+  dplyr::select(Sodium, Hypoglycaemia, `BP (systolic)`, `BP (diastolic)`, `Current tuberculosis`, `Duration of current illness`, `HIV duration`, `Number of primary med conditions`, `Number Coexisting medical conditions`, `Addisons disease advanced HIV`, mortality, ttdeath)
+
+tbl_uvregression(
+    table_4Adata_2_1[c("ttdeath", "mortality", 'Sodium', 'Hypoglycaemia', 'BP (systolic)', 'BP (diastolic)', 'Current tuberculosis', 'Duration of current illness', 'HIV duration', 'Number of primary med conditions', 'Number Coexisting medical conditions', 'Addisons disease advanced HIV')],
+    method = coxph,
+    y = Surv(ttdeath, mortality),
+    exponentiate = TRUE,
+    pvalue_fun = function(x) style_pvalue(x, digits = 2)
+  ) %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels() 
 
 ```
 
