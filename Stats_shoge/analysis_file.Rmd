@@ -1,0 +1,58 @@
+---
+title: "SURGICAL MANAGEMENT CHALLENGES OF CHRONIC ANTERIOR SHOULDER DISLOCATIONS"
+author: "Dr Joseph B Sempa"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    fig_caption: yes
+    toc: yes
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+  html_document:
+    fig_caption: yes
+    toc: yes
+  html_notebook:
+    toc: yes
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(results = 'asis')
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(tinytex)
+library(gmodels)
+library(readxl)
+library(gtsummary)
+```
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+final_dataset <- read_csv("final_dataset.csv", show_col_types = F) %>%
+  mutate(`Duration of dislocation in weeks` = as.numeric(ifelse(`Duration of dislocation in weeks` == "UK", "", `Duration of dislocation in weeks`)),
+         `Bony or Soft tissue pathology` = as.factor(`Bony or Soft tissue pathology`),
+         `Type of surgical procedure` = as.factor(`Type of surgical procedure`),
+         `Complications` = as.factor(Complications)
+         )
+```
+
+# Main table
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table1 <- final_dataset %>%
+  dplyr::select(`Age in years`, Gender, `Side of Dislocation`, `Duration of dislocation in weeks`, `Bony or Soft tissue pathology`, `Type of surgical procedure`, `Revision surgery`, Complications) %>%
+tbl_summary(missing = "no",
+            # statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+
+table1
+```
