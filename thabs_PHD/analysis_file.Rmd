@@ -755,23 +755,19 @@ model_dataset <- completeData
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
-km_fit <- survival::survfit(Surv(ttdeath, mortality) ~ Addisons,
-  data = model_dataset %>% 
-  mutate(Addisons = as.factor(ifelse(addisons_disease_advanced_HIV == 1, "Yes", "No")))
-)
-
-survminer::ggsurvplot(km_fit,
-  conf.int = TRUE,
-  risk.table.col = "strata", # Change risk table color by groups
-  ggtheme = theme_bw(), # Change ggplot2 theme
-  palette = c("#E7B800", "#2E9FDF"),
-  xlim = c(0, 12.5)
-)
-
-```
-
-
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# km_fit <- survival::survfit(Surv(ttdeath, mortality) ~ Addisons,
+#   data = model_dataset %>% 
+#   mutate(Addisons = as.factor(ifelse(addisons_disease_advanced_HIV == 1, "Yes", "No")))
+# )
+# jpeg('KM_curve.jpeg', width = 480, height = 480, units = 'px', pointsize = 14, quality = 75, bg = 'white')
+# survminer::ggsurvplot(km_fit,
+#   conf.int = TRUE,
+#   risk.table.col = "strata", # Change risk table color by groups
+#   ggtheme = theme_bw(), # Change ggplot2 theme
+#   palette = c("#E7B800", "#2E9FDF"),
+#   xlim = c(0, 12.5)
+# )
+# dev.off()
 # control <- rfeControl(functions = rfFuncs, # random forest
 #                       method = "cv", # repeated cvrepeated
 #                       # repeats = 3, # number of repeats
@@ -794,23 +790,24 @@ survminer::ggsurvplot(km_fit,
 #   family = binomial()
 # )
 
-my.variable.list <- names(model_dataset[,1:16,20:22])
-My.stepwise::My.stepwise.coxph(Time = "ttdeath", Status = "mortality", variable.list = my.variable.list,
-   in.variable = c("addisons_disease_advanced_HIV"), data = model_dataset)
-model1 <- survival::coxph(Surv(ttdeath, mortality) ~ addisons_disease_advanced_HIV + ACTH.result + 
-                            `Synacthen..30.minute.cortisol.result` + `Synacthen..0.minute.cortisol.result` + `BP..diastolic.` + `BP..systolic.` + Gender,
-                          data = model_dataset)
-summary(model1)
-coef(model1)
-confint(model1)
-mv_table <- #data.frame(
-  cbind(exp(cbind(coef(model1),confint(model1))), p_value = round(summary(model1)$coefficients[,5], 4))
-  #)
-mv_table%>%
-  kable(caption = "Final MV table") %>%
-  kable_paper("hover", full_width = F) %>%
-  kable_classic(full_width = F, html_font = "Arial")%>%
-  kable_styling(latex_options = "HOLD_position")
+# my.variable.list <- names(model_dataset[,1:16,20:22])
+# My.stepwise::My.stepwise.coxph(Time = "ttdeath", Status = "mortality", variable.list = my.variable.list,
+#    in.variable = c("addisons_disease_advanced_HIV"), data = model_dataset)
+# model1 <- survival::coxph(Surv(ttdeath, mortality) ~ addisons_disease_advanced_HIV + ACTH.result + 
+#                             `Synacthen..30.minute.cortisol.result` + `Synacthen..0.minute.cortisol.result` + `BP..diastolic.` + `BP..systolic.` + Gender,
+#                           data = model_dataset)
+# summary(model1)
+# coef(model1)
+# confint(model1)
+# mv_table <- #data.frame(
+#   cbind(exp(cbind(coef(model1),confint(model1))), p_value = round(summary(model1)$coefficients[,5], 4))
+#   #)
+# mv_table%>%
+#   kable(caption = "Final MV table") %>%
+#   kable_paper("hover", full_width = F) %>%
+#   kable_classic(full_width = F, html_font = "Arial")%>%
+#   kable_styling(latex_options = "HOLD_position")
+# write.csv(mv_table, 'final_table.csv')
 # # sjPlot::tab_model(model, show.icc = FALSE, show.re.var = FALSE)
 # final_table <- data.frame(exp(ci(model$finalModel)[2:4,1:3])) %>%
 #   mutate(Variable = c("Addison's disease advanced HIV", "Lymphocyte count", "BP diastolic")) %>%
