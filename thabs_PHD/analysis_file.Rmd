@@ -55,6 +55,10 @@ final_dataset <- read_csv("final_dataset.csv", show_col_types = F) %>%
 # dat <- final_dataset %>%
 # dplyr::select(`Hospital folder number`,`Random cortisol result`, `ACTH sample drawn`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
 # write.csv(dat, 'outcome_dat.csv')
+final_dataset<- final_dataset%>%
+  mutate(Ethnicity = as.factor(Ethnicity))
+contrasts(final_dataset$Ethnicity) <- 
+  contr.treatment(levels(final_dataset$Ethnicity),                                                    base = which(levels(final_dataset$Ethnicity) == 'Black African'))
 ```
 
 
@@ -208,7 +212,6 @@ socio_demographics2 <- final_dataset %>%
     method.args = list(family = binomial),
     exponentiate = TRUE
   )
-
 
 ```
 
