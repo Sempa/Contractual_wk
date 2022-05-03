@@ -819,3 +819,31 @@ model_dataset <- completeData
 # write.csv(final_table, 'final_table.csv') 
 
 ```
+
+# Table 1 re-imagined
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='hide'}
+
+table_1 <- final_dataset %>%
+  mutate(`log10 viral load` = log(`HIV viral load`, 10),
+         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         gender = factor(Gender, labels = c('Females', 'Males'))) %>%
+  dplyr::select(`Age at enrolment`, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, gender) %>%
+tbl_summary(
+            missing = "no",
+            by = gender,
+            # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+            label = list(`Total CD4 count...9` ~ 'Total CD4 count')
+            ) %>%
+  add_p() %>%
+  add_n() %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+table_1
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='hide'}
+
+
+
+```
