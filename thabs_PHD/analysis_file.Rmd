@@ -759,7 +759,7 @@ model_dataset <- completeData
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
 # km_fit <- survival::survfit(Surv(ttdeath, mortality) ~ Addisons,
-#   data = model_dataset %>% 
+#   data = model_dataset %>%
 #   mutate(Addisons = as.factor(ifelse(addisons_disease_advanced_HIV == 1, "Yes", "No")))
 # )
 # jpeg('KM_curve.jpeg', width = 480, height = 480, units = 'px', pointsize = 14, quality = 75, bg = 'white')
@@ -778,11 +778,11 @@ model_dataset <- completeData
 # set.seed(33)
 # results <- rfe(model_dataset[,1:17,19:20], model_dataset[[18]], sizes = c(1:5), rfeControl = control)
 # var_selected <- predictors(results)
-# 
+#
 # finalmodel_dataset <- model_dataset %>%
 #   # mutate(outcome = as.factor(utcome))%>%
 #   dplyr::select(mortality, addisons_disease_advanced_HIV, var_selected)
-# 
+#
 # train_control <- trainControl(method = "cv", number = 5, #repeats = 100,
 #                               savePredictions = T) #repeated
 # set.seed(33)
@@ -796,7 +796,7 @@ model_dataset <- completeData
 # my.variable.list <- names(model_dataset[,1:16,20:22])
 # My.stepwise::My.stepwise.coxph(Time = "ttdeath", Status = "mortality", variable.list = my.variable.list,
 #    in.variable = c("addisons_disease_advanced_HIV"), data = model_dataset)
-# model1 <- survival::coxph(Surv(ttdeath, mortality) ~ addisons_disease_advanced_HIV + ACTH.result + 
+# model1 <- survival::coxph(Surv(ttdeath, mortality) ~ addisons_disease_advanced_HIV + ACTH.result +
 #                             `Synacthen..30.minute.cortisol.result` + `Synacthen..0.minute.cortisol.result` + `BP..diastolic.` + `BP..systolic.` + Gender,
 #                           data = model_dataset)
 # summary(model1)
@@ -816,7 +816,7 @@ model_dataset <- completeData
 #   mutate(Variable = c("Addison's disease advanced HIV", "Lymphocyte count", "BP diastolic")) %>%
 #   dplyr::select(Variable, Estimate, CI.lower, CI.upper)
 # row.names(final_table) <- 1:length(final_table$Variable)
-# write.csv(final_table, 'final_table.csv') 
+# write.csv(final_table, 'final_table.csv')
 
 ```
 
@@ -838,12 +838,5 @@ tbl_summary(
   add_n() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
-table_1
-```
-
-
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='hide'}
-
-
-
+ table_1
 ```

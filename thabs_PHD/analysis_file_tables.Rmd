@@ -1,0 +1,83 @@
+---
+title: "Adddison's disease associated with advanced HIV may explain the high mortality"
+author: "Dr Joseph B Sempa"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    fig_caption: yes
+    toc: yes
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+  html_document:
+    fig_caption: yes
+    toc: yes
+  html_notebook:
+    toc: yes
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(results = 'asis')
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(tinytex)
+library(gmodels)
+library(readxl)
+# library(MASS)
+library(gtsummary)
+library(caret)
+library(leaps)
+library(MASS)
+library(predtools)
+library(randomForest)
+library(mice)
+library(psfmi)
+library(survival)
+library(ranger)
+library(ggplot2)
+library(dplyr)
+library(ggfortify)
+library(survminer)
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+final_dataset <- read_csv("final_dataset.csv", show_col_types = F) %>%
+  mutate(addisons_disease = ifelse(`Random cortisol result` < 500 & (`Synacthen: 30 minute cortisol result`< 550 & `ACTH result`> 13.9), 1, 0)) #%>%
+# dat <- final_dataset %>%
+# dplyr::select(`Hospital folder number`,`Random cortisol result`, `ACTH sample drawn`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
+# write.csv(dat, 'outcome_dat.csv')
+final_dataset<- final_dataset%>%
+  mutate(Ethnicity = as.factor(Ethnicity))
+contrasts(final_dataset$Ethnicity) <- 
+  contr.treatment(levels(final_dataset$Ethnicity),                                                    base = which(levels(final_dataset$Ethnicity) == 'Black African'))
+```
+
+# Table 1 re-imagined
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+table_1 <- final_dataset %>%
+  mutate(`log10 viral load` = log(`HIV viral load`, 10),
+         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         gender = factor(Gender, labels = c('Females', 'Males'))) %>%
+  dplyr::select(`Age at enrolment`, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, gender)
+tbl_summary(table_1,
+            missing = "no",
+            by = gender,
+            # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+            label = list(`Total CD4 count...9` ~ 'Total CD4 count')
+            ) %>%
+  add_p() %>%
+  add_n() %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+table_1
+```
