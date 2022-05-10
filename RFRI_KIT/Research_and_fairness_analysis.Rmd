@@ -46,7 +46,8 @@ library(survey)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 # library(readr)
-pilotstudy_dataset <- read_csv("pilot_study_dataset.csv")
+pilotstudy_dataset <- read_csv("pilot_study_dataset.csv") %>%
+  mutate(`Which of the following best describes you?` = as.factor(ifelse(`Which of the following best describes you?`==1, 'Global North', ifelse(`Which of the following best describes you?` == 2, 'Global south', `Which of the following best describes you?`))))
 # pilotstudy_dataset <-
 #   survey::svydesign(
 #     id = ~`Respondent ID`,
@@ -55,12 +56,13 @@ pilotstudy_dataset <- read_csv("pilot_study_dataset.csv")
 #     # fpc = ~fpc # ((Population size-sample size)/(population size-1))^(1/2)
 #   )
 ```
+
 # Demographics
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt01 <- pilotstudy_dataset %>%
-  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, `What is your highest academic rank?`) %>%
+  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, `Which of the following best describes you?`, `What is your highest academic rank?`) %>%
   # mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
-  tbl_summary(by = `What discipline of global health based describes you:`, 
+  tbl_summary(by = `Which of the following best describes you?`, 
             missing = "no",
             # statistic = list(all_continuous() ~ "{mean} ({sd})")
             ) %>% 
@@ -72,7 +74,77 @@ dt01 <- pilotstudy_dataset %>%
 dt01
 ```
 
+# Responsible research practices
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt02 <- pilotstudy_dataset %>%
+  dplyr::select(`responsible research Practices_q1`,                          
+`responsible research Practices_q2`,                         
+`responsible research Practices_q3`,                         
+`responsible research Practices_q4`,                         
+`responsible research Practices_q5`,                          
+`responsible research Practices_q6`,                          
+`responsible research Practices_q7`,                         
+`responsible research Practices_q8`,                          
+`responsible research Practices_q9`,                         
+`responsible research Practices_q10`,                        
+`responsible research Practices_q11`,                        
+`responsible research Practices_q12`,                         
+`responsible research Practices_q13`,                         
+`responsible research Practices_q14`,                         
+`responsible research Practices_q15`,                         
+`responsible research Practices_q16`,                         
+`responsible research Practices_q17`,                         
+`responsible research Practices_q18`,                        
+`responsible research Practices_q19`,                         
+`responsible research Practices_q20`,
+`Which of the following best describes you?`) %>%
+  # mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_summary(by = `Which of the following best describes you?`, 
+            missing = "no",
+            # statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
 
+dt02
 ```
 
+
+# Responsible research practices
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt03 <- pilotstudy_dataset %>%
+  dplyr::select(`fair research practices_q1`,
+`fair research practices_q2`,
+`fair research practices_q3`,
+`fair research practices_q4`,
+`fair research practices_q5`,                                
+`fair research practices_q6`,                                 
+`fair research practices_q7`,                                 
+`fair research practices_q8`,
+`fair research practices_q9`,
+`fair research practices_q10`,
+`fair research practices_q11`,
+`fair research practices_q12`,
+`fair research practices_q13`,
+`fair research practices_q14`,
+`fair research practices_q15`,
+`fair research practices_q16`,
+`fair research practices_q17`,
+`fair research practices_q18`,
+`fair research practices_q19`,
+`fair research practices_q20`,
+`Which of the following best describes you?`) %>%
+  # mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_summary(by = `Which of the following best describes you?`, 
+            missing = "no",
+            # statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+
+dt03
+```
