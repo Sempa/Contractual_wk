@@ -66,7 +66,7 @@ dt01 <- pilotstudy_dataset %>%
             missing = "no",
             # statistic = list(all_continuous() ~ "{mean} ({sd})")
             ) %>% 
-  add_p() %>%
+  # add_p() %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
