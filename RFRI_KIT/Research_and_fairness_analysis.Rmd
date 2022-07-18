@@ -422,11 +422,41 @@ final_dataset <- final_dataset %>%
       `fair research practices_q20` == 'Always' ~ 7
     )
   ) %>%
+  rowwise() %>%
   mutate(
-    `responsible research Practices score` = rpq1 + rpq2 + rpq3 + rpq4 + rpq5 + rpq6 + rpq7 + rpq8 + rpq9 + rpq10 + rpq11 + rpq12 + rpq13 + rpq14 + rpq15 + rpq16 + rpq17 + rpq18 + rpq19 + rpq20,
-    `fair research practices score` = (fpq1 + fpq2 + fpq3 + fpq4 + fpq5 +fpq6 + fpq7 + fpq8 + fpq9 + fpq10 +fpq11 + fpq12 + fpq13 + fpq14 + fpq15 + fpq16 + fpq17 + fpq18 + fpq19 + fpq20)
-  )
+    rpq = sum(c(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20), na.rm = T),
+    fpq = sum(c(fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20), na.rm = T)
+  ) %>%
+  mutate(`responsible research Practices score` = ifelse(rpq == 0, NA, rpq),
+         `fair research practices score` = ifelse(fpq == 0, NA, fpq))
+# g=final_dataset %>%
+#   dplyr::select(`responsible research Practices_q1`, rpq1, `responsible research Practices_q2`, rpq2, `responsible research Practices_q8`, rpq8, `responsible research Practices_q14`, rpq14, `responsible research Practices_q18`, rpq18,
+#                 `fair research practices_q1`, fpq1, `fair research practices_q5`, fpq5, `fair research practices_q9`, fpq9, `fair research practices_q10`, fpq10, `fair research practices_q12`, fpq12, `fair research practices_q14`, fpq14, `fair research practices_q17`, fpq17)
+# x= final_dataset%>%
+#   dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, rpq, fpq) #%>%
+#   rowwise() %>%
+# mutate(fp = sum(c(fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20), na.rm = T))
 
+```
+
+
+# Prevalence of responsible research practices and Fair research practices 
+
+We used a cutoff score of 70 in both cases since the maximum score is 140 in both cases.
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt <- final_dataset %>%
+  mutate(`responsible research Practices score` = as.factor(ifelse(`responsible research Practices score`>=70, 'Pass', ifelse(`responsible research Practices score`<70, 'Fail', 'NA'))),
+         `fair research practices score` = as.factor(ifelse(`fair research practices score`>=70, 'Pass', ifelse(`fair research practices score`<70, 'Fail', 'NA')))) %>%
+  dplyr::select(`responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) %>%
+  tbl_summary(by = `Which of the following best describes you?`, 
+            missing = "no",
+            # statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt
 ```
 
 # Demographics
