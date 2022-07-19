@@ -444,7 +444,7 @@ final_dataset <- final_dataset %>%
 
 We used a cutoff score of 70 in both cases since the maximum score is 140 in both cases.
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-dt <- final_dataset %>%
+dt1 <- final_dataset %>%
   mutate(`responsible research Practices score` = as.factor(ifelse(`responsible research Practices score`>=70, 'Pass', ifelse(`responsible research Practices score`<70, 'Fail', 'NA'))),
          `fair research practices score` = as.factor(ifelse(`fair research practices score`>=70, 'Pass', ifelse(`fair research practices score`<70, 'Fail', 'NA')))) %>%
   dplyr::select(`responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) %>%
@@ -456,7 +456,26 @@ dt <- final_dataset %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
-dt
+dt1
+
+# dt2 <- final_dataset %>%
+#   mutate(location = as.factor(case_when(
+#     `Which of the following best describes you?` == 'Researcher from the Global North' ~ 'Global North',
+#     `Which of the following best describes you?` == 'Researcher from the Global South' ~ 'Global South'#,
+#     # `Which of the following best describes you?` == '' ~ 'Global North',
+#   ))) %>%
+#   mutate(`responsible research Practices score` = as.factor(ifelse(`responsible research Practices score`>=70, 'Pass', ifelse(`responsible research Practices score`<70, 'Fail', 'NA'))),
+#          `fair research practices score` = as.factor(ifelse(`fair research practices score`>=70, 'Pass', ifelse(`fair research practices score`<70, 'Fail', 'NA')))) %>%
+#   dplyr::select(`responsible research Practices score`, `fair research practices score`, location) %>%
+#   tbl_summary(by = location, 
+#             missing = "no",
+#             # statistic = list(all_continuous() ~ "{mean} ({sd})")
+#             ) %>% 
+#   add_p() %>%
+#   add_n() %>% 
+#   modify_header(label = "Variable") %>% # update the column header
+#   bold_labels()
+# dt2
 ```
 
 # Demographics
@@ -510,15 +529,549 @@ dt03 <- final_dataset %>%
             type = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score',) ~ 'continuous'),
             statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{mean} ({sd})")
             ) %>% 
-  add_p() %>%
+  add_p(test = everything() ~ "t.test") %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 dt03
+
+
 ```
 
+# Analysis for those who responded N/A
+In this analysis, I have only tabulated those who said N/A in any of the 40 questions
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
-<!-- # Responsible research practices -->
-<!-- ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+dt1 <- final_dataset %>%
+    dplyr::select(`responsible research Practices_q1`, `na_responsible research Practices_q1`) %>%
+    filter(`responsible research Practices_q1` == 'N/A') %>%
+    dplyr::select(`na_responsible research Practices_q1`) %>% #x[i], 
+    tbl_summary(#by = `Which of the following best describes you?`,
+            # missing = "no",
+            # statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt1
 
-<!-- ``` -->
+dt2 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q2`, `na_responsible research Practices_q2`) %>%
+  filter(`responsible research Practices_q2` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q2`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt2
+
+dt3 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q3`, `na_responsible research Practices_q3`) %>%
+  filter(`responsible research Practices_q3` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q3`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt3
+
+dt4 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q4`, `na_responsible research Practices_q4`) %>%
+  filter(`responsible research Practices_q4` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q4`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt4
+dt5 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q5`, `na_responsible research Practices_q5`) %>%
+  filter(`responsible research Practices_q5` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q5`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt5
+dt6 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q6`, `na_responsible research Practices_q6`) %>%
+  filter(`responsible research Practices_q6` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q6`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt6
+dt7 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q7`, `na_responsible research Practices_q7`) %>%
+  filter(`responsible research Practices_q7` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q7`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt7
+dt8 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q8`, `na_responsible research Practices_q8`) %>%
+  filter(`responsible research Practices_q8` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q8`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt8
+dt9 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q9`, `na_responsible research Practices_q9`) %>%
+  filter(`responsible research Practices_q9` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q9`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt9
+dt10 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q10`, `na_responsible research Practices_q10`) %>%
+  filter(`responsible research Practices_q10` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q10`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt10
+dt11 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q11`, `na_responsible research Practices_q11`) %>%
+  filter(`responsible research Practices_q11` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q11`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt11
+dt12 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q12`, `na_responsible research Practices_q12`) %>%
+  filter(`responsible research Practices_q12` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q12`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt12
+dt13 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q13`, `na_responsible research Practices_q13`) %>%
+  filter(`responsible research Practices_q13` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q13`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt13
+dt14 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q14`, `na_responsible research Practices_q14`) %>%
+  filter(`responsible research Practices_q14` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q14`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt14
+dt15 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q15`, `na_responsible research Practices_q15`) %>%
+  filter(`responsible research Practices_q15` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q15`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt15
+dt16 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q16`, `na_responsible research Practices_q16`) %>%
+  filter(`responsible research Practices_q16` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q16`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt16
+dt17 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q17`, `na_responsible research Practices_q17`) %>%
+  filter(`responsible research Practices_q17` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q17`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt17
+dt18 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q18`, `na_responsible research Practices_q18`) %>%
+  filter(`responsible research Practices_q18` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q18`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt18
+dt19 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q19`, `na_responsible research Practices_q19`) %>%
+  filter(`responsible research Practices_q19` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q19`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt19
+dt20 <- final_dataset %>%
+  dplyr::select(`responsible research Practices_q20`, `na_responsible research Practices_q20`) %>%
+  filter(`responsible research Practices_q20` == 'N/A') %>%
+  dplyr::select(`na_responsible research Practices_q20`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt20
+
+```
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt1 <- final_dataset %>%
+  dplyr::select(`fair research practices_q1`, `na_fair research practices_q1`) %>%
+  filter(`fair research practices_q1` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q1`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt1
+
+dt2 <- final_dataset %>%
+  dplyr::select(`fair research practices_q2`, `na_fair research practices_q2`) %>%
+  filter(`fair research practices_q2` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q2`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt2
+
+dt3 <- final_dataset %>%
+  dplyr::select(`fair research practices_q3`, `na_fair research practices_q3`) %>%
+  filter(`fair research practices_q3` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q3`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt3
+
+dt4 <- final_dataset %>%
+  dplyr::select(`fair research practices_q4`, `na_fair research practices_q4`) %>%
+  filter(`fair research practices_q4` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q4`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt4
+dt5 <- final_dataset %>%
+  dplyr::select(`fair research practices_q5`, `na_fair research practices_q5`) %>%
+  filter(`fair research practices_q5` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q5`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt5
+dt6 <- final_dataset %>%
+  dplyr::select(`fair research practices_q6`, `na_fair research practices_q6`) %>%
+  filter(`fair research practices_q6` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q6`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt6
+dt7 <- final_dataset %>%
+  dplyr::select(`fair research practices_q7`, `na_fair research practices_q7`) %>%
+  filter(`fair research practices_q7` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q7`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt7
+dt8 <- final_dataset %>%
+  dplyr::select(`fair research practices_q8`, `na_fair research practices_q8`) %>%
+  filter(`fair research practices_q8` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q8`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt8
+dt9 <- final_dataset %>%
+  dplyr::select(`fair research practices_q9`, `na_fair research practices_q9`) %>%
+  filter(`fair research practices_q9` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q9`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt9
+dt10 <- final_dataset %>%
+  dplyr::select(`fair research practices_q10`, `na_fair research practices_q10`) %>%
+  filter(`fair research practices_q10` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q10`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt10
+dt11 <- final_dataset %>%
+  dplyr::select(`fair research practices_q11`, `na_fair research practices_q11`) %>%
+  filter(`fair research practices_q11` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q11`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt11
+dt12 <- final_dataset %>%
+  dplyr::select(`fair research practices_q12`, `na_fair research practices_q12`) %>%
+  filter(`fair research practices_q12` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q12`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt12
+dt13 <- final_dataset %>%
+  dplyr::select(`fair research practices_q13`, `na_fair research practices_q13`) %>%
+  filter(`fair research practices_q13` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q13`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt13
+dt14 <- final_dataset %>%
+  dplyr::select(`fair research practices_q14`, `na_fair research practices_q14`) %>%
+  filter(`fair research practices_q14` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q14`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt14
+dt15 <- final_dataset %>%
+  dplyr::select(`fair research practices_q15`, `na_fair research practices_q15`) %>%
+  filter(`fair research practices_q15` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q15`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt15
+dt16 <- final_dataset %>%
+  dplyr::select(`fair research practices_q16`, `na_fair research practices_q16`) %>%
+  filter(`fair research practices_q16` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q16`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt16
+dt17 <- final_dataset %>%
+  dplyr::select(`fair research practices_q17`, `na_fair research practices_q17`) %>%
+  filter(`fair research practices_q17` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q17`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt17
+dt18 <- final_dataset %>%
+  dplyr::select(`fair research practices_q18`, `na_fair research practices_q18`) %>%
+  filter(`fair research practices_q18` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q18`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt18
+dt19 <- final_dataset %>%
+  dplyr::select(`fair research practices_q19`, `na_fair research practices_q19`) %>%
+  filter(`fair research practices_q19` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q19`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt19
+dt20 <- final_dataset %>%
+  dplyr::select(`fair research practices_q20`, `na_fair research practices_q20`) %>%
+  filter(`fair research practices_q20` == 'N/A') %>%
+  dplyr::select(`na_fair research practices_q20`) %>% #x[i], 
+  tbl_summary(#by = `Which of the following best describes you?`,
+    # missing = "no",
+    # statistic = list(all_continuous() ~ "{mean} ({sd})")
+  ) %>%
+  # add_p() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt20
+
+```
+
