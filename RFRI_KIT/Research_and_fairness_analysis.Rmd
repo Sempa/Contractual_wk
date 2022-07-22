@@ -445,18 +445,39 @@ final_dataset <- final_dataset %>%
 We used a cutoff score of 70 in both cases since the maximum score is 140 in both cases.
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt1 <- final_dataset %>%
-  mutate(`responsible research Practices score` = as.factor(ifelse(`responsible research Practices score`>=70, 'Pass', ifelse(`responsible research Practices score`<70, 'Fail', 'NA'))),
-         `fair research practices score` = as.factor(ifelse(`fair research practices score`>=70, 'Pass', ifelse(`fair research practices score`<70, 'Fail', 'NA')))) %>%
-  dplyr::select(`responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) %>%
-  tbl_summary(by = `Which of the following best describes you?`, 
-            missing = "no",
+  dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) 
+col_to_change <- c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20')
+change_to <- c(1,2,3)
+dt1[col_to_change] <- sapply(dt1[col_to_change],  # Replace values in certain columns
+                              function(x) replace(x, x %in% change_to, 1))
+change_to <- c(4,5,6,7,8)
+dt1[col_to_change] <- sapply(dt1[col_to_change],  # Replace values in certain columns
+                              function(x) replace(x, x %in% change_to, 0))
+# change_to <- c(8)
+# dt1[col_to_change] <- sapply(dt1[col_to_change],  # Replace values in certain columns
+#                               function(x) replace(x, x %in% change_to, 2))
+dt2 <-dt1 %>%
+  mutate(
+    rpq = sum(c(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20), na.rm = T),
+    fpq = sum(c(fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20), na.rm = T)
+  ) %>%
+  mutate(`responsible research Practices` = ifelse(rpq > 10, 'Fail', ifelse(rpq <= 10, 'Pass', 'NA')),
+         `fair research practices` = ifelse(fpq > 10, 'Fail', ifelse(fpq <= 10, 'Pass', 'NA'))) %>%
+  mutate(`responsible research Practices` = as.character(ifelse(is.na(`responsible research Practices score`), '', `responsible research Practices`)),
+         `fair research practices` = as.character(ifelse(is.na(`fair research practices score`), '', `fair research practices`))
+         ) %>%
+  mutate(`responsible research Practices` = as.factor(ifelse(`responsible research Practices`=='', NA, `responsible research Practices`)),
+         `fair research practices` = as.factor(ifelse(`fair research practices`=='', NA, `fair research practices`))) %>%
+  dplyr::select(`responsible research Practices`, `fair research practices`, `Which of the following best describes you?`) %>%
+  tbl_summary(by = `Which of the following best describes you?`#, 
+            # missing = "no",
             # statistic = list(all_continuous() ~ "{mean} ({sd})")
             ) %>% 
   # add_p() %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
-dt1
+dt2
 
 # dt2 <- final_dataset %>%
 #   mutate(location = as.factor(case_when(
@@ -483,8 +504,8 @@ dt1
 dt01 <- final_dataset %>%
   dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, `Which of the following best describes you?`, `What is your highest academic rank?`) %>%
   # mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
-  tbl_summary(by = `Which of the following best describes you?`, 
-            missing = "no",
+  tbl_summary(by = `Which of the following best describes you?`#, 
+            # missing = "no",
             # statistic = list(all_continuous() ~ "{mean} ({sd})")
             ) %>% 
   # add_p() %>%
@@ -501,9 +522,9 @@ dt01
 dt02 <- final_dataset %>%
   dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) %>%
   tbl_summary(by = `Which of the following best describes you?`, 
-            missing = "no",
+            # missing = "no",
             type = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ 'continuous'),
-            statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{mean} ({sd})")
+            statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{median} ({p25}, {p75})")
             ) %>% 
   # add_p() %>%
   add_n() %>% 
@@ -525,11 +546,11 @@ dt03 <- final_dataset %>%
   ))) %>%
   dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, location) %>%
   tbl_summary(by = location, 
-            missing = "no",
+            # missing = "no",
             type = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score',) ~ 'continuous'),
-            statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{mean} ({sd})")
+            statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{median} ({p25}, {p75})")
             ) %>% 
-  add_p(test = everything() ~ "t.test") %>%
+  add_p(test = everything() ~ "wilcox.test") %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
@@ -537,16 +558,177 @@ dt03
 
 
 ```
+# Multivariate model - responsible research Practices
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+dat <- final_dataset %>%
+  mutate(Location = as.factor(case_when(
+    `Which of the following best describes you?` == 'Researcher from the Global North' ~ 'Global North',
+    `Which of the following best describes you?` == 'Researcher from the Global South' ~ 'Global South'#,
+    # `Which of the following best describes you?` == '' ~ 'Global North',
+  ))) %>%
+  drop_na(c('Which country are you from?', 'What discipline of global health based describes you:', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
+  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`, ) 
+
+finalmodel_dataset <- dat %>%
+  mutate(rpq_score = `responsible research Practices score`
+         )%>%
+  dplyr::select(rpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `What discipline of global health based describes you:`) %>%
+  mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
+         year_involment_research = as.factor(`How many years of involvement in research do you have?`),
+         gender = as.factor(`What is you gender?`),
+         country_origin = as.factor(`Which country are you from?`),
+         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         ) %>%
+  dplyr::select(rpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
+
+model <- glm(formula = as.formula('rpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
+              data = finalmodel_dataset,
+              family = gaussian,
+              )
+
+step.model <- stepAIC(model, direction = "both", 
+                      trace = F)
+# summary(step.model)
+model1 <- glm(formula = as.formula('rpq_score~ Location + accademic_rank'),
+              data = finalmodel_dataset,
+              family = gaussian,
+              )
+m1 <-model1 %>%
+  tbl_regression(
+    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+    pvalue_fun = ~style_pvalue(.x, digits = 3),
+  ) %>% 
+  # add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_source_note(gt::md("*Best set of dependent variables*")) %>%
+  gt::gtsave(filename = "rrpq.pdf")
+
+# full model
+finalmodel_dataset2 <- dat %>%
+  mutate(rpq_score = `responsible research Practices score`
+         )%>%
+  # dplyr::select(rpq_score, Location, var_selected) %>%
+  mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
+         year_involment_research = as.factor(`How many years of involvement in research do you have?`),
+         gender = as.factor(`What is you gender?`),
+         country_origin = as.factor(`Which country are you from?`),
+         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         ) %>%
+  dplyr::select(rpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
+model2 <- glm(formula = as.formula('rpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
+              data = finalmodel_dataset2,
+              family = gaussian,
+              )
+
+m2 <- model2 %>%
+  tbl_regression(
+    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+    pvalue_fun = ~style_pvalue(.x, digits = 3),
+  ) %>% 
+  # add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_source_note(gt::md("*Full model*")) %>%
+  gt::gtsave(filename = "rrpq - full model.pdf")
+```
+
+# Multivariate model - Fair research Practices
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dat <- final_dataset %>%
+  mutate(Location = as.factor(case_when(
+    `Which of the following best describes you?` == 'Researcher from the Global North' ~ 'Global North',
+    `Which of the following best describes you?` == 'Researcher from the Global South' ~ 'Global South'#,
+    # `Which of the following best describes you?` == '' ~ 'Global North',
+  ))) %>%
+  drop_na(c('Which country are you from?', 'What discipline of global health based describes you:', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
+  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`) 
+
+finalmodel_dataset <- dat %>%
+  mutate(fpq_score = `fair research practices score`
+         )%>%
+  dplyr::select(fpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `What discipline of global health based describes you:`) %>%
+  mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
+         year_involment_research = as.factor(`How many years of involvement in research do you have?`),
+         gender = as.factor(`What is you gender?`),
+         country_origin = as.factor(`Which country are you from?`),
+         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         ) %>%
+  dplyr::select(fpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
+
+model3 <- glm(formula = as.formula('fpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
+              data = finalmodel_dataset,
+              family = gaussian,
+              )
+
+step.model <- stepAIC(model3, direction = "both", 
+                      trace = F)
+summary(step.model)
+model3 <- glm(formula = as.formula('fpq_score~ Location + year_involment_research'),
+              data = finalmodel_dataset,
+              family = gaussian,
+              )
+
+model3 %>%
+  tbl_regression(
+    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+    pvalue_fun = ~style_pvalue(.x, digits = 3),
+  ) %>% 
+  # add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_source_note(gt::md("*Best set of dependent variables*"))%>%
+  gt::gtsave(filename = "frpq.pdf")
+
+# full model
+finalmodel_dataset3 <- dat %>%
+  mutate(fpq_score = `fair research practices score`
+         )%>%
+  # dplyr::select(fpq_score, Location, var_selected) %>%
+  mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
+         year_involment_research = as.factor(`How many years of involvement in research do you have?`),
+         gender = as.factor(`What is you gender?`),
+         country_origin = as.factor(`Which country are you from?`),
+         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         ) %>%
+  dplyr::select(fpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
+model2 <- glm(formula = as.formula('fpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
+              data = finalmodel_dataset3,
+              family = gaussian,
+              )
+
+model2 %>%
+  tbl_regression(
+    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+    pvalue_fun = ~style_pvalue(.x, digits = 3),
+  ) %>% 
+  # add_global_p() %>%
+  bold_p(t = 0.05) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  as_gt() %>%
+  gt::tab_source_note(gt::md("*Full model*"))%>%
+  gt::gtsave(filename = "frpq-full_model.pdf")
+```
 
 # Analysis for those who responded N/A
 In this analysis, I have only tabulated those who said N/A in any of the 40 questions
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
 dt1 <- final_dataset %>%
-    dplyr::select(`responsible research Practices_q1`, `na_responsible research Practices_q1`) %>%
+    dplyr::select(`responsible research Practices_q1`, `na_responsible research Practices_q1`, `Which of the following best describes you?`) %>%
     filter(`responsible research Practices_q1` == 'N/A') %>%
-    dplyr::select(`na_responsible research Practices_q1`) %>% #x[i], 
-    tbl_summary(#by = `Which of the following best describes you?`,
+    dplyr::select(`na_responsible research Practices_q1`, `Which of the following best describes you?`) %>% #x[i], 
+    tbl_summary(by = `Which of the following best describes you?`,
             # missing = "no",
             # statistic = list(all_continuous() ~ "{mean} ({sd})")
             ) %>%
@@ -557,10 +739,10 @@ dt1 <- final_dataset %>%
 dt1
 
 dt2 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q2`, `na_responsible research Practices_q2`) %>%
+  dplyr::select(`responsible research Practices_q2`, `na_responsible research Practices_q2`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q2` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q2`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q2`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -571,10 +753,10 @@ dt2 <- final_dataset %>%
 dt2
 
 dt3 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q3`, `na_responsible research Practices_q3`) %>%
+  dplyr::select(`responsible research Practices_q3`, `na_responsible research Practices_q3`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q3` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q3`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q3`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -585,10 +767,10 @@ dt3 <- final_dataset %>%
 dt3
 
 dt4 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q4`, `na_responsible research Practices_q4`) %>%
+  dplyr::select(`responsible research Practices_q4`, `na_responsible research Practices_q4`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q4` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q4`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q4`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -598,10 +780,10 @@ dt4 <- final_dataset %>%
   bold_labels()
 dt4
 dt5 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q5`, `na_responsible research Practices_q5`) %>%
+  dplyr::select(`responsible research Practices_q5`, `na_responsible research Practices_q5`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q5` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q5`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q5`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -611,10 +793,10 @@ dt5 <- final_dataset %>%
   bold_labels()
 dt5
 dt6 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q6`, `na_responsible research Practices_q6`) %>%
+  dplyr::select(`responsible research Practices_q6`, `na_responsible research Practices_q6`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q6` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q6`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q6`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -624,10 +806,10 @@ dt6 <- final_dataset %>%
   bold_labels()
 dt6
 dt7 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q7`, `na_responsible research Practices_q7`) %>%
+  dplyr::select(`responsible research Practices_q7`, `na_responsible research Practices_q7`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q7` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q7`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q7`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -637,10 +819,10 @@ dt7 <- final_dataset %>%
   bold_labels()
 dt7
 dt8 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q8`, `na_responsible research Practices_q8`) %>%
+  dplyr::select(`responsible research Practices_q8`, `na_responsible research Practices_q8`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q8` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q8`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q8`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -650,10 +832,10 @@ dt8 <- final_dataset %>%
   bold_labels()
 dt8
 dt9 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q9`, `na_responsible research Practices_q9`) %>%
+  dplyr::select(`responsible research Practices_q9`, `na_responsible research Practices_q9`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q9` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q9`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q9`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -663,10 +845,10 @@ dt9 <- final_dataset %>%
   bold_labels()
 dt9
 dt10 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q10`, `na_responsible research Practices_q10`) %>%
+  dplyr::select(`responsible research Practices_q10`, `na_responsible research Practices_q10`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q10` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q10`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q10`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -676,10 +858,10 @@ dt10 <- final_dataset %>%
   bold_labels()
 dt10
 dt11 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q11`, `na_responsible research Practices_q11`) %>%
+  dplyr::select(`responsible research Practices_q11`, `na_responsible research Practices_q11`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q11` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q11`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q11`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -689,10 +871,10 @@ dt11 <- final_dataset %>%
   bold_labels()
 dt11
 dt12 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q12`, `na_responsible research Practices_q12`) %>%
+  dplyr::select(`responsible research Practices_q12`, `na_responsible research Practices_q12`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q12` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q12`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q12`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -702,10 +884,10 @@ dt12 <- final_dataset %>%
   bold_labels()
 dt12
 dt13 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q13`, `na_responsible research Practices_q13`) %>%
+  dplyr::select(`responsible research Practices_q13`, `na_responsible research Practices_q13`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q13` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q13`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q13`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -715,10 +897,10 @@ dt13 <- final_dataset %>%
   bold_labels()
 dt13
 dt14 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q14`, `na_responsible research Practices_q14`) %>%
+  dplyr::select(`responsible research Practices_q14`, `na_responsible research Practices_q14`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q14` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q14`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q14`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -728,10 +910,10 @@ dt14 <- final_dataset %>%
   bold_labels()
 dt14
 dt15 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q15`, `na_responsible research Practices_q15`) %>%
+  dplyr::select(`responsible research Practices_q15`, `na_responsible research Practices_q15`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q15` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q15`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q15`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -741,10 +923,10 @@ dt15 <- final_dataset %>%
   bold_labels()
 dt15
 dt16 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q16`, `na_responsible research Practices_q16`) %>%
+  dplyr::select(`responsible research Practices_q16`, `na_responsible research Practices_q16`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q16` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q16`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q16`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -754,10 +936,10 @@ dt16 <- final_dataset %>%
   bold_labels()
 dt16
 dt17 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q17`, `na_responsible research Practices_q17`) %>%
+  dplyr::select(`responsible research Practices_q17`, `na_responsible research Practices_q17`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q17` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q17`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q17`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -767,10 +949,10 @@ dt17 <- final_dataset %>%
   bold_labels()
 dt17
 dt18 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q18`, `na_responsible research Practices_q18`) %>%
+  dplyr::select(`responsible research Practices_q18`, `na_responsible research Practices_q18`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q18` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q18`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q18`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -780,10 +962,10 @@ dt18 <- final_dataset %>%
   bold_labels()
 dt18
 dt19 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q19`, `na_responsible research Practices_q19`) %>%
+  dplyr::select(`responsible research Practices_q19`, `na_responsible research Practices_q19`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q19` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q19`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q19`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -793,10 +975,10 @@ dt19 <- final_dataset %>%
   bold_labels()
 dt19
 dt20 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q20`, `na_responsible research Practices_q20`) %>%
+  dplyr::select(`responsible research Practices_q20`, `na_responsible research Practices_q20`, `Which of the following best describes you?`) %>%
   filter(`responsible research Practices_q20` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q20`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_responsible research Practices_q20`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -810,10 +992,10 @@ dt20
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt1 <- final_dataset %>%
-  dplyr::select(`fair research practices_q1`, `na_fair research practices_q1`) %>%
+  dplyr::select(`fair research practices_q1`, `na_fair research practices_q1`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q1` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q1`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q1`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -824,10 +1006,10 @@ dt1 <- final_dataset %>%
 dt1
 
 dt2 <- final_dataset %>%
-  dplyr::select(`fair research practices_q2`, `na_fair research practices_q2`) %>%
+  dplyr::select(`fair research practices_q2`, `na_fair research practices_q2`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q2` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q2`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q2`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -838,10 +1020,10 @@ dt2 <- final_dataset %>%
 dt2
 
 dt3 <- final_dataset %>%
-  dplyr::select(`fair research practices_q3`, `na_fair research practices_q3`) %>%
+  dplyr::select(`fair research practices_q3`, `na_fair research practices_q3`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q3` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q3`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q3`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -852,10 +1034,10 @@ dt3 <- final_dataset %>%
 dt3
 
 dt4 <- final_dataset %>%
-  dplyr::select(`fair research practices_q4`, `na_fair research practices_q4`) %>%
+  dplyr::select(`fair research practices_q4`, `na_fair research practices_q4`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q4` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q4`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q4`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -865,10 +1047,10 @@ dt4 <- final_dataset %>%
   bold_labels()
 dt4
 dt5 <- final_dataset %>%
-  dplyr::select(`fair research practices_q5`, `na_fair research practices_q5`) %>%
+  dplyr::select(`fair research practices_q5`, `na_fair research practices_q5`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q5` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q5`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q5`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -878,10 +1060,10 @@ dt5 <- final_dataset %>%
   bold_labels()
 dt5
 dt6 <- final_dataset %>%
-  dplyr::select(`fair research practices_q6`, `na_fair research practices_q6`) %>%
+  dplyr::select(`fair research practices_q6`, `na_fair research practices_q6`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q6` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q6`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q6`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -891,10 +1073,10 @@ dt6 <- final_dataset %>%
   bold_labels()
 dt6
 dt7 <- final_dataset %>%
-  dplyr::select(`fair research practices_q7`, `na_fair research practices_q7`) %>%
+  dplyr::select(`fair research practices_q7`, `na_fair research practices_q7`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q7` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q7`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q7`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -904,10 +1086,10 @@ dt7 <- final_dataset %>%
   bold_labels()
 dt7
 dt8 <- final_dataset %>%
-  dplyr::select(`fair research practices_q8`, `na_fair research practices_q8`) %>%
+  dplyr::select(`fair research practices_q8`, `na_fair research practices_q8`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q8` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q8`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q8`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -917,10 +1099,10 @@ dt8 <- final_dataset %>%
   bold_labels()
 dt8
 dt9 <- final_dataset %>%
-  dplyr::select(`fair research practices_q9`, `na_fair research practices_q9`) %>%
+  dplyr::select(`fair research practices_q9`, `na_fair research practices_q9`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q9` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q9`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q9`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -930,10 +1112,10 @@ dt9 <- final_dataset %>%
   bold_labels()
 dt9
 dt10 <- final_dataset %>%
-  dplyr::select(`fair research practices_q10`, `na_fair research practices_q10`) %>%
+  dplyr::select(`fair research practices_q10`, `na_fair research practices_q10`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q10` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q10`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q10`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -943,10 +1125,10 @@ dt10 <- final_dataset %>%
   bold_labels()
 dt10
 dt11 <- final_dataset %>%
-  dplyr::select(`fair research practices_q11`, `na_fair research practices_q11`) %>%
+  dplyr::select(`fair research practices_q11`, `na_fair research practices_q11`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q11` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q11`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q11`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -956,10 +1138,10 @@ dt11 <- final_dataset %>%
   bold_labels()
 dt11
 dt12 <- final_dataset %>%
-  dplyr::select(`fair research practices_q12`, `na_fair research practices_q12`) %>%
+  dplyr::select(`fair research practices_q12`, `na_fair research practices_q12`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q12` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q12`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q12`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -969,10 +1151,10 @@ dt12 <- final_dataset %>%
   bold_labels()
 dt12
 dt13 <- final_dataset %>%
-  dplyr::select(`fair research practices_q13`, `na_fair research practices_q13`) %>%
+  dplyr::select(`fair research practices_q13`, `na_fair research practices_q13`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q13` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q13`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q13`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -982,10 +1164,10 @@ dt13 <- final_dataset %>%
   bold_labels()
 dt13
 dt14 <- final_dataset %>%
-  dplyr::select(`fair research practices_q14`, `na_fair research practices_q14`) %>%
+  dplyr::select(`fair research practices_q14`, `na_fair research practices_q14`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q14` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q14`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q14`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -995,10 +1177,10 @@ dt14 <- final_dataset %>%
   bold_labels()
 dt14
 dt15 <- final_dataset %>%
-  dplyr::select(`fair research practices_q15`, `na_fair research practices_q15`) %>%
+  dplyr::select(`fair research practices_q15`, `na_fair research practices_q15`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q15` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q15`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q15`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -1008,10 +1190,10 @@ dt15 <- final_dataset %>%
   bold_labels()
 dt15
 dt16 <- final_dataset %>%
-  dplyr::select(`fair research practices_q16`, `na_fair research practices_q16`) %>%
+  dplyr::select(`fair research practices_q16`, `na_fair research practices_q16`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q16` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q16`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q16`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -1021,10 +1203,10 @@ dt16 <- final_dataset %>%
   bold_labels()
 dt16
 dt17 <- final_dataset %>%
-  dplyr::select(`fair research practices_q17`, `na_fair research practices_q17`) %>%
+  dplyr::select(`fair research practices_q17`, `na_fair research practices_q17`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q17` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q17`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q17`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -1034,10 +1216,10 @@ dt17 <- final_dataset %>%
   bold_labels()
 dt17
 dt18 <- final_dataset %>%
-  dplyr::select(`fair research practices_q18`, `na_fair research practices_q18`) %>%
+  dplyr::select(`fair research practices_q18`, `na_fair research practices_q18`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q18` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q18`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q18`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -1047,10 +1229,10 @@ dt18 <- final_dataset %>%
   bold_labels()
 dt18
 dt19 <- final_dataset %>%
-  dplyr::select(`fair research practices_q19`, `na_fair research practices_q19`) %>%
+  dplyr::select(`fair research practices_q19`, `na_fair research practices_q19`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q19` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q19`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q19`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
@@ -1060,10 +1242,10 @@ dt19 <- final_dataset %>%
   bold_labels()
 dt19
 dt20 <- final_dataset %>%
-  dplyr::select(`fair research practices_q20`, `na_fair research practices_q20`) %>%
+  dplyr::select(`fair research practices_q20`, `na_fair research practices_q20`, `Which of the following best describes you?`) %>%
   filter(`fair research practices_q20` == 'N/A') %>%
-  dplyr::select(`na_fair research practices_q20`) %>% #x[i], 
-  tbl_summary(#by = `Which of the following best describes you?`,
+  dplyr::select(`na_fair research practices_q20`, `Which of the following best describes you?`) %>% #x[i], 
+  tbl_summary(by = `Which of the following best describes you?`,
     # missing = "no",
     # statistic = list(all_continuous() ~ "{mean} ({sd})")
   ) %>%
