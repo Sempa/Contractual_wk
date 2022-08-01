@@ -76,7 +76,7 @@ tbl_summary(#table_1,
             digits = list(all_categorical() ~ c(0, 1)),
             label = list(`Total CD4 count...9` ~ 'Total CD4 count')
             ) %>%
-  add_p() %>%
+  # add_p() %>%
   add_n() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
@@ -110,7 +110,8 @@ table_2
 
 ```
 
-# Table 3: Bivariate table
+# Table 3: Bivariate table (without imputed data)
+
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table_mortality <- final_dataset %>%
   dplyr::select(`Hospital folder number`, `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`) %>%
@@ -158,36 +159,18 @@ table_3 <- final_dataset %>%
          `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
          Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity),
          `Total CD4 count` = `Total CD4 count...9`) %>%
-  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath)#`Opportunistic infection present`, 
-  # mutate(addisons_disease_advanced_HIV = ifelse(addisons_disease==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
-  # mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
-  #        enrol = as.Date(`Date of enrolment in study`, format = '%m/%d/%Y'),
-  #        diagnosed = as.Date(`HIV, when diagnosed`, format = '%m/%d/%Y')) %>%
-  # dplyr::select(`Hospital folder number`, Ethnicity, Gender, `Total CD4 count...9`, `Random cortisol result`, `Synacthen: 30 minute cortisol result`, `Synacthen: 0 minute cortisol result`, `ACTH result`, Neutrophils, `Lymphocyte count`, Haemoglobin, Sodium, Hypoglycaemia, `BP (systolic)`, `BP (diastolic)`, `Current tuberculosis`, `Duration of current illness`, HIV_duration, addisons_disease_advanced_HIV, mortality, ttdeath) %>%
-  # left_join(dt03, by = 'Hospital folder number')
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath) %>%
+  mutate(Ethnicity = as.numeric(as.factor(Ethnicity)),
+         gender = as.numeric(as.factor(gender)),
+         Addisons_disease = as.numeric(as.factor(`Addisons disease`)),
+         Log10_viralload = `log10 viral load`,
+         Age_at_enrolment = `Age at enrolment`,
+         Total_CD4_count = `Total CD4 count`,
+         White_cell_count = `White cell count`,
+         Lymphocyte_count = `Lymphocyte count`,
+         Duration_of_current_illness = `Duration of current illness`) %>%
+  dplyr::select(Age_at_enrolment, gender, Ethnicity, Duration_of_current_illness, Log10_viralload, Total_CD4_count, Sodium, Potassium, Haemoglobin, White_cell_count, Lymphocyte_count, Neutrophils, Addisons_disease, mortality, ttdeath)
 
-
-
-
-
-# table_3 <- final_dataset %>%
-#   mutate(`log10 viral load` = log(`HIV viral load`, 10),
-#          HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
-#          gender = factor(Gender, labels = c('Females', 'Males')),
-#          `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', '')))) %>%
-#   dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`) #%>%
-# tbl_summary(#table_1,
-#             missing = "no",
-#             by = `Addisons disease`,
-#             # statistic = list(all_continuous() ~ "{mean} ({sd})"),
-#             digits = list(all_categorical() ~ c(0, 2)),
-#             label = list(`Total CD4 count...9` ~ 'Total CD4 count')
-#             ) %>%
-#   add_p() %>%
-#   add_n() %>%
-#   modify_header(label = "Variable") %>% # update the column header
-#   bold_labels()
-# table_3
 tbl_uvregression(
   table_3,
   method=coxph,
@@ -195,4 +178,47 @@ tbl_uvregression(
   exponentiate = TRUE#,
   # include = -ID
 )
+```
+
+# Table 3: Bivariate table with imputed data
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+nr_imputations <- 5
+imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
+completeData <- complete(imputedData, 2)
+# correlationMatrix <- cor(completeData)
+# highlyCorrelated <- findCorrelation(correlationMatrix)
+# print(highlyCorrelated)
+
+model_dataset <- completeData
+tbl_uvregression(
+  model_dataset, #table_3,
+  method=coxph,
+  y = Surv(time = ttdeath, event = mortality),
+  exponentiate = TRUE#,
+  # include = -ID
+)
+```
+
+# Table 4: Multivariate table (generated with imputed data)
+
+The rule of thumb for MV models such as this on you need at least 10 people per outcome. We have 53 people with the outcome, yet we have 6 variables adjusted for in the model (using stepwise regression). I suggest we remove one variable from the list that you think may not be biologically contributing in the relationship. (see accompanying file)
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+my.variable.list <- names(model_dataset[, 1:12]) #model_dataset[,1:16,20:22])
+My.stepwise::My.stepwise.coxph(Time = "ttdeath", Status = "mortality", variable.list = my.variable.list,
+   in.variable = c("Addisons_disease"), data = model_dataset, sle = 0.20, sls = 0.20)
+model1 <- survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Neutrophils + Lymphocyte_count + Potassium + gender, data = model_dataset)
+summary(model1)
+coef(model1)
+confint(model1)
+mv_table <- #data.frame(
+  cbind(exp(cbind(coef(model1),confint(model1))), p_value = round(summary(model1)$coefficients[,5], 4))
+  #)
+final_table <- data.frame(cbind(exp(coef(model1)), exp(confint(model1)), summary(model1)$coefficients[, 5])) %>%
+  mutate(Variable = c("Addison's disease", "Log10 Viral load", 'Neutrophils', 'Lymphocyte count', 'Potassium', 'gender'), Adj.HR = round(V1,3), `95%CI` = paste('(', round(`X2.5..`, 5), ', ', round(`X97.5..`, 5), ')', sep = ''), `P value` = V4) %>%
+  dplyr::select(Variable, Adj.HR, `95%CI`, `P value`)
+row.names(final_table) <- 1:length(final_table$Variable)
+write.csv(final_table, 'final_table_updated.csv')
 ```
