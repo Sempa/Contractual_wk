@@ -1,5 +1,5 @@
 ---
-title: "Adddison's disease associated with advanced HIV may explain the high mortality"
+title: "Addison's disease associated with advanced HIV may explain the high mortality"
 author: "Dr Joseph B Sempa"
 date: "`r Sys.Date()`"
 output:
@@ -61,18 +61,19 @@ contrasts(final_dataset$Ethnicity) <-
   contr.treatment(levels(final_dataset$Ethnicity),                                                    base = which(levels(final_dataset$Ethnicity) == 'Black African'))
 ```
 
-# Table 1 re-imagined
+# Table 1
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-
 table_1 <- final_dataset %>%
   mutate(`log10 viral load` = log(`HIV viral load`, 10),
          HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
-         gender = factor(Gender, labels = c('Females', 'Males'))) %>%
-  dplyr::select(`Age at enrolment`, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, gender)
-tbl_summary(table_1,
+         gender = factor(Gender, labels = c('Females', 'Males')),
+         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', '')))) %>%
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
+tbl_summary(#table_1,
             missing = "no",
-            by = gender,
+            #by = `Addisons disease`,
             # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+            digits = list(all_categorical() ~ c(0, 1)),
             label = list(`Total CD4 count...9` ~ 'Total CD4 count')
             ) %>%
   add_p() %>%
@@ -80,4 +81,118 @@ tbl_summary(table_1,
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 table_1
+
+```
+
+# Table 2: comparing Addisons status with other variables
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+table_2 <- final_dataset %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(`log10 viral load` = log(`HIV viral load`, 10),
+         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         gender = factor(Gender, labels = c('Females', 'Males')),
+         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
+         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
+tbl_summary(#table_1,
+            missing = "no",
+            by = `Addisons disease`,
+            # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+            digits = list(all_categorical() ~ c(0, 1)),
+            label = list(`Total CD4 count...9` ~ 'Total CD4 count')
+            ) %>%
+  add_p() %>%
+  add_n() %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+table_2
+
+```
+
+# Table 3: Bivariate table
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table_mortality <- final_dataset %>%
+  dplyr::select(`Hospital folder number`, `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`) %>%
+  pivot_longer(cols = c(`3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`),
+               names_to = 'col_num',
+               values_to = 'followup_patientstatus') %>%
+  dplyr::select(`Hospital folder number`, `followup_patientstatus`) %>%
+  group_by(`Hospital folder number`) %>%
+  mutate(mortality = ifelse(followup_patientstatus == 'Deceased --> EXIT form', 1,ifelse(followup_patientstatus == 'Alive', 0, 0))) %>%
+  dplyr::select(`Hospital folder number`, mortality)
+table_mortality[is.na(table_mortality)] <- 0
+table_mortality1 <- table_mortality %>% 
+  group_by(`Hospital folder number`) %>%
+  mutate(mortality = max(mortality)) %>%
+  distinct(`Hospital folder number`, .keep_all = T) 
+
+time_to_death <- final_dataset%>%
+  dplyr::select(`Hospital folder number`, `3 followup_patientstatus`, 
+                `6 followup_patientstatus`, `12 followup_patientstatus`
+                ) %>%
+  mutate(flag1 = ifelse(`3 followup_patientstatus` == "Deceased --> EXIT form", 3, NA),
+         flag2 = ifelse(`6 followup_patientstatus` == "Deceased --> EXIT form", 6, NA),
+         flag3 = ifelse(`12 followup_patientstatus` == "Deceased --> EXIT form", 12, NA)) %>%
+  dplyr::select(`Hospital folder number`, flag1:flag3) %>%
+  pivot_longer(cols = c(flag1:flag3),
+               names_to = 'col_num',
+               values_to = 'time to death') %>%
+  dplyr::select(`Hospital folder number`, `time to death`) %>%
+  group_by(`Hospital folder number`) %>%
+  mutate(ttdeath = min(`time to death`, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(ttdeath = ifelse(is.infinite(ttdeath), 12, ttdeath)) %>%
+  distinct(`Hospital folder number`, .keep_all = T) %>%
+    dplyr::select(`Hospital folder number`, ttdeath)
+  
+table_mortality1 <- table_mortality1 %>%
+  left_join(time_to_death, by = 'Hospital folder number')
+
+table_3 <- final_dataset %>%
+  left_join(table_mortality1, by = 'Hospital folder number') %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(`log10 viral load` = log(`HIV viral load`, 10),
+         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         gender = factor(Gender, labels = c('Females', 'Males')),
+         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
+         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity),
+         `Total CD4 count` = `Total CD4 count...9`) %>%
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath)#`Opportunistic infection present`, 
+  # mutate(addisons_disease_advanced_HIV = ifelse(addisons_disease==1 & `CD4 < 100`==1 & `Oral or inhaled steroids in the last three months`=='No', 1, 0)) %>%
+  # mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+  #        enrol = as.Date(`Date of enrolment in study`, format = '%m/%d/%Y'),
+  #        diagnosed = as.Date(`HIV, when diagnosed`, format = '%m/%d/%Y')) %>%
+  # dplyr::select(`Hospital folder number`, Ethnicity, Gender, `Total CD4 count...9`, `Random cortisol result`, `Synacthen: 30 minute cortisol result`, `Synacthen: 0 minute cortisol result`, `ACTH result`, Neutrophils, `Lymphocyte count`, Haemoglobin, Sodium, Hypoglycaemia, `BP (systolic)`, `BP (diastolic)`, `Current tuberculosis`, `Duration of current illness`, HIV_duration, addisons_disease_advanced_HIV, mortality, ttdeath) %>%
+  # left_join(dt03, by = 'Hospital folder number')
+
+
+
+
+
+# table_3 <- final_dataset %>%
+#   mutate(`log10 viral load` = log(`HIV viral load`, 10),
+#          HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+#          gender = factor(Gender, labels = c('Females', 'Males')),
+#          `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', '')))) %>%
+#   dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`) #%>%
+# tbl_summary(#table_1,
+#             missing = "no",
+#             by = `Addisons disease`,
+#             # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+#             digits = list(all_categorical() ~ c(0, 2)),
+#             label = list(`Total CD4 count...9` ~ 'Total CD4 count')
+#             ) %>%
+#   add_p() %>%
+#   add_n() %>%
+#   modify_header(label = "Variable") %>% # update the column header
+#   bold_labels()
+# table_3
+tbl_uvregression(
+  table_3,
+  method=coxph,
+  y = Surv(time = ttdeath, event = mortality),
+  exponentiate = TRUE#,
+  # include = -ID
+)
 ```

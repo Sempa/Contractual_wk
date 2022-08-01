@@ -1,5 +1,5 @@
 ---
-title: "Adddison's disease associated with advanced HIV may explain the high mortality"
+title: "Addison's disease associated with advanced HIV may explain the high mortality"
 author: "Dr Joseph B Sempa"
 date: "`r Sys.Date()`"
 output:
