@@ -570,7 +570,25 @@ dat <- final_dataset %>%
   ))) %>%
   drop_na(c('Which country are you from?', 'What discipline of global health based describes you:', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
   dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`, ) 
-
+univariate_table <- dat %>%
+  mutate(rpq_score = `responsible research Practices score`) %>%
+  mutate(
+    accademic_rank = as.factor(`What is your highest academic rank?`),
+    year_involment_research = as.factor(`How many years of involvement in research do you have?`),
+    gender = as.factor(`What is you gender?`),
+    country_origin = as.factor(`Which country are you from?`),
+    discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+  ) %>%
+  dplyr::select(rpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health) # %>%
+univariate_table_1 <- 
+tbl_uvregression(
+  univariate_table[c("rpq_score", "Location", "accademic_rank", "year_involment_research", "gender", "country_origin", "discipline_global_health")],
+  method = glm,
+  y = "rpq_score",
+  method.args = list(family = gaussian),
+  exponentiate = FALSE
+)
+univariate_table_1
 finalmodel_dataset <- dat %>%
   mutate(rpq_score = `responsible research Practices score`
          )%>%
@@ -607,6 +625,7 @@ m1 <-model1 %>%
   as_gt() %>%
   gt::tab_source_note(gt::md("*Best set of dependent variables*")) %>%
   gt::gtsave(filename = "rrpq.pdf")
+  # gt::gtsave(filename = "rrpq.rtf")
 
 # full model
 finalmodel_dataset2 <- dat %>%
@@ -637,6 +656,7 @@ m2 <- model2 %>%
   as_gt() %>%
   gt::tab_source_note(gt::md("*Full model*")) %>%
   gt::gtsave(filename = "rrpq - full model.pdf")
+  # gt::gtsave(filename = "rrpq - full model.rtf")
 ```
 
 # Multivariate model - Fair research Practices
@@ -650,6 +670,27 @@ dat <- final_dataset %>%
   ))) %>%
   drop_na(c('Which country are you from?', 'What discipline of global health based describes you:', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
   dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`) 
+
+univariate_table_2 <- dat %>%
+  mutate(fpq_score = `fair research practices score`
+         )%>%
+  dplyr::select(fpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `What discipline of global health based describes you:`) %>%
+  mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
+         year_involment_research = as.factor(`How many years of involvement in research do you have?`),
+         gender = as.factor(`What is you gender?`),
+         country_origin = as.factor(`Which country are you from?`),
+         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         ) %>%
+  dplyr::select(fpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
+univariate_table_3 <- 
+tbl_uvregression(
+  univariate_table_2[c("fpq_score", "Location", "accademic_rank", "year_involment_research", "gender", "country_origin", "discipline_global_health")],
+  method = glm,
+  y = "fpq_score",
+  method.args = list(family = gaussian),
+  exponentiate = FALSE
+)
+univariate_table_3
 
 finalmodel_dataset <- dat %>%
   mutate(fpq_score = `fair research practices score`
@@ -688,6 +729,7 @@ model3 %>%
   as_gt() %>%
   gt::tab_source_note(gt::md("*Best set of dependent variables*"))%>%
   gt::gtsave(filename = "frpq.pdf")
+  # gt::gtsave(filename = "frpq.rtf")
 
 # full model
 finalmodel_dataset3 <- dat %>%
@@ -718,6 +760,7 @@ model2 %>%
   as_gt() %>%
   gt::tab_source_note(gt::md("*Full model*"))%>%
   gt::gtsave(filename = "frpq-full_model.pdf")
+  # gt::gtsave(filename = "frpq-full_model.rtf")
 ```
 
 # Analysis for those who responded N/A

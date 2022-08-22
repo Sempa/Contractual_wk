@@ -209,7 +209,7 @@ The rule of thumb for MV models such as this on you need at least 10 people per 
 my.variable.list <- names(model_dataset[, 1:12]) #model_dataset[,1:16,20:22])
 My.stepwise::My.stepwise.coxph(Time = "ttdeath", Status = "mortality", variable.list = my.variable.list,
    in.variable = c("Addisons_disease"), data = model_dataset, sle = 0.20, sls = 0.20)
-model1 <- survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Neutrophils + Lymphocyte_count + Potassium + gender, data = model_dataset)
+model1 <- survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Neutrophils + Lymphocyte_count + Potassium, data = model_dataset) # + gender
 summary(model1)
 coef(model1)
 confint(model1)
@@ -217,7 +217,7 @@ mv_table <- #data.frame(
   cbind(exp(cbind(coef(model1),confint(model1))), p_value = round(summary(model1)$coefficients[,5], 4))
   #)
 final_table <- data.frame(cbind(exp(coef(model1)), exp(confint(model1)), summary(model1)$coefficients[, 5])) %>%
-  mutate(Variable = c("Addison's disease", "Log10 Viral load", 'Neutrophils', 'Lymphocyte count', 'Potassium', 'gender'), Adj.HR = round(V1,3), `95%CI` = paste('(', round(`X2.5..`, 5), ', ', round(`X97.5..`, 5), ')', sep = ''), `P value` = V4) %>%
+  mutate(Variable = c("Addison's disease", "Log10 Viral load", 'Neutrophils', 'Lymphocyte count', 'Potassium'), Adj.HR = round(V1,3), `95%CI` = paste('(', round(`X2.5..`, 5), ', ', round(`X97.5..`, 5), ')', sep = ''), `P value` = V4) %>% #, 'gender'
   dplyr::select(Variable, Adj.HR, `95%CI`, `P value`)
 row.names(final_table) <- 1:length(final_table$Variable)
 write.csv(final_table, 'final_table_updated.csv')
