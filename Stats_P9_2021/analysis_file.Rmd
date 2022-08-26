@@ -1,0 +1,44 @@
+---
+title: "The Effectiveness of Regional Anaesthesia in the Management of Chronic Pain at Universitas Academic Hospital Pain Unit"
+author: "Dr Joseph B Sempa"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    fig_caption: yes
+    toc: yes
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+  html_document:
+    fig_caption: yes
+    toc: yes
+  html_notebook:
+    toc: yes
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.pos = 'H')
+knitr::opts_chunk$set(results = 'asis')
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(tinytex)
+library(gmodels)
+library(readxl)
+library(gtsummary)
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# library(readr)
+final_dataset <- read_csv("final_dataset.csv") %>%
+  filter(!is.na(clinic))
+
+
+```
