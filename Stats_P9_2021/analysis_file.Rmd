@@ -38,7 +38,33 @@ library(gtsummary)
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 # library(readr)
 final_dataset <- read_csv("final_dataset.csv") %>%
-  filter(!is.na(clinic))
+  filter(!is.na(`Study Number`)) %>%
+  unite("Intervention", c(`Intervention 1`, `Intervention 2`, `Intervention 3`), na.rm = TRUE, sep = "", remove = F)
+```
+
+# Social demographics
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+dt01 <- final_dataset %>%
+  distinct(`Study Number`, .keep_all = T) %>%
+  dplyr::select(Age, Gender) %>%
+  tbl_summary(
+    # type = list(c('Visit') ~ 'categorical')#,
+            # statistic = list(c('Visit') ~ "{median} ({p25}, {p75})")
+  ) %>% 
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt01
+
+dt02 <- final_dataset %>%
+  dplyr::select(`Study Number`, Intervention, `Indication 1`, `Indication 2`) #%>%
+  
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
 
 ```
