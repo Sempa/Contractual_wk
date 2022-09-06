@@ -439,6 +439,32 @@ final_dataset <- final_dataset %>%
 
 ```
 
+# Demographics
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt01 <- final_dataset %>%
+  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, `Which of the following best describes you?`, `What is your highest academic rank?`) %>%
+  # mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
+  tbl_summary(by = `Which of the following best describes you?`,
+            digits = list(all_categorical() ~ c(0, 1))#, 
+            # missing = "no",
+            # statistic = list(all_continuous() ~ "{mean} ({sd})")
+            ) %>% 
+  add_overall() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+
+dt01
+```
+Out of the 145 respondents, only 118 people responded to the question about country of origin. Majority 41 (34.7%) were from sub-Saharan Africa working many of whom were based in the global south. The second highest group were from Europe and Central Asia, with 32 (27.1%), many of whom work were based in the global north. Only one person was from the middle-East and North America, currently based in the global south. However, 27 (18.6%) respondents did not respond to this question.
+
+Majority, 41 (35.3%) of the respondents were from Biostatistics/Epidemiology discipline of global health of whom majority twenty-two were operating from the global south, accounting for 34.4% from the global south. Biology/medicine was the second highest global heal discipline among our respondents with 23 (27.6%) and was also the second highest among country of origin with 18 (28.1%) from the global south. Only one respondent was from the Mathematics/computer science discipline and based in global north. However, we had 29 (20%) non-response rate on this question.
+
+Majority of the respondents 59 (50.4%) were of the male-gender, accounting for 37 (56.9%) from the global south. The global south still had majority 28 (43.1%)female-gender representation. However, 28 (19.3%) respondents did not respond to this question.
+
+Majority of the respondents 65 (55.6%) were established researchers with >10years post education, accounting for 35 (74.5%) from the global north. The Mid-career (3-10 years post-education) were the second highest 36 (30.8%), accounting for 27 (42.2%) based in the global south. However, we had 28 (19.3%) non-response rate on this question.
+
+For the highest academic rank, we had a non-response rate of 27 (18.6%). however, majority of the respondents 34 (28.8%) had Ph.D degrees, accounting for 23 (35.4%) from the global south. The Associate Professor or Full Professor were the second highest 33 (28.0%), accounting for 20 (42.6%) from the global south. However, we had 28 (19.3%) non-response rate on this question. Respondents with a bachelor or Master degree were 29 (24.6%), accounting for 21 (32.3%) from the global south.
 
 # Prevalence of responsible research practices and Fair research practices 
 
@@ -469,11 +495,12 @@ dt2 <-dt1 %>%
   mutate(`responsible research Practices` = as.factor(ifelse(`responsible research Practices`=='', NA, `responsible research Practices`)),
          `fair research practices` = as.factor(ifelse(`fair research practices`=='', NA, `fair research practices`))) %>%
   dplyr::select(`responsible research Practices`, `fair research practices`, `Which of the following best describes you?`) %>%
-  tbl_summary(by = `Which of the following best describes you?`#, 
+  tbl_summary(by = `Which of the following best describes you?`,
+            digits = list(all_categorical() ~ c(0, 1))#, 
             # missing = "no",
             # statistic = list(all_continuous() ~ "{mean} ({sd})")
             ) %>% 
-  # add_p() %>%
+  add_overall() %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
@@ -498,24 +525,7 @@ dt2
 #   bold_labels()
 # dt2
 ```
-
-# Demographics
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-dt01 <- final_dataset %>%
-  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, `Which of the following best describes you?`, `What is your highest academic rank?`) %>%
-  # mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
-  tbl_summary(by = `Which of the following best describes you?`#, 
-            # missing = "no",
-            # statistic = list(all_continuous() ~ "{mean} ({sd})")
-            ) %>% 
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-
-dt01
-```
-
+Of the 145 respondents to the survey, 126 (86.9%) filled in the responsible research practices (RRP) questionnaire. Using a cutoff score of 70, which is the half the total possible score on the RRP tool, all respondents to this questionnaire from the global south and global north passed the questions. While, for fair research practices, with the same cutoff conditions and a response rate of 116 (80%), an equal number of two individuals failed.
 
 # Responsible research practices and fair research practices by the question which of the following best describes you?
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
@@ -551,6 +561,7 @@ dt03 <- final_dataset %>%
             statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{median} ({p25}, {p75})")
             ) %>% 
   add_p(test = everything() ~ "wilcox.test") %>%
+  add_overall() %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
