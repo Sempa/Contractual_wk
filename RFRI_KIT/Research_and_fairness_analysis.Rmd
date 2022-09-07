@@ -468,7 +468,7 @@ For the highest academic rank, we had a non-response rate of 27 (18.6%). however
 
 # Prevalence of responsible research practices and Fair research practices 
 
-We used a cutoff score of 70 in both cases since the maximum score is 140 in both cases.
+<!-- We used a cutoff score of 70 in both cases since the maximum score is 140 in both cases. -->
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt1 <- final_dataset %>%
   dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) 
@@ -525,24 +525,23 @@ dt2
 #   bold_labels()
 # dt2
 ```
-Of the 145 respondents to the survey, 126 (86.9%) filled in the responsible research practices (RRP) questionnaire. Using a cutoff score of 70, which is the half the total possible score on the RRP tool, all respondents to this questionnaire from the global south and global north passed the questions. While, for fair research practices, with the same cutoff conditions and a response rate of 116 (80%), an equal number of two individuals failed.
+Of the 145 respondents to the survey, 126 (86.9%) filled in the responsible research practices (RRP) questionnaire. Using a cutoff score of 70, which is the half the total possible score on the RRP tool, all respondents to this questionnaire from the global south and global north passed the questions and there was no statistically significant difference in the median score between global south 111 (95, 123) compared to global north 107 (97, 117) (P = 0.4). While, for fair research practices, with the same cutoff conditions and a response rate of 116 (80%), an equal number of two individuals failed and there was a statistically significant difference in the median score between global south 116 (99, 127) compared to global north 104 (90, 118) (P = 0.010).
 
-# Responsible research practices and fair research practices by the question which of the following best describes you?
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-dt02 <- final_dataset %>%
-  dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) %>%
-  tbl_summary(by = `Which of the following best describes you?`, 
-            # missing = "no",
-            type = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ 'continuous'),
-            statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{median} ({p25}, {p75})")
-            ) %>% 
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt02
-```
-
+<!-- # Responsible research practices and fair research practices by the question which of the following best describes you? -->
+<!-- ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
+<!-- dt02 <- final_dataset %>% -->
+<!--   dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, `Which of the following best describes you?`) %>% -->
+<!--   tbl_summary(by = `Which of the following best describes you?`,  -->
+<!--             # missing = "no", -->
+<!--             type = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ 'continuous'), -->
+<!--             statistic = list(c('rpq1', 'rpq2', 'rpq3', 'rpq4', 'rpq5', 'rpq6', 'rpq7', 'rpq8', 'rpq9', 'rpq10', 'rpq11', 'rpq12', 'rpq13', 'rpq14', 'rpq15', 'rpq16', 'rpq17', 'rpq18', 'rpq19', 'rpq20', 'fpq1', 'fpq2', 'fpq3', 'fpq4', 'fpq5', 'fpq6', 'fpq7', 'fpq8', 'fpq9', 'fpq10', 'fpq11', 'fpq12', 'fpq13', 'fpq14', 'fpq15', 'fpq16', 'fpq17', 'fpq18', 'fpq19', 'fpq20', 'responsible research Practices score', 'fair research practices score') ~ "{median} ({p25}, {p75})") -->
+<!--             ) %>%  -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt02 -->
+<!-- ``` -->
 
 # Responsible research practices and fair research practices by location (Global North or South)
 
@@ -569,6 +568,11 @@ dt03
 
 
 ```
+
+About responsible research practices, when respondents were asked whether in the last three years, they gave *insufficient* attention to the skills or expertise essential to perform my studies, global south respondents had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.75, 7.00) (P = 0.040). When asked whether In the last three years, I *insufficiently* supervised or mentored junior co-workers had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.00, 7.00) (P = 0.002). There were no statistically significant differences in all other 18 questions in the Responsible research practices.
+
+About fair research practices, when respondents were asked whether in the research they have been involved in over the last three years, they did not consult representatives of affected populations during the preparation stage of research, global south respondents had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 5.00 (3.00, 6.00) (P <0.001). When asked whether in the research they have been involved in over the last three years, they did not consult endusers of research during the preparation stage of research, the global south had a significantly higher score 6.00 (4.00, 7.00) compared to the global north 5.00 (4.00, 6.00) (P = 0.032). When asked whether in the research they have been involved in over the last three years there were clear *decision-making processes* agreed upon by all study partners, the global south had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.00, 6.50) (P = 0.003). When asked whether in the research they have been involved in over the last three years there were no clear and fair data ownership agreements, the global south had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.00, 7.00) (P = 0.045). When asked whether in the research they have been involved in over the last three years, whenever data was made openly accessible, strategies were put in place to encourage secondary analyses by local researchers, the global south had a significantly higher score 6.00 (3.25, 7.00) compared to the global north 4.00 (3.00, 6.00) (P = 0.037). There were no statistically significant differences in all other 15 questions in the Fair research practices.
+
 # Multivariate model - responsible research Practices
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
@@ -669,7 +673,7 @@ m2 <- model2 %>%
   gt::gtsave(filename = "rrpq - full model.pdf")
   # gt::gtsave(filename = "rrpq - full model.rtf")
 ```
-
+At Univariate analysis, only academic rank of the respondents had a category that was significantly associated with responsible research practices. Bachelor or Master degree was associated with -17 (-27, -6.9)	(P = 0.001) reduction in the responsible research score compared to Associate Professor or Full Professor. other variables were not statistically significantly associated with responsible research practices. In the full model, after adjusting for Location, years of involvement, gender, country of origin and discipline of global health, Bachelor or Master degree was associated with -16.5 (-30.6, -2.29)	(P = 0.025) reduction in the responsible research score compared to Associate Professor or Full Professor. While in the reduced model (after stepwise regression analysis) Bachelor or Master degree was still associated with -18.3 (-28.7, -7.84)	(P <0.001) reduction in the responsible research score compared to Associate Professor or Full Professor.  
 # Multivariate model - Fair research Practices
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
@@ -773,6 +777,8 @@ model2 %>%
   gt::gtsave(filename = "frpq-full_model.pdf")
   # gt::gtsave(filename = "frpq-full_model.rtf")
 ```
+
+At Univariate analysis, coming from the global north was associated with reduced fair research practices scores -10		 (-19, -1.6)	(P = 0.022) compared to respondent from global south, while those who preferred not to say their number of years of involvement in research  had a reduced fair research practices scores -55	(-101, -8.1)	(P = 0.023). Respondent from the sub-Saharan region reported higher average fair research practices scores 15 (0.24, 29)	(P = 0.049). other variables were not statistically significantly associated with fair research practices. In the full model, after adjusting for Location, years of involvement, gender, country of origin and discipline of global health, Bachelor or Master degree was associated with -16.5 (-30.6, -2.29)	(P = 0.025) reduction in the fair research score compared to Associate Professor or Full Professor. While in the reduced model (after stepwise regression analysis) Bachelor or Master degree was still associated with -18.3 (-28.7, -7.84)	(P <0.001) reduction in the fair research score compared to Associate Professor or Full Professor. 
 
 # Analysis for those who responded N/A
 In this analysis, I have only tabulated those who said N/A in any of the 40 questions
