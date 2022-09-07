@@ -71,17 +71,44 @@ table_1 <- final_dataset %>%
   dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
 tbl_summary(#table_1,
             missing = "no",
-            #by = `Addisons disease`,
+            by = gender,
             # statistic = list(all_continuous() ~ "{mean} ({sd})"),
             digits = list(all_categorical() ~ c(0, 1)),
             label = list(`Total CD4 count...9` ~ 'Total CD4 count')
             ) %>%
-  # add_p() %>%
+  add_p() %>%
   add_n() %>%
+  add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 table_1
 
+```
+
+# Table 1.1: Opportunistic infections by gender
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+ois_by_gender <- final_dataset %>%
+  mutate(
+    `Tuberculosis` = as.factor(`Opportunistic infection  (choice=Tuberculosis)`),
+    `Cryptococcus neoformans` = as.factor(`Opportunistic infection  (choice=Cryptococcus neoformans)`),
+    `Toxoplasmosis` = as.factor(`Opportunistic infection  (choice=Toxoplasmosis)`),
+    `Mycobacterium avium-intracellulare` = as.factor(`Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`),
+    `Kaposis sarcoma` = as.factor(`Opportunistic infection  (choice=Kaposis sarcoma)`),
+    `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`),
+    `Other` = as.factor(`Opportunistic infection  (choice=Other)`)
+  ) %>%
+  dplyr::select(`Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`, `Mycobacterium avium-intracellulare`, `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, gender) #%>% #, `Other, specify...67`
+tbl_summary(opportunistic_infections,
+            missing = "no",
+            by = gender
+            ) %>%
+  add_p() %>%
+  add_n() %>%
+  add_overall() %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels() 
+
+ois_by_gender
 ```
 
 # Table 2: comparing Addisons status with other variables
