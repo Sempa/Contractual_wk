@@ -798,9 +798,9 @@ dt1 <- final_dataset %>%
   # add_p() %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-# dt1
-flextable::set_table_properties(dt1, layout = "autofit")
+  bold_labels() 
+dt1
+# flextable::set_table_properties(dt1, width = .01, layout = "autofit")%>% autofit() %>% fit_to_width(7.5)
 
 dt2 <- final_dataset %>%
   dplyr::select(`responsible research Practices_q2`, `na_responsible research Practices_q2`, `Which of the following best describes you?`) %>%

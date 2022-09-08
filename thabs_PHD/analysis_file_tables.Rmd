@@ -97,10 +97,10 @@ ois_by_gender <- final_dataset %>%
     `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`),
     `Other` = as.factor(`Opportunistic infection  (choice=Other)`)
   ) %>%
-  dplyr::select(`Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`, `Mycobacterium avium-intracellulare`, `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, gender) #%>% #, `Other, specify...67`
-tbl_summary(opportunistic_infections,
+  dplyr::select(`Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`, `Mycobacterium avium-intracellulare`, `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, Gender) %>% #, `Other, specify...67`
+tbl_summary(#ois_by_gender,
             missing = "no",
-            by = gender
+            by = Gender
             ) %>%
   add_p() %>%
   add_n() %>%
