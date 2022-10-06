@@ -68,7 +68,16 @@ table_1 <- final_dataset %>%
          HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
          gender = factor(Gender, labels = c('Females', 'Males')),
          `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', '')))) %>%
-  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
+  mutate(
+    `Tuberculosis` = as.factor(`Opportunistic infection  (choice=Tuberculosis)`),
+    `Cryptococcus neoformans` = as.factor(`Opportunistic infection  (choice=Cryptococcus neoformans)`),
+    `Toxoplasmosis` = as.factor(`Opportunistic infection  (choice=Toxoplasmosis)`),
+    `Mycobacterium avium-intracellulare` = as.factor(`Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`),
+    `Kaposis sarcoma` = as.factor(`Opportunistic infection  (choice=Kaposis sarcoma)`),
+    `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`),
+    `Other` = as.factor(`Opportunistic infection  (choice=Other)`)
+  ) %>%
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, `Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`, `Mycobacterium avium-intracellulare`, `Kaposis sarcoma`, `Cytomegalovirus`, `Other`) %>%
 tbl_summary(#table_1,
             missing = "no",
             by = gender,
@@ -85,32 +94,6 @@ table_1
 
 ```
 
-# Table 1.1: Opportunistic infections by gender
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-ois_by_gender <- final_dataset %>%
-  mutate(
-    `Tuberculosis` = as.factor(`Opportunistic infection  (choice=Tuberculosis)`),
-    `Cryptococcus neoformans` = as.factor(`Opportunistic infection  (choice=Cryptococcus neoformans)`),
-    `Toxoplasmosis` = as.factor(`Opportunistic infection  (choice=Toxoplasmosis)`),
-    `Mycobacterium avium-intracellulare` = as.factor(`Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`),
-    `Kaposis sarcoma` = as.factor(`Opportunistic infection  (choice=Kaposis sarcoma)`),
-    `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`),
-    `Other` = as.factor(`Opportunistic infection  (choice=Other)`)
-  ) %>%
-  dplyr::select(`Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`, `Mycobacterium avium-intracellulare`, `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, Gender) %>% #, `Other, specify...67`
-tbl_summary(#ois_by_gender,
-            missing = "no",
-            by = Gender
-            ) %>%
-  add_p() %>%
-  add_n() %>%
-  add_overall() %>%
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels() 
-
-ois_by_gender
-```
-
 # Table 2: comparing Addisons status with other variables
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
@@ -121,7 +104,8 @@ table_2 <- final_dataset %>%
          gender = factor(Gender, labels = c('Females', 'Males')),
          `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
          Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
-  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `Opportunistic infection present`, `log10 viral load`, `Total CD4 count...9`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
+  dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, `Presence of an opportunistic infection` = `Opportunistic infection present`, `Viral load (log10 Copies/mL)` = `log10 viral load`, `Total CD4 count...9`, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
+  mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
 tbl_summary(#table_1,
             missing = "no",
             by = `Addisons disease`,
@@ -137,7 +121,7 @@ table_2
 
 ```
 
-# Table 3: Bivariate table (without imputed data)
+# Table 3: Bivariate table
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table_mortality <- final_dataset %>%
@@ -207,45 +191,59 @@ tbl_uvregression(
 )
 ```
 
-# Table 3: Bivariate table with imputed data
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-nr_imputations <- 5
-imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
-completeData <- complete(imputedData, 2)
+# nr_imputations <- 5
+# imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
+# completeData <- complete(imputedData, 2)
 # correlationMatrix <- cor(completeData)
 # highlyCorrelated <- findCorrelation(correlationMatrix)
 # print(highlyCorrelated)
 
-model_dataset <- completeData
-tbl_uvregression(
-  model_dataset, #table_3,
-  method=coxph,
-  y = Surv(time = ttdeath, event = mortality),
-  exponentiate = TRUE#,
-  # include = -ID
-)
+# model_dataset <- completeData
+# tbl_uvregression(
+#   model_dataset, #table_3,
+#   method=coxph,
+#   y = Surv(time = ttdeath, event = mortality),
+#   exponentiate = TRUE#,
+#   # include = -ID
+# )
 ```
 
-# Table 4: Multivariate table (generated with imputed data)
+# Table 4: Multivariate table
 
 The rule of thumb for MV models such as this on you need at least 10 people per outcome. We have 53 people with the outcome, yet we have 6 variables adjusted for in the model (using stepwise regression). I suggest we remove one variable from the list that you think may not be biologically contributing in the relationship. (see accompanying file)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+nr_imputations <- 5
+imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
 
-my.variable.list <- names(model_dataset[, 1:12]) #model_dataset[,1:16,20:22])
-My.stepwise::My.stepwise.coxph(Time = "ttdeath", Status = "mortality", variable.list = my.variable.list,
-   in.variable = c("Addisons_disease"), data = model_dataset, sle = 0.20, sls = 0.20)
-model1 <- survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Neutrophils + Lymphocyte_count + Potassium, data = model_dataset) # + gender
-summary(model1)
-coef(model1)
-confint(model1)
-mv_table <- #data.frame(
-  cbind(exp(cbind(coef(model1),confint(model1))), p_value = round(summary(model1)$coefficients[,5], 4))
-  #)
-final_table <- data.frame(cbind(exp(coef(model1)), exp(confint(model1)), summary(model1)$coefficients[, 5])) %>%
-  mutate(Variable = c("Addison's disease", "Log10 Viral load", 'Neutrophils', 'Lymphocyte count', 'Potassium'), Adj.HR = round(V1,3), `95%CI` = paste('(', round(`X2.5..`, 5), ', ', round(`X97.5..`, 5), ')', sep = ''), `P value` = V4) %>% #, 'gender'
-  dplyr::select(Variable, Adj.HR, `95%CI`, `P value`)
-row.names(final_table) <- 1:length(final_table$Variable)
-write.csv(final_table, 'final_table_updated.csv')
+scope <- list(upper = ~ Age_at_enrolment + gender + Ethnicity+ Duration_of_current_illness + Log10_viralload + Total_CD4_count+ Sodium + Potassium + Haemoglobin + White_cell_count + Lymphocyte_count+ Neutrophils + Addisons_disease,
+              lower = ~1)
+expr <- expression(f1 <- coxph(Surv(ttdeath, mortality) ~ 1),
+                   f2 <- step(f1, scope = scope))
+fit <- with(data = imputedData, expr)
+
+formulas <- lapply(fit$analyses, formula)
+terms <- lapply(formulas, terms)
+votes <- unlist(lapply(terms, labels))
+table(votes)
+
+# model1 <- survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Neutrophils + Lymphocyte_count + Potassium, data = model_dataset) # + gender
+
+model1 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + Ethnicity))))
+model2 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + gender))))
+# summary(model1)
+# coef(model1)
+# confint(model1)
+final_model_table <- cbind(variable = model2[1], adj_HR = round(exp(model2[2]), 3), l_ci = round(exp(model2[2] - 1.96 * model2[3]), 4), u_ci = round(exp(model2[2] + 1.96 * model2[3]), 4), round(model2[6], 5))
+names(final_model_table) <- c('variable', 'Adj_HR', 'Lower_CI', 'upper_CI', 'P value')
+# mv_table <- #data.frame(
+#   cbind(exp(cbind(coef(model1),confint(model1))), p_value = round(summary(model1)$coefficients[,5], 4))
+#   #)
+# final_table <- data.frame(cbind(exp(coef(model1)), exp(confint(model1)), summary(model1)$coefficients[, 5])) %>%
+#   mutate(Variable = c("Addison's disease", "Log10 Viral load", 'Neutrophils', 'Lymphocyte count', 'Potassium'), Adj.HR = round(V1,3), `95%CI` = paste('(', round(`X2.5..`, 5), ', ', round(`X97.5..`, 5), ')', sep = ''), `P value` = V4) %>% #, 'gender'
+#   dplyr::select(Variable, Adj.HR, `95%CI`, `P value`)
+# row.names(final_table) <- 1:length(final_table$Variable)
+write.csv(final_model_table, 'final_table_updated_ver 2.csv')
 ```
