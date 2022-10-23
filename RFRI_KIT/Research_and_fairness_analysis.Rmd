@@ -6,6 +6,7 @@ output:
   word_document:
     fig_caption: yes
     toc: yes
+    fontsize: 12pt
   pdf_document:
     fig_caption: yes
     toc: yes
@@ -427,16 +428,22 @@ final_dataset <- final_dataset %>%
     rpq = sum(c(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20), na.rm = T),
     fpq = sum(c(fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20), na.rm = T)
   ) %>%
+  mutate(`Meticulous research process` = sum(c(rpq10, rpq12, rpq3, rpq6, rpq20), na.rm = T) / 5,
+         `Good mentoring` = sum(c(rpq5, rpq4), na.rm = T) / 2,
+         `Adequate methods` = sum(c(rpq7, rpq18, rpq19), na.rm = T) / 3,
+         `Transparent reporting` = sum(c(rpq1, rpq8, rpq14, rpq11), na.rm = T) / 4,
+         `Ensuring reproducibility` = sum(c(rpq9,rpq15, rpq2), na.rm = T) / 3,
+         `Open science` = sum(c(rpq16, rpq17, rpq13), na.rm = T) / 3
+         ) %>% #Research integrity scores
+  mutate(`Engagement of local decision-makers` = sum(c(fpq2, fpq16, fpq15), na.rm = T) / 3,
+         `Engagement of affected populations` = sum(c(fpq1, fpq14, fpq17), na.rm = T) / 3,
+         `Partnership with local researchers` = sum(c(fpq3, fpq10, fpq4, fpq6), na.rm = T) / 4,
+         `Fair agreements between study partners` = sum(c(fpq20, fpq19, fpq18, fpq17, fpq13), na.rm = T) / 5,
+         `Local ethical approval` = sum(c(fpq8, fpq9), na.rm = T) / 2,
+         `Respectful data collection` = sum(c(fpq5, fpq11, fpq12), na.rm = T) / 3
+         ) %>% #Research fairness score
   mutate(`responsible research Practices score` = ifelse(rpq == 0, NA, rpq),
          `fair research practices score` = ifelse(fpq == 0, NA, fpq))
-# g=final_dataset %>%
-#   dplyr::select(`responsible research Practices_q1`, rpq1, `responsible research Practices_q2`, rpq2, `responsible research Practices_q8`, rpq8, `responsible research Practices_q14`, rpq14, `responsible research Practices_q18`, rpq18,
-#                 `fair research practices_q1`, fpq1, `fair research practices_q5`, fpq5, `fair research practices_q9`, fpq9, `fair research practices_q10`, fpq10, `fair research practices_q12`, fpq12, `fair research practices_q14`, fpq14, `fair research practices_q17`, fpq17)
-# x= final_dataset%>%
-#   dplyr::select(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20, fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20, `responsible research Practices score`, `fair research practices score`, rpq, fpq) #%>%
-#   rowwise() %>%
-# mutate(fp = sum(c(fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20), na.rm = T))
-
 ```
 
 # Demographics
@@ -542,6 +549,43 @@ Of the 145 respondents to the survey, 126 (86.9%) filled in the responsible rese
 <!--   bold_labels() -->
 <!-- dt02 -->
 <!-- ``` -->
+
+
+# Re-categorised RI and RF scores by location (Global North or South)
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt03 <- final_dataset %>%
+  mutate(location = as.factor(case_when(
+    `Which of the following best describes you?` == 'Researcher from the Global North' ~ 'Global North',
+    `Which of the following best describes you?` == 'Researcher from the Global South' ~ 'Global South'#,
+    # `Which of the following best describes you?` == '' ~ 'Global North',
+  ))) %>%
+  dplyr::select(`Meticulous research process`, `Good mentoring`, `Adequate methods`, 
+                `Transparent reporting`, `Ensuring reproducibility`, `Open science`, 
+                `Engagement of local decision-makers`, `Engagement of affected populations`,
+                `Partnership with local researchers`, `Fair agreements between study partners`,
+                `Local ethical approval`, `Respectful data collection`, location) %>%
+  tbl_summary(by = location, 
+            # missing = "no",
+            type = list(c('Meticulous research process', 'Good mentoring', 'Adequate methods', 
+                'Transparent reporting', 'Ensuring reproducibility', 'Open science', 
+                'Engagement of local decision-makers', 'Engagement of affected populations',
+                'Partnership with local researchers', 'Fair agreements between study partners',
+                'Local ethical approval', 'Respectful data collection') ~ 'continuous'),
+            statistic = list(c('Meticulous research process', 'Good mentoring', 'Adequate methods', 
+                'Transparent reporting', 'Ensuring reproducibility', 'Open science', 
+                'Engagement of local decision-makers', 'Engagement of affected populations',
+                'Partnership with local researchers', 'Fair agreements between study partners',
+                'Local ethical approval', 'Respectful data collection') ~ "{median} ({p25}, {p75})")
+            ) %>% 
+  add_p(test = everything() ~ "wilcox.test") %>%
+  add_overall() %>%
+  add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt03
+
+```
 
 # Responsible research practices and fair research practices by location (Global North or South)
 
