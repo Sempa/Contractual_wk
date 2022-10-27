@@ -6,7 +6,6 @@ output:
   word_document:
     fig_caption: yes
     toc: yes
-    fontsize: 12pt
   pdf_document:
     fig_caption: yes
     toc: yes
