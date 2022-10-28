@@ -790,7 +790,7 @@ model3 %>%
   gt::tab_source_note(gt::md("*Best set of dependent variables*"))%>%
   gt::gtsave(filename = "frpq.pdf")
   # gt::gtsave(filename = "frpq.rtf")
-
+#https://data.princeton.edu/wws509/r/robust
 # full model
 finalmodel_dataset3 <- dat %>%
   mutate(fpq_score = `fair research practices score`
