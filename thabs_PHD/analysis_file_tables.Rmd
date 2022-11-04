@@ -51,7 +51,7 @@ library(survminer)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 final_dataset <- read_csv("final_dataset.csv", show_col_types = F) %>%
-  mutate(addisons_disease = ifelse(`Random cortisol result` < 500 & (`Synacthen: 30 minute cortisol result`< 550 & `ACTH result`> 13.9), 1, 0)) #%>%
+  mutate(addisons_disease = ifelse(`Random cortisol result` < 500 & (`Synacthen: 30 minute cortisol result`< 500 & `ACTH result`> 13.9), 1, 0)) #%>%
 # dat <- final_dataset %>%
 # dplyr::select(`Hospital folder number`,`Random cortisol result`, `ACTH sample drawn`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
 # write.csv(dat, 'outcome_dat.csv')
