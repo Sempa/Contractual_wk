@@ -48,15 +48,6 @@ library(survey)
 # library(readr)
 final_dataset <- read_csv("final_dataset.csv")[-c(19,27,45,122),] %>%
   mutate(`Which of the following best describes you?` = as.factor(ifelse(`Which of the following best describes you?`=='Other (please specify)', 'Researcher from the Global North',  `Which of the following best describes you?`)))
-# pilotstudy_dataset <-
-#   survey::svydesign(
-#     id = ~`Respondent ID`,
-#     # weights = ~pw, # target proportion/ actual sample proportion
-#     data = dataset#,
-#     # fpc = ~fpc # ((Population size-sample size)/(population size-1))^(1/2)
-#   )
-# negative questions for responsible research practices: 1,3,4,5,7,8,10,11,15,18,19
-# negative questions for fair research practices: 1,2,10,12,13
 final_dataset <- final_dataset %>%
   mutate(
     rpq1 = case_when(
@@ -584,6 +575,64 @@ dt03 <- final_dataset %>%
   bold_labels()
 dt03
 
+dt03_3 <- final_dataset %>%
+  mutate(location = as.factor(case_when(
+    `Which of the following best describes you?` == "Researcher from the Global North" ~ "Global North",
+    `Which of the following best describes you?` == "Researcher from the Global South" ~ "Global South" # ,
+    # `Which of the following best describes you?` == '' ~ 'Global North',
+  ))) %>%
+  filter(!is.na(location)) %>%
+  dplyr::select(
+    `Meticulous research process`, `Good mentoring`, `Adequate methods`,
+    `Transparent reporting`, `Ensuring reproducibility`, `Open science`,
+    `Engagement of local decision-makers`, `Engagement of affected populations`,
+    `Partnership with local researchers`, `Fair agreements between study partners`,
+    `Local ethical approval`, `Respectful data collection`, location
+  ) %>%
+  group_by(location) %>%
+  summarise(across(where(is.numeric), list(mean = mean))) %>%
+  gather(key = "X", "Mean score", 2:13) %>%
+  mutate(
+    category = rep(c("Questionable research practices", "Unfair research practices"), each = 12),
+    `Behaviour categories` = c(
+      "Meticulous research process", "Meticulous research process",
+      "Good mentoring", "Good mentoring",
+      "Adequate methods", "Adequate methods",
+      "Transparent reporting", "Transparent reporting",
+      "Ensuring reproducibility", "Ensuring reproducibility",
+      "Open science", "Open science",
+      "Engagement of local decision-makers", "Engagement of local decision-makers",
+      "Engagement of affected populations", "Engagement of affected populations",
+      "Partnership with local researchers", "Partnership with local researchers",
+      "Fair agreements between study partners", "Fair agreements between study partners",
+      "Local ethical approval", "Local ethical approval",
+      "Respectful data collection", "Respectful data collection"
+    )
+  )
+positions = c("Meticulous research process", "Good mentoring", "Adequate methods",
+      "Transparent reporting", "Ensuring reproducibility", "Open science",
+      "Engagement of local decision-makers", "Engagement of affected populations",
+      "Partnership with local researchers", "Fair agreements between study partners",
+      "Local ethical approval","Respectful data collection")
+dt03_4 <- dt03_3 %>%
+  ggplot(aes(x = `Behaviour categories`, y = `Mean score`, fill = location) ) +
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+scale_fill_manual(values=c("#999999", "#E69F00"))+ scale_x_discrete(limits = positions)+
+  theme(
+        text = element_text(size = 18),
+        plot.title = element_text(hjust = 0.5),
+        axis.line = element_line(colour = "black"),
+        axis.text = element_text(size = 18),
+        axis.title = element_text(size = 18),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "null")
+      ) +
+  coord_flip() 
+dt03_4
+jpeg('figure1.jpeg', units = "in", width = 12, height = 8, res = 300)
+dt03_4
+dev.off()
 ```
 
 # Responsible research practices and fair research practices by location (Global North or South)
@@ -608,8 +657,16 @@ dt03 <- final_dataset %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 dt03
-
-
+dt03_1 <- dt03 %>%
+  filter(!is.na(`responsible research Practices score`)) %>%
+  dplyr::select(location, `responsible research Practices score`) %>%
+  group_by(location) %>%
+  summarise(across(where(is.numeric), list(mean = mean, sum = sum, sd = sd)))
+dt03_2 <- dt03 %>%
+  filter(!is.na(`fair research practices score`)) %>%
+  dplyr::select(location, `fair research practices score`) %>%
+  group_by(location) %>%
+  summarise(across(where(is.numeric), list(mean = mean, sum = sum, sd = sd)))
 ```
 
 About responsible research practices, when respondents were asked whether in the last three years, they gave *insufficient* attention to the skills or expertise essential to perform my studies, global south respondents had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.75, 7.00) (P = 0.040). When asked whether In the last three years, I *insufficiently* supervised or mentored junior co-workers had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.00, 7.00) (P = 0.002). There were no statistically significant differences in all other 18 questions in the Responsible research practices.

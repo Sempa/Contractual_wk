@@ -58,7 +58,8 @@ final_dataset <- read_csv("final_dataset.csv", show_col_types = F) %>%
 final_dataset<- final_dataset%>%
   mutate(Ethnicity = as.factor(Ethnicity))
 contrasts(final_dataset$Ethnicity) <- 
-  contr.treatment(levels(final_dataset$Ethnicity),                                                    base = which(levels(final_dataset$Ethnicity) == 'Black African'))
+  contr.treatment(levels(final_dataset$Ethnicity),                                                   
+                  base = which(levels(final_dataset$Ethnicity) == 'Black African'))
 ```
 
 # Table 1
@@ -103,7 +104,8 @@ table_2 <- final_dataset %>%
          HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
          gender = factor(Gender, labels = c('Females', 'Males')),
          `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
-         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
+         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity),
+         ) %>%
   dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection` = `Opportunistic infection present`, `Viral load (log10 Copies/mL)` = `log10 viral load`, `Total CD4 count...9`, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
   mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
 tbl_summary(#table_1,
@@ -169,8 +171,10 @@ table_3 <- final_dataset %>%
          gender = factor(Gender, labels = c('Females', 'Males')),
          `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
          Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity),
-         `Total CD4 count` = `Total CD4 count...9`) %>%
-  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath) %>%
+         `Total CD4 count` = `Total CD4 count...9`,
+         discharged = ifelse(!is.na(`Date of discharge`), 'Yes', 'No')
+         ) %>%
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath, `Random cortisol result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, `ACTH result`, `BP (systolic)`, `BP (diastolic)`, discharged) %>%
   mutate(Ethnicity = as.numeric(as.factor(Ethnicity)),
          gender = as.numeric(as.factor(gender)),
          Addisons_disease = as.numeric(as.factor(`Addisons disease`)),
@@ -180,7 +184,8 @@ table_3 <- final_dataset %>%
          White_cell_count = `White cell count`,
          Lymphocyte_count = `Lymphocyte count`,
          Duration_of_current_illness = `Duration of current illness`) %>%
-  dplyr::select(Age_at_enrolment, gender, Ethnicity, Duration_of_current_illness, Log10_viralload, Total_CD4_count, Sodium, Potassium, Haemoglobin, White_cell_count, Lymphocyte_count, Neutrophils, Addisons_disease, mortality, ttdeath)
+  dplyr::select(Age_at_enrolment, gender, Ethnicity, Duration_of_current_illness, `Viral load (log10 Copies/mL)` = Log10_viralload, `CD4 count` = Total_CD4_count, Sodium, `Potassium mmol/L` = Potassium, Haemoglobin, White_cell_count, Lymphocyte_count, Neutrophils, Addisons_disease, mortality, ttdeath,
+                `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Addisons disease`, discharged)
 
 tbl_uvregression(
   table_3,
@@ -190,6 +195,68 @@ tbl_uvregression(
   # include = -ID
 )
 ```
+
+
+# Table 3: deep dive on Addison's disease patients
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table_4 <- table_3 %>%
+  filter(mortality == 1) %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(gender = factor(gender, labels = c('Females', 'Males')),
+         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
+  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)` ,  `CD4 count`, Neutrophils, `Addisons disease`) %>%
+  mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
+tbl_summary(#table_1,
+            missing = "no",
+            by = `Addisons disease`,
+            digits = list(all_categorical() ~ c(0, 1)),
+            ) %>%
+  add_p() %>%
+  add_n() %>%
+  modify_header(label = "Variable") %>%
+  bold_labels() %>%
+  modify_footnote(everything() ~ NA)
+table_4
+table_4_1 <- table_3 %>%
+  filter(mortality == 1) %>%
+  filter(`Addisons disease` !='') %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(
+    gender = factor(gender, labels = c("Females", "Males")),
+    Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity)
+  ) %>%
+  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)`, `CD4 count`, Neutrophils, `Addisons disease`, discharged) %>%
+  mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
+  tbl_strata(
+    strata = `Addisons disease`,
+    .tbl_fun =
+      ~ .x %>%
+        tbl_summary( # table_1,
+          missing = "no",
+          by = discharged,
+          type = list(c('Random cortisol', 'Basal cortisol', 'Stimulated cortisol', 'ACTH', 'BP (systolic)', 'BP (diastolic)', 'Potassium mmol/L', 'Viral load (log10 Copies/mL)', 'CD4 count') ~ 'continuous'),
+          digits = list(all_categorical() ~ c(0, 1)),
+        ) %>%
+        # add_p() %>%
+        add_n(),
+    .header = "**{strata}**, N = {n}"# %>%
+        # modify_header(label = "Variable") %>%
+        # bold_labels() ,
+        # modify_footnote(everything() ~ NA),
+    
+  )
+table_4_1
+tbl_strata(
+    strata = grade,
+    .tbl_fun =
+      ~ .x %>%
+        tbl_summary(by = trt, missing = "no") %>%
+        add_n(),
+    .header = "**{strata}**, N = {n}"
+  )
+```
+
 
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
