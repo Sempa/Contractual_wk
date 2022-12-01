@@ -121,6 +121,30 @@ tbl_summary(#table_1,
   bold_labels()
 table_2
 
+table_2_1 <- final_dataset %>%
+  filter(`Loss of axillary and pubic hair, if female` != 'Not applicable') %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(`log10 viral load` = log(`HIV viral load`, 10),
+         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         gender = factor(Gender, labels = c('Females', 'Males')),
+         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
+         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
+  dplyr::select(`Loss of axillary and pubic hair, if female`, `Addisons disease`) %>%
+  mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
+tbl_summary(#table_1,
+            missing = "no",
+            by = `Addisons disease`,
+            # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+            digits = list(all_categorical() ~ c(0, 1))#,
+            # label = list(`Total CD4 count...9` ~ 'Total CD4 count')
+            ) %>%
+  add_p() %>%
+  add_n() %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+table_2_1
+
+
 ```
 
 # Table 3: Bivariate table
