@@ -566,9 +566,9 @@ dt03 <- final_dataset %>%
                 'Transparent reporting', 'Ensuring reproducibility', 'Open science', 
                 'Engagement of local decision-makers', 'Engagement of affected populations',
                 'Partnership with local researchers', 'Fair agreements between study partners',
-                'Local ethical approval', 'Respectful data collection') ~ "{median} ({p25}, {p75})")
+                'Local ethical approval', 'Respectful data collection') ~ "{mean} ({sd})")
             ) %>% 
-  add_p(test = everything() ~ "wilcox.test") %>%
+  add_p() %>% #test = everything() ~ "wilcox.test"
   add_overall() %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
@@ -657,16 +657,16 @@ dt03 <- final_dataset %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 dt03
-dt03_1 <- dt03 %>%
-  filter(!is.na(`responsible research Practices score`)) %>%
-  dplyr::select(location, `responsible research Practices score`) %>%
-  group_by(location) %>%
-  summarise(across(where(is.numeric), list(mean = mean, sum = sum, sd = sd)))
-dt03_2 <- dt03 %>%
-  filter(!is.na(`fair research practices score`)) %>%
-  dplyr::select(location, `fair research practices score`) %>%
-  group_by(location) %>%
-  summarise(across(where(is.numeric), list(mean = mean, sum = sum, sd = sd)))
+# dt03_1 <- dt03 %>%
+#   filter(!is.na(`responsible research Practices score`)) %>%
+#   dplyr::select(location, `responsible research Practices score`) %>%
+#   group_by(location) %>%
+#   summarise(across(where(is.numeric), list(mean = mean, sum = sum, sd = sd)))
+# dt03_2 <- dt03 %>%
+#   filter(!is.na(`fair research practices score`)) %>%
+#   dplyr::select(location, `fair research practices score`) %>%
+#   group_by(location) %>%
+#   summarise(across(where(is.numeric), list(mean = mean, sum = sum, sd = sd)))
 ```
 
 About responsible research practices, when respondents were asked whether in the last three years, they gave *insufficient* attention to the skills or expertise essential to perform my studies, global south respondents had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.75, 7.00) (P = 0.040). When asked whether In the last three years, I *insufficiently* supervised or mentored junior co-workers had a significantly higher score 7.00 (6.00, 7.00) compared to the global north 6.00 (5.00, 7.00) (P = 0.002). There were no statistically significant differences in all other 18 questions in the Responsible research practices.
