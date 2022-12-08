@@ -221,7 +221,7 @@ tbl_uvregression(
 ```
 
 
-# Table 3: deep dive on Addison's disease patients
+# Table 3a: Deep dive on Addison's disease patients
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table_4 <- table_3 %>%
@@ -229,7 +229,7 @@ table_4 <- table_3 %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
   mutate(gender = factor(gender, labels = c('Females', 'Males')),
          Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
-  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)` ,  `CD4 count`, Neutrophils, `Addisons disease`) %>%
+  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)` ,  `CD4 count`, `Addisons disease`, discharged) %>%
   mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
 tbl_summary(#table_1,
             missing = "no",
@@ -242,43 +242,35 @@ tbl_summary(#table_1,
   bold_labels() %>%
   modify_footnote(everything() ~ NA)
 table_4
+```
+
+# Table 3b: Deep dive in mortality status among Addissons cases
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table_4_1 <- table_3 %>%
-  filter(mortality == 1) %>%
-  filter(`Addisons disease` !='') %>%
+  # filter(mortality == 1) %>%
+  filter(`Addisons disease` == "yes") %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
   mutate(
+    `mortality with Addisons disease` = ifelse(mortality == 1, 'yes', 'no'),
     gender = factor(gender, labels = c("Females", "Males")),
     Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity)
   ) %>%
-  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)`, `CD4 count`, Neutrophils, `Addisons disease`, discharged) %>%
-  mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
-  tbl_strata(
-    strata = `Addisons disease`,
-    .tbl_fun =
-      ~ .x %>%
-        tbl_summary( # table_1,
-          missing = "no",
-          by = discharged,
-          type = list(c('Random cortisol', 'Basal cortisol', 'Stimulated cortisol', 'ACTH', 'BP (systolic)', 'BP (diastolic)', 'Potassium mmol/L', 'Viral load (log10 Copies/mL)', 'CD4 count') ~ 'continuous'),
-          digits = list(all_categorical() ~ c(0, 1)),
-        ) %>%
-        # add_p() %>%
-        add_n(),
-    .header = "**{strata}**, N = {n}"# %>%
-        # modify_header(label = "Variable") %>%
-        # bold_labels() ,
-        # modify_footnote(everything() ~ NA),
-    
-  )
+  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)`, `CD4 count`, `mortality with Addisons disease`, discharged) %>%
+  mutate(`mortality with Addisons disease` = forcats::fct_rev(`mortality with Addisons disease`)) %>%
+  tbl_summary( # table_1,
+    missing = "no",
+    by = `mortality with Addisons disease`,
+    type = list(c("Random cortisol", "Basal cortisol", "Stimulated cortisol", "ACTH", "BP (systolic)", "BP (diastolic)", "Potassium mmol/L", "Viral load (log10 Copies/mL)", "CD4 count") ~ "continuous"),
+    digits = list(all_categorical() ~ c(0, 1)),
+  ) %>%
+  add_p() %>%
+  add_n() %>%
+modify_header(label = "Variable") %>%
+bold_labels() %>%
+modify_footnote(everything() ~ NA)
+
 table_4_1
-tbl_strata(
-    strata = grade,
-    .tbl_fun =
-      ~ .x %>%
-        tbl_summary(by = trt, missing = "no") %>%
-        add_n(),
-    .header = "**{strata}**, N = {n}"
-  )
+
 ```
 
 
@@ -306,29 +298,29 @@ tbl_strata(
 The rule of thumb for MV models such as this on you need at least 10 people per outcome. We have 53 people with the outcome, yet we have 6 variables adjusted for in the model (using stepwise regression). I suggest we remove one variable from the list that you think may not be biologically contributing in the relationship. (see accompanying file)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-nr_imputations <- 5
-imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
-
-scope <- list(upper = ~ Age_at_enrolment + gender + Ethnicity+ Duration_of_current_illness + Log10_viralload + Total_CD4_count+ Sodium + Potassium + Haemoglobin + White_cell_count + Lymphocyte_count+ Neutrophils + Addisons_disease,
-              lower = ~1)
-expr <- expression(f1 <- coxph(Surv(ttdeath, mortality) ~ 1),
-                   f2 <- step(f1, scope = scope))
-fit <- with(data = imputedData, expr)
-
-formulas <- lapply(fit$analyses, formula)
-terms <- lapply(formulas, terms)
-votes <- unlist(lapply(terms, labels))
-table(votes)
+# nr_imputations <- 5
+# imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
+# 
+# scope <- list(upper = ~ Age_at_enrolment + gender + Ethnicity+ Duration_of_current_illness + Log10_viralload + Total_CD4_count+ Sodium + Potassium + Haemoglobin + White_cell_count + Lymphocyte_count+ Neutrophils + Addisons_disease,
+#               lower = ~1)
+# expr <- expression(f1 <- coxph(Surv(ttdeath, mortality) ~ 1),
+#                    f2 <- step(f1, scope = scope))
+# fit <- with(data = imputedData, expr)
+# 
+# formulas <- lapply(fit$analyses, formula)
+# terms <- lapply(formulas, terms)
+# votes <- unlist(lapply(terms, labels))
+# table(votes)
 
 # model1 <- survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Neutrophils + Lymphocyte_count + Potassium, data = model_dataset) # + gender
 
-model1 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + Ethnicity))))
-model2 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + gender))))
+# model1 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + Ethnicity))))
+# model2 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + gender))))
 # summary(model1)
 # coef(model1)
 # confint(model1)
-final_model_table <- cbind(variable = model2[1], adj_HR = round(exp(model2[2]), 3), l_ci = round(exp(model2[2] - 1.96 * model2[3]), 4), u_ci = round(exp(model2[2] + 1.96 * model2[3]), 4), round(model2[6], 5))
-names(final_model_table) <- c('variable', 'Adj_HR', 'Lower_CI', 'upper_CI', 'P value')
+# final_model_table <- cbind(variable = model2[1], adj_HR = round(exp(model2[2]), 3), l_ci = round(exp(model2[2] - 1.96 * model2[3]), 4), u_ci = round(exp(model2[2] + 1.96 * model2[3]), 4), round(model2[6], 5))
+# names(final_model_table) <- c('variable', 'Adj_HR', 'Lower_CI', 'upper_CI', 'P value')
 # mv_table <- #data.frame(
 #   cbind(exp(cbind(coef(model1),confint(model1))), p_value = round(summary(model1)$coefficients[,5], 4))
 #   #)
@@ -336,5 +328,5 @@ names(final_model_table) <- c('variable', 'Adj_HR', 'Lower_CI', 'upper_CI', 'P v
 #   mutate(Variable = c("Addison's disease", "Log10 Viral load", 'Neutrophils', 'Lymphocyte count', 'Potassium'), Adj.HR = round(V1,3), `95%CI` = paste('(', round(`X2.5..`, 5), ', ', round(`X97.5..`, 5), ')', sep = ''), `P value` = V4) %>% #, 'gender'
 #   dplyr::select(Variable, Adj.HR, `95%CI`, `P value`)
 # row.names(final_table) <- 1:length(final_table$Variable)
-write.csv(final_model_table, 'final_table_updated_ver 2.csv')
+# write.csv(final_model_table, 'final_table_updated_ver 2.csv')
 ```
