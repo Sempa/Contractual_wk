@@ -198,7 +198,18 @@ table_3 <- final_dataset %>%
          `Total CD4 count` = `Total CD4 count...9`,
          discharged = ifelse(!is.na(`Date of discharge`), 'Yes', 'No')
          ) %>%
-  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath, `Random cortisol result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, `ACTH result`, `BP (systolic)`, `BP (diastolic)`, discharged) %>%
+  mutate(
+    `Tuberculosis` = as.factor(`Opportunistic infection  (choice=Tuberculosis)`),
+    `Cryptococcus neoformans` = as.factor(`Opportunistic infection  (choice=Cryptococcus neoformans)`),
+    `Toxoplasmosis` = as.factor(`Opportunistic infection  (choice=Toxoplasmosis)`),
+    `Mycobacterium avium-intracellulare` = as.factor(`Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`),
+    `Kaposis sarcoma` = as.factor(`Opportunistic infection  (choice=Kaposis sarcoma)`),
+    `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`),
+    `Other` = as.factor(`Opportunistic infection  (choice=Other)`)
+  ) %>%
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath, `Random cortisol result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, `ACTH result`, `BP (systolic)`, `BP (diastolic)`, discharged,
+                `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection` = `Opportunistic infection present`, `Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`,`Mycobacterium avium-intracellulare`,
+                `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, `Date of enrolment in study`, `HIV, when diagnosed`) %>%
   mutate(Ethnicity = as.numeric(as.factor(Ethnicity)),
          gender = as.numeric(as.factor(gender)),
          Addisons_disease = as.numeric(as.factor(`Addisons disease`)),
@@ -209,15 +220,16 @@ table_3 <- final_dataset %>%
          Lymphocyte_count = `Lymphocyte count`,
          Duration_of_current_illness = `Duration of current illness`) %>%
   dplyr::select(Age_at_enrolment, gender, Ethnicity, Duration_of_current_illness, `Viral load (log10 Copies/mL)` = Log10_viralload, `CD4 count` = Total_CD4_count, Sodium, `Potassium mmol/L` = Potassium, Haemoglobin, White_cell_count, Lymphocyte_count, Neutrophils, Addisons_disease, mortality, ttdeath,
-                `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Addisons disease`, discharged)
+                `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Addisons disease`, discharged, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection`, `Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`,`Mycobacterium avium-intracellulare`,
+                `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, `Date of enrolment in study`, `HIV, when diagnosed`)
 
-tbl_uvregression(
-  table_3,
-  method=coxph,
-  y = Surv(time = ttdeath, event = mortality),
-  exponentiate = TRUE#,
-  # include = -ID
-)
+# tbl_uvregression(
+#   table_3,
+#   method=coxph,
+#   y = Surv(time = ttdeath, event = mortality),
+#   exponentiate = TRUE#,
+#   # include = -ID
+# )
 ```
 
 
@@ -227,9 +239,12 @@ tbl_uvregression(
 table_4 <- table_3 %>%
   filter(mortality == 1) %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
-  mutate(gender = factor(gender, labels = c('Females', 'Males')),
-         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
-  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)` ,  `CD4 count`, `Addisons disease`, discharged) %>%
+  mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         gender = factor(gender, labels = c('Females', 'Males')),
+         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity),
+         ) %>%
+  dplyr::select(`Age at enrolment median (IQR) (years)` = Age_at_enrolment, `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = HIV_duration, `Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection`, `Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`,`Mycobacterium avium-intracellulare`,
+                `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, `Viral load (log10 Copies/mL)`, `Total CD4 count` = `CD4 count`, `Sodium mmol/L` = Sodium, `Potassium mmol/L`, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = White_cell_count, `Lymphocyte count X109` = Lymphocyte_count, `Addisons disease`) %>%
   mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
 tbl_summary(#table_1,
             missing = "no",
@@ -250,17 +265,18 @@ table_4_1 <- table_3 %>%
   # filter(mortality == 1) %>%
   filter(`Addisons disease` == "yes") %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
-  mutate(
+  mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
     `mortality with Addisons disease` = ifelse(mortality == 1, 'yes', 'no'),
     gender = factor(gender, labels = c("Females", "Males")),
     Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity)
   ) %>%
-  dplyr::select(`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Potassium mmol/L`, `Viral load (log10 Copies/mL)`, `CD4 count`, `mortality with Addisons disease`, discharged) %>%
+  dplyr::select(`mortality with Addisons disease`, `Age at enrolment median (IQR) (years)` = Age_at_enrolment, `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = HIV_duration, `Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, `ACTH`, `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection`, `Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`,`Mycobacterium avium-intracellulare`,
+                `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, `Viral load (log10 Copies/mL)`, `Total CD4 count` = `CD4 count`, `Sodium mmol/L` = Sodium, `Potassium mmol/L`, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = White_cell_count, `Lymphocyte count X109` = Lymphocyte_count, `Addisons disease`) %>%
   mutate(`mortality with Addisons disease` = forcats::fct_rev(`mortality with Addisons disease`)) %>%
   tbl_summary( # table_1,
     missing = "no",
     by = `mortality with Addisons disease`,
-    type = list(c("Random cortisol", "Basal cortisol", "Stimulated cortisol", "ACTH", "BP (systolic)", "BP (diastolic)", "Potassium mmol/L", "Viral load (log10 Copies/mL)", "CD4 count") ~ "continuous"),
+    # type = list(c("Random cortisol", "Basal cortisol", "Stimulated cortisol", "ACTH", "BP (systolic)", "BP (diastolic)", "Potassium mmol/L", "Viral load (log10 Copies/mL)", "CD4 count") ~ "continuous"),
     digits = list(all_categorical() ~ c(0, 1)),
   ) %>%
   add_p() %>%
