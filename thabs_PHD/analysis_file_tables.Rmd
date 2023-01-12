@@ -183,6 +183,24 @@ time_to_death <- final_dataset%>%
   mutate(ttdeath = ifelse(is.infinite(ttdeath), 12, ttdeath)) %>%
   distinct(`Hospital folder number`, .keep_all = T) %>%
     dplyr::select(`Hospital folder number`, ttdeath)
+
+interval_deaths <- final_dataset%>%
+  dplyr::select(`Hospital folder number`, `3 followup_patientstatus`, 
+                `6 followup_patientstatus`, `12 followup_patientstatus`
+                ) %>%
+  mutate(flag1 = ifelse(`3 followup_patientstatus` == "Deceased --> EXIT form", 3, NA),
+         flag2 = ifelse(`6 followup_patientstatus` == "Deceased --> EXIT form", 6, NA),
+         flag3 = ifelse(`12 followup_patientstatus` == "Deceased --> EXIT form", 12, NA)) %>%
+  dplyr::select(`Hospital folder number`, flag1:flag3) %>%
+  pivot_longer(cols = c(flag1:flag3),
+               names_to = 'col_num',
+               values_to = 'time to death') %>%
+  dplyr::select(`Hospital folder number`, `time to death`) %>%
+  group_by(`Hospital folder number`) %>%
+  mutate(ttdeath = min(`time to death`, na.rm = T)) %>%
+  ungroup()
+x <- interval_deaths %>% filter(!is.na(`time to death`))%>% distinct(`Hospital folder number`, .keep_all = T)
+# table(x$ttdeath)
   
 table_mortality1 <- table_mortality1 %>%
   left_join(time_to_death, by = 'Hospital folder number')
@@ -230,6 +248,7 @@ table_3 <- final_dataset %>%
 #   exponentiate = TRUE#,
 #   # include = -ID
 # )
+interval_deaths_addissons <- interval_deaths %>% filter(!is.na(`time to death`))%>% distinct(`Hospital folder number`, .keep_all = T) %>% filter(`Hospital folder number` %in% c('GSH 167073 154', 'GSH 170759 435', 'GSH 70197 710', 'GSH 79071 908', 'GSH 83628 503'))
 ```
 
 
@@ -314,25 +333,25 @@ table_4_1
 The rule of thumb for MV models such as this on you need at least 10 people per outcome. We have 53 people with the outcome, yet we have 6 variables adjusted for in the model (using stepwise regression). I suggest we remove one variable from the list that you think may not be biologically contributing in the relationship. (see accompanying file)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-# nr_imputations <- 5
-# imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
-# 
-# scope <- list(upper = ~ Age_at_enrolment + gender + Ethnicity+ Duration_of_current_illness + Log10_viralload + Total_CD4_count+ Sodium + Potassium + Haemoglobin + White_cell_count + Lymphocyte_count+ Neutrophils + Addisons_disease,
-#               lower = ~1)
-# expr <- expression(f1 <- coxph(Surv(ttdeath, mortality) ~ 1),
-#                    f2 <- step(f1, scope = scope))
-# fit <- with(data = imputedData, expr)
-# 
-# formulas <- lapply(fit$analyses, formula)
-# terms <- lapply(formulas, terms)
-# votes <- unlist(lapply(terms, labels))
-# table(votes)
+nr_imputations <- 5
+imputedData <- mice::mice(data = data.frame(table_3), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
+
+scope <- list(upper = ~ Age_at_enrolment + gender + Ethnicity+ Duration_of_current_illness + Viral.load..log10.Copies.mL. + CD4.count+ Sodium + Potassium.mmol.L + Haemoglobin + White_cell_count + Lymphocyte_count+ Neutrophils + Addisons_disease,
+              lower = ~1)
+expr <- expression(f1 <- coxph(Surv(ttdeath, mortality) ~ 1),
+                   f2 <- step(f1, scope = scope))
+fit <- with(data = imputedData, expr)
+
+formulas <- lapply(fit$analyses, formula)
+terms <- lapply(formulas, terms)
+votes <- unlist(lapply(terms, labels))
+table(votes)
 
 # model1 <- survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Neutrophils + Lymphocyte_count + Potassium, data = model_dataset) # + gender
 
-# model1 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + Ethnicity))))
+model1 <- pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Viral.load..log10.Copies.mL. + Lymphocyte_count + Potassium.mmol.L + Age_at_enrolment)))#Ethnicity
 # model2 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + gender))))
-# summary(model1)
+summary(model1, conf.int = TRUE)
 # coef(model1)
 # confint(model1)
 # final_model_table <- cbind(variable = model2[1], adj_HR = round(exp(model2[2]), 3), l_ci = round(exp(model2[2] - 1.96 * model2[3]), 4), u_ci = round(exp(model2[2] + 1.96 * model2[3]), 4), round(model2[6], 5))
@@ -342,7 +361,7 @@ The rule of thumb for MV models such as this on you need at least 10 people per 
 #   #)
 # final_table <- data.frame(cbind(exp(coef(model1)), exp(confint(model1)), summary(model1)$coefficients[, 5])) %>%
 #   mutate(Variable = c("Addison's disease", "Log10 Viral load", 'Neutrophils', 'Lymphocyte count', 'Potassium'), Adj.HR = round(V1,3), `95%CI` = paste('(', round(`X2.5..`, 5), ', ', round(`X97.5..`, 5), ')', sep = ''), `P value` = V4) %>% #, 'gender'
-#   dplyr::select(Variable, Adj.HR, `95%CI`, `P value`)
+  # dplyr::select(Variable, Adj.HR, `95%CI`, `P value`)
 # row.names(final_table) <- 1:length(final_table$Variable)
 # write.csv(final_model_table, 'final_table_updated_ver 2.csv')
 ```
