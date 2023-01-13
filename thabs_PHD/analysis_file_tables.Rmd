@@ -328,7 +328,7 @@ table_4_1
 # )
 ```
 
-# Table 4: Multivariate table
+# Table 4: Multivariate table mortality
 
 The rule of thumb for MV models such as this on you need at least 10 people per outcome. We have 53 people with the outcome, yet we have 6 variables adjusted for in the model (using stepwise regression). I suggest we remove one variable from the list that you think may not be biologically contributing in the relationship. (see accompanying file)
 
@@ -365,3 +365,31 @@ summary(model1, conf.int = TRUE)
 # row.names(final_table) <- 1:length(final_table$Variable)
 # write.csv(final_model_table, 'final_table_updated_ver 2.csv')
 ```
+
+
+# Table 5 univariate analysis for addisson's disease
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+table_5 <- table_3 %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+    `mortality with Addisons disease` = ifelse(mortality == 1, 'yes', 'no'),
+    gender = factor(gender, labels = c("Females", "Males")),
+    Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity)
+  ) %>%
+  dplyr::select(Age_at_enrolment, gender, Ethnicity, HIV_duration, Random_cortisol = `Random cortisol`, Basal_cortisol = `Basal cortisol`, Stimulated_cortisol = `Stimulated cortisol`, `ACTH`, BP_systolic = `BP (systolic)`, BP_diastolic = `BP (diastolic)`, Heart_rate = `Heart rate`, Hypotension, Weakness, Tiredness, Poor_appetite = `Poor appetite`, Weight_loss = `Weight loss`, Increased_pigmentation_of_the_skin = `Increased pigmentation of the skin`, Nausea, Vomiting,  Liking_for_salt = `Liking for salt`, Hypoglycaemia, Loss_of_consciousness = `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, Loss_of_axillary_and_pubic_hair = `Loss of axillary and pubic hair, if female`, Any_postural_drop_in_blood_pressure = `Any postural drop in blood pressure`, Presence_of_anaemia = `Presence of anaemia`, #Presence_of_an_opportunistic_infection = `Presence of an opportunistic infection`, 
+                `Tuberculosis`, #Cryptococcus_neoformans = `Cryptococcus neoformans`, 
+                #`Toxoplasmosis`, Mycobacterium_avium_intracellulare = `Mycobacterium avium-intracellulare`,
+                Kaposis_sarcoma = `Kaposis sarcoma`, `Cytomegalovirus`, `Other`, Viral_load = `Viral load (log10 Copies/mL)`, CD4_count = `CD4 count`, Sodium, Potassium = `Potassium mmol/L`,  Haemoglobin, White_cell_count, Lymphocyte_count, 
+                Addisons_disease = `Addisons disease`) #%>%
+tbl_uvregression(
+  table_5,
+    # trial[c("Addisons_disease", "gender", "Age_at_enrolment")],
+    method = glm,
+    y = Addisons_disease,
+    method.args = list(family = binomial),
+    exponentiate = TRUE
+  )
+```
+
