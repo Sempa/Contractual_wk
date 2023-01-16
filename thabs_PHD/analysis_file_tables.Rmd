@@ -391,5 +391,41 @@ tbl_uvregression(
     method.args = list(family = binomial),
     exponentiate = TRUE
   )
+
+```
+
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table_6 <- table_3 %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+    `mortality with Addisons disease` = ifelse(mortality == 1, 'yes', 'no'),
+    gender = factor(gender, labels = c("Females", "Males")),
+    Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity)
+  ) %>%
+  dplyr::select(Random_cortisol = `Random cortisol`, Basal_cortisol = `Basal cortisol`, Stimulated_cortisol = `Stimulated cortisol`, `ACTH`, BP_diastolic = `BP (diastolic)`, Weakness, Diarrhoea, `Tuberculosis`, `Other`, Sodium,  Lymphocyte_count, Addisons_disease = `Addisons disease`) %>%
+  filter(!is.na(Addisons_disease))
+nr_imputations <- 5
+imputedData <- mice::mice(data = data.frame(table_6), m = nr_imputations, maxit = 20, meth = 'pmm', seed = 33)
+# completeData <- complete(imputedData, 1)
+scope <- list(upper = ~ Random_cortisol + Basal_cortisol + Stimulated_cortisol + ACTH + BP_diastolic + #Weakness +
+               # Diarrhoea + 
+                Tuberculosis + Other + Sodium + Lymphocyte_count,
+              lower = ~ 1)
+expr <- expression(f1 <- glm(Addisons_disease ~ 1, family = binomial(link = "logit")),
+                   f2 <- step(f1, scope = scope))
+fit <- with(data = imputedData, expr)
+
+formulas <- lapply(fit$analyses, formula)
+terms <- lapply(formulas, terms)
+votes <- unlist(lapply(terms, labels))
+table(votes)
+
+model1 <- pool(with(data=imputedData, expr = glm(Addisons_disease ~ ACTH, + Stimulated_cortisol, #BP_diastolic +  
+                                                 family = binomial(link = "logit"))))
+                    #survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Viral.load..log10.Copies.mL. + Lymphocyte_count + Potassium.mmol.L + Age_at_enrolment)))#Ethnicity
+# model2 <- summary(pool(with(data=imputedData, expr = survival::coxph(Surv(ttdeath, mortality) ~ Addisons_disease + Log10_viralload + Lymphocyte_count + Potassium + gender))))
+summary(model1, conf.int = TRUE)
 ```
 
