@@ -576,20 +576,20 @@ dt03 <- final_dataset %>%
 dt03
 
 dt03_3 <- final_dataset %>%
-  mutate(location = as.factor(case_when(
+  mutate(Location = as.factor(case_when(
     `Which of the following best describes you?` == "Researcher from the Global North" ~ "Global North",
     `Which of the following best describes you?` == "Researcher from the Global South" ~ "Global South" # ,
     # `Which of the following best describes you?` == '' ~ 'Global North',
   ))) %>%
-  filter(!is.na(location)) %>%
+  filter(!is.na(Location)) %>%
   dplyr::select(
     `Meticulous research process`, `Good mentoring`, `Adequate methods`,
     `Transparent reporting`, `Ensuring reproducibility`, `Open science`,
     `Engagement of local decision-makers`, `Engagement of affected populations`,
     `Partnership with local researchers`, `Fair agreements between study partners`,
-    `Local ethical approval`, `Respectful data collection`, location
+    `Local ethical approval`, `Respectful data collection`, Location
   ) %>%
-  group_by(location) %>%
+  group_by(Location) %>%
   summarise(across(where(is.numeric), list(mean = mean))) %>%
   gather(key = "X", "Mean score", 2:13) %>%
   mutate(
@@ -615,9 +615,10 @@ positions = c("Meticulous research process", "Good mentoring", "Adequate methods
       "Partnership with local researchers", "Fair agreements between study partners",
       "Local ethical approval","Respectful data collection")
 dt03_4 <- dt03_3 %>%
-  ggplot(aes(x = `Behaviour categories`, y = `Mean score`, fill = location) ) +
-  geom_bar(stat="identity", color="black", position=position_dodge())+
+  ggplot(aes(x = `Behaviour categories`, y = `Mean score`, fill = location )) +
+  geom_bar(stat="identity", color="black", position = position_dodge())+
 scale_fill_manual(values=c("#999999", "#E69F00"))+ scale_x_discrete(limits = positions)+
+geom_text(aes(label = `Mean score`))+#, position = position) +
   theme(
         text = element_text(size = 18),
         plot.title = element_text(hjust = 0.5),
@@ -628,9 +629,15 @@ scale_fill_manual(values=c("#999999", "#E69F00"))+ scale_x_discrete(limits = pos
         panel.border = element_blank(),
         plot.margin = unit(c(0, 0, 0, 0), "null")
       ) +
-  coord_flip() 
+  coord_flip() +
+  scale_fill_manual("Legenda",
+                    values = c(
+                      "Global North" = "#E69F00",
+                      "Global South" = "#999999"
+                    )) +
+  guides(fill = guide_legend(reverse = TRUE))
 dt03_4
-jpeg('figure1.jpeg', units = "in", width = 12, height = 8, res = 300)
+jpeg('figure12.jpeg', units = "in", width = 12, height = 8, res = 300)
 dt03_4
 dev.off()
 ```

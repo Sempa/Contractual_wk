@@ -95,6 +95,52 @@ table_1
 
 ```
 
+# Table 1.2
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table_12 <- final_dataset %>%
+  mutate(`log10 viral load` = log(`HIV viral load`, 10),
+         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
+         gender = factor(Gender, labels = c('Females', 'Males')),
+         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', '')))) %>%
+  mutate(
+    `Tuberculosis` = as.factor(`Opportunistic infection  (choice=Tuberculosis)`),
+    `Cryptococcus neoformans` = as.factor(`Opportunistic infection  (choice=Cryptococcus neoformans)`),
+    `Toxoplasmosis` = as.factor(`Opportunistic infection  (choice=Toxoplasmosis)`),
+    `Mycobacterium avium-intracellulare` = as.factor(`Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`),
+    `Kaposis sarcoma` = as.factor(`Opportunistic infection  (choice=Kaposis sarcoma)`),
+    `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`),
+    `Other` = as.factor(`Opportunistic infection  (choice=Other)`)
+  ) %>%
+  mutate(`CD4 counts` = case_when(
+    `Total CD4 count...9` <= 30 ~ '0 - 30',
+    `Total CD4 count...9` >30 & `Total CD4 count...9`<=60 ~ '31 - 60',
+    `Total CD4 count...9` > 60 & `Total CD4 count...9` <= 100 ~ '61 - 100'
+  )) %>%
+  dplyr::select(`Age at enrolment`, gender, Ethnicity, `Duration of current illness`, #`Opportunistic infection present`,  Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, `Tuberculosis`, `Cryptococcus neoformans`, `Toxoplasmosis`, `Mycobacterium avium-intracellulare`, `Kaposis sarcoma`, `Cytomegalovirus`, `Other`,
+                Tiredness, Weakness, `Poor appetite`, `Weight loss`, Nausea, Vomiting, Diarrhoea, `Liking for salt`, Dizziness, `Loss of consciousness`, 
+                Hypoglycaemia, Hypotension, `BP (systolic)`, `BP (diastolic)`, `Any postural drop in blood pressure`,
+                Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Increased pigmentation of the skin`, 
+                
+                `Presence of anaemia`, `Haemoglobin g/dL` = Haemoglobin, `Presence of an opportunistic infection` = `Opportunistic infection present`, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`,  Neutrophils, `log10 viral load`, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `CD4 counts`,#`Addisons disease`,
+                `Tuberculosis`, `Cryptococcus neoformans`, `Mycobacterium avium-intracellulare`,`Toxoplasmosis`,
+                `Cytomegalovirus`, `Kaposis sarcoma`, `Other`) %>%# , 
+tbl_summary(#table_1,
+            missing = "no",
+            by = `CD4 counts`,
+            # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+            digits = list(all_categorical() ~ c(0, 1))#,
+            # label = list(`Total CD4 count...9` ~ 'Total CD4 count')
+            ) %>%
+  add_p() %>%
+  add_n() %>%
+  add_overall() %>%
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+table_12
+
+```
+
+
 # Table 2: comparing Addisons status with other variables
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 
