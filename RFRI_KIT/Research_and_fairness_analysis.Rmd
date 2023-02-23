@@ -46,7 +46,8 @@ library(survey)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 # library(readr)
-final_dataset <- read_csv("final_dataset.csv")[-c(19,27,45,122),] %>%
+final_dataset <- read_csv("final_dataset_new.csv")[-c(19,27,45,122),] %>%
+  filter(`Which of the following best describes you?`!='NA') %>%
   mutate(`Which of the following best describes you?` = as.factor(ifelse(`Which of the following best describes you?`=='Other (please specify)', 'Researcher from the Global North',  `Which of the following best describes you?`)))
 final_dataset <- final_dataset %>%
   mutate(
@@ -418,28 +419,55 @@ final_dataset <- final_dataset %>%
     rpq = sum(c(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20), na.rm = T),
     fpq = sum(c(fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20), na.rm = T)
   ) %>%
-  mutate(`Meticulous research process` = sum(c(rpq10, rpq12, rpq3, rpq6, rpq20), na.rm = T) / 5,
-         `Good mentoring` = sum(c(rpq5, rpq4), na.rm = T) / 2,
-         `Adequate methods` = sum(c(rpq7, rpq18, rpq19), na.rm = T) / 3,
-         `Transparent reporting` = sum(c(rpq1, rpq8, rpq14, rpq11), na.rm = T) / 4,
-         `Ensuring reproducibility` = sum(c(rpq9,rpq15, rpq2), na.rm = T) / 3,
-         `Open science` = sum(c(rpq16, rpq17, rpq13), na.rm = T) / 3
+  rowwise()%>%
+  mutate(`Meticulous research process` = mean(c(rpq10, rpq12, rpq3, rpq6, rpq20), na.rm = T),
+         `Good mentoring` = mean(c(rpq5, rpq4), na.rm = T),
+         `Adequate methods` = mean(c(rpq7, rpq18, rpq19), na.rm = T),
+         `Transparent reporting` = mean(c(rpq1, rpq8, rpq14, rpq11), na.rm = T),
+         `Ensuring reproducibility` = mean(c(rpq9,rpq15, rpq2), na.rm = T),
+         `Open science` = mean(c(rpq16, rpq17, rpq13), na.rm = T)
          ) %>% #Research integrity scores
-  mutate(`Engagement of local decision-makers` = sum(c(fpq2, fpq16, fpq15), na.rm = T) / 3,
-         `Engagement of affected populations` = sum(c(fpq1, fpq14, fpq17), na.rm = T) / 3,
-         `Partnership with local researchers` = sum(c(fpq3, fpq10, fpq4, fpq6), na.rm = T) / 4,
-         `Fair agreements between study partners` = sum(c(fpq20, fpq19, fpq18, fpq17, fpq13), na.rm = T) / 5,
-         `Local ethical approval` = sum(c(fpq8, fpq9), na.rm = T) / 2,
-         `Respectful data collection` = sum(c(fpq5, fpq11, fpq12), na.rm = T) / 3
+  mutate(`Engagement of local decision-makers` = mean(c(fpq2, fpq16, fpq15), na.rm = T),
+         `Engagement of affected populations` = mean(c(fpq1, fpq14, fpq17), na.rm = T),
+         `Partnership with local researchers` = mean(c(fpq3, fpq10, fpq4, fpq6), na.rm = T),
+         `Fair agreements between study partners` = mean(c(fpq20, fpq19, fpq18, fpq17, fpq13), na.rm = T),
+         `Local ethical approval` = mean(c(fpq8, fpq9), na.rm = T),
+         `Respectful data collection` = mean(c(fpq5, fpq11, fpq12), na.rm = T)
          ) %>% #Research fairness score
   mutate(`responsible research Practices score` = ifelse(rpq == 0, NA, rpq),
          `fair research practices score` = ifelse(fpq == 0, NA, fpq))
+  
+  # x=final_dataset %>%
+  # rowwise()%>%
+  # mutate(new_var = mean(c(rpq10, rpq12, rpq3, rpq6, rpq20), na.rm = T),
+  #   `Meticulous research process` = sum(c(rpq10, rpq12, rpq3, rpq6, rpq20), na.rm = T) / 5,
+  #        `Good mentoring` = sum(c(rpq5, rpq4), na.rm = T) / 2,
+  #        `Adequate methods` = sum(c(rpq7, rpq18, rpq19), na.rm = T) / 3,
+  #        `Transparent reporting` = sum(c(rpq1, rpq8, rpq14, rpq11), na.rm = T) / 4,
+  #        `Ensuring reproducibility` = sum(c(rpq9,rpq15, rpq2), na.rm = T) / 3,
+  #        `Open science` = sum(c(rpq16, rpq17, rpq13), na.rm = T) / 3
+  #        ) %>% #Research integrity scores
+  # mutate(`Engagement of local decision-makers` = sum(c(fpq2, fpq16, fpq15), na.rm = T) / 3,
+  #        `Engagement of affected populations` = sum(c(fpq1, fpq14, fpq17), na.rm = T) / 3,
+  #        `Partnership with local researchers` = sum(c(fpq3, fpq10, fpq4, fpq6), na.rm = T) / 4,
+  #        `Fair agreements between study partners` = sum(c(fpq20, fpq19, fpq18, fpq17, fpq13), na.rm = T) / 5,
+  #        `Local ethical approval` = sum(c(fpq8, fpq9), na.rm = T) / 2,
+  #        `Respectful data collection` = sum(c(fpq5, fpq11, fpq12), na.rm = T) / 3
+  #        ) %>% #Research fairness score
+  # mutate(`responsible research Practices score` = ifelse(rpq == 0, NA, rpq),
+  #        `fair research practices score` = ifelse(fpq == 0, NA, fpq)) 
 ```
 
 # Demographics
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt01 <- final_dataset %>%
-  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, `Which of the following best describes you?`, `What is your highest academic rank?`) %>%
+  # mutate(`Which country are you from?` = ifelse(`Which country are you from?`=='NA', 'Missing', `Which country are you from?`)) %>%
+  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`,
+                `What is you gender?`, `How many years of involvement in research do you have?`, 
+                `Which of the following best describes you?`, `What is your highest academic rank?`
+                ) %>%
+  # mutate_all(str_replace_all(., 'NA', '')) %>%
+  # mutate_if(is.character, as.factor) %>%
   # mutate(gender = factor(gender, labels = c('Females', 'Males'))) %>%
   tbl_summary(by = `Which of the following best describes you?`,
             digits = list(all_categorical() ~ c(0, 1))#, 
@@ -569,7 +597,7 @@ dt03 <- final_dataset %>%
                 'Local ethical approval', 'Respectful data collection') ~ "{mean} ({sd})")
             ) %>% 
   add_p() %>% #test = everything() ~ "wilcox.test"
-  add_overall() %>%
+  # add_overall() %>%
   add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
@@ -590,7 +618,7 @@ dt03_3 <- final_dataset %>%
     `Local ethical approval`, `Respectful data collection`, Location
   ) %>%
   group_by(Location) %>%
-  summarise(across(where(is.numeric), list(mean = mean))) %>%
+  summarise(across(where(is.numeric), ~ round(mean(., na.rm = TRUE), 2))) %>%
   gather(key = "X", "Mean score", 2:13) %>%
   mutate(
     category = rep(c("Questionable research practices", "Unfair research practices"), each = 12),
@@ -615,10 +643,10 @@ positions = c("Meticulous research process", "Good mentoring", "Adequate methods
       "Partnership with local researchers", "Fair agreements between study partners",
       "Local ethical approval","Respectful data collection")
 dt03_4 <- dt03_3 %>%
-  ggplot(aes(x = `Behaviour categories`, y = `Mean score`, fill = location )) +
-  geom_bar(stat="identity", color="black", position = position_dodge())+
+  ggplot(aes(x = `Behaviour categories`, y = `Mean score`, fill = Location )) +
+  geom_bar(stat="identity", color="black", position = position_dodge()) +
 scale_fill_manual(values=c("#999999", "#E69F00"))+ scale_x_discrete(limits = positions)+
-geom_text(aes(label = `Mean score`))+#, position = position) +
+geom_text(aes(label = `Mean score`), size = 4, position = position_dodge(.9), fontface = 12)+#, position = position) +
   theme(
         text = element_text(size = 18),
         plot.title = element_text(hjust = 0.5),
@@ -630,15 +658,160 @@ geom_text(aes(label = `Mean score`))+#, position = position) +
         plot.margin = unit(c(0, 0, 0, 0), "null")
       ) +
   coord_flip() +
-  scale_fill_manual("Legenda",
+  scale_fill_manual("Location",
                     values = c(
                       "Global North" = "#E69F00",
                       "Global South" = "#999999"
                     )) +
   guides(fill = guide_legend(reverse = TRUE))
-dt03_4
+# dt03_4
 jpeg('figure12.jpeg', units = "in", width = 12, height = 8, res = 300)
 dt03_4
+dev.off()
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+
+dt03_5 <- final_dataset %>%
+  mutate(`Research field` = as.factor(case_when(
+    `What discipline of global health based describes you:` == 'Biology/Medicine' | 
+      `What discipline of global health based describes you:` == 'Biostatistics/Epidemiology' | 
+      `What discipline of global health based describes you:` == 'Mathematics/Computer science' | 
+      `other_What discipline of global health based describes you:` == 'Applied Health Research/Health Services Research & Health Technology Assessment' |
+`other_What discipline of global health based describes you:` == 'Clinical Trial'|
+`other_What discipline of global health based describes you:` == 'ENVIROMENTAL AND OCCUPATIONAL'|
+`other_What discipline of global health based describes you:` == 'Environmental Health'|
+`other_What discipline of global health based describes you:` == 'Environmental microbiology'|
+`other_What discipline of global health based describes you:` == 'EPI AND SOCIAL SCIENCES -MIXED METHODS'|
+`other_What discipline of global health based describes you:` == 'Foof and food safety'|
+`other_What discipline of global health based describes you:` == 'Microbiology'|
+`other_What discipline of global health based describes you:` == 'policy'|
+`other_What discipline of global health based describes you:` == 'public health'|
+`other_What discipline of global health based describes you:` == 'Public Health' ~ 'Biomedical',
+    `What discipline of global health based describes you:` == 'Sociology/Anthropology' |
+  `What discipline of global health based describes you:` == 'Political sciences/Health economics' |
+  `other_What discipline of global health based describes you:` == 'health management'|
+`other_What discipline of global health based describes you:` == 'Health Systems research'|
+`other_What discipline of global health based describes you:` == 'Health policy and systems research with social sciences bias but with epi work also'|
+`other_What discipline of global health based describes you:` == 'I am a research administrator.'|
+`other_What discipline of global health based describes you:` == 'primary health care, program implementation / evaluation'|
+`other_What discipline of global health based describes you:` == 'psychology'|
+`other_What discipline of global health based describes you:` == 'Public health and psychology'|
+`other_What discipline of global health based describes you:` == 'Public Health/Behavioral Sciences'|
+`other_What discipline of global health based describes you:` == 'Social sciences & public health' ~ 'Non biomedical'
+  ))) %>%
+  dplyr::select(`Meticulous research process`, `Good mentoring`, `Adequate methods`, 
+                `Transparent reporting`, `Ensuring reproducibility`, `Open science`, 
+                `Engagement of local decision-makers`, `Engagement of affected populations`,
+                `Partnership with local researchers`, `Fair agreements between study partners`,
+                `Local ethical approval`, `Respectful data collection`, `Research field`) %>%
+  tbl_summary(by = `Research field`, 
+            missing = "no",
+            type = list(c('Meticulous research process', 'Good mentoring', 'Adequate methods', 
+                'Transparent reporting', 'Ensuring reproducibility', 'Open science', 
+                'Engagement of local decision-makers', 'Engagement of affected populations',
+                'Partnership with local researchers', 'Fair agreements between study partners',
+                'Local ethical approval', 'Respectful data collection') ~ 'continuous'),
+            statistic = list(c('Meticulous research process', 'Good mentoring', 'Adequate methods', 
+                'Transparent reporting', 'Ensuring reproducibility', 'Open science', 
+                'Engagement of local decision-makers', 'Engagement of affected populations',
+                'Partnership with local researchers', 'Fair agreements between study partners',
+                'Local ethical approval', 'Respectful data collection') ~ "{mean} ({sd})")
+            ) %>% 
+  add_p() %>% #test = everything() ~ "wilcox.test"
+  # add_overall() %>%
+  # add_n() %>% 
+  modify_header(label = "Variable") %>% # update the column header
+  bold_labels()
+dt03_5
+
+dt03_6 <- final_dataset %>%
+  mutate(`Research field` = as.factor(case_when(
+    `What discipline of global health based describes you:` == 'Biology/Medicine' | 
+      `What discipline of global health based describes you:` == 'Biostatistics/Epidemiology' | 
+      `What discipline of global health based describes you:` == 'Mathematics/Computer science' | 
+      `other_What discipline of global health based describes you:` == 'Applied Health Research/Health Services Research & Health Technology Assessment' |
+`other_What discipline of global health based describes you:` == 'Clinical Trial'|
+`other_What discipline of global health based describes you:` == 'ENVIROMENTAL AND OCCUPATIONAL'|
+`other_What discipline of global health based describes you:` == 'Environmental Health'|
+`other_What discipline of global health based describes you:` == 'Environmental microbiology'|
+`other_What discipline of global health based describes you:` == 'EPI AND SOCIAL SCIENCES -MIXED METHODS'|
+`other_What discipline of global health based describes you:` == 'Foof and food safety'|
+`other_What discipline of global health based describes you:` == 'Microbiology'|
+`other_What discipline of global health based describes you:` == 'policy'|
+`other_What discipline of global health based describes you:` == 'public health'|
+`other_What discipline of global health based describes you:` == 'Public Health' ~ 'Biomedical',
+    `What discipline of global health based describes you:` == 'Sociology/Anthropology' |
+  `What discipline of global health based describes you:` == 'Political sciences/Health economics' |
+  `other_What discipline of global health based describes you:` == 'health management'|
+`other_What discipline of global health based describes you:` == 'Health Systems research'|
+`other_What discipline of global health based describes you:` == 'Health policy and systems research with social sciences bias but with epi work also'|
+`other_What discipline of global health based describes you:` == 'I am a research administrator.'|
+`other_What discipline of global health based describes you:` == 'primary health care, program implementation / evaluation'|
+`other_What discipline of global health based describes you:` == 'psychology'|
+`other_What discipline of global health based describes you:` == 'Public health and psychology'|
+`other_What discipline of global health based describes you:` == 'Public Health/Behavioral Sciences'|
+`other_What discipline of global health based describes you:` == 'Social sciences & public health' ~ 'Non biomedical'
+  ))) %>%
+  filter(!is.na(`Research field`)) %>%
+  dplyr::select(
+    `Meticulous research process`, `Good mentoring`, `Adequate methods`,
+    `Transparent reporting`, `Ensuring reproducibility`, `Open science`,
+    `Engagement of local decision-makers`, `Engagement of affected populations`,
+    `Partnership with local researchers`, `Fair agreements between study partners`,
+    `Local ethical approval`, `Respectful data collection`, `Research field`
+  ) %>%
+  group_by(`Research field`) %>%
+  summarise(across(where(is.numeric), ~ round(mean(., na.rm = TRUE), 2))) %>%
+  gather(key = "X", "Mean score", 2:13) %>%
+  mutate(
+    category = rep(c("Questionable research practices", "Unfair research practices"), each = 12),
+    `Behaviour categories` = c(
+      "Meticulous research process", "Meticulous research process",
+      "Good mentoring", "Good mentoring",
+      "Adequate methods", "Adequate methods",
+      "Transparent reporting", "Transparent reporting",
+      "Ensuring reproducibility", "Ensuring reproducibility",
+      "Open science", "Open science",
+      "Engagement of local decision-makers", "Engagement of local decision-makers",
+      "Engagement of affected populations", "Engagement of affected populations",
+      "Partnership with local researchers", "Partnership with local researchers",
+      "Fair agreements between study partners", "Fair agreements between study partners",
+      "Local ethical approval", "Local ethical approval",
+      "Respectful data collection", "Respectful data collection"
+    )
+  )
+positions = c("Meticulous research process", "Good mentoring", "Adequate methods",
+      "Transparent reporting", "Ensuring reproducibility", "Open science",
+      "Engagement of local decision-makers", "Engagement of affected populations",
+      "Partnership with local researchers", "Fair agreements between study partners",
+      "Local ethical approval","Respectful data collection")
+dt03_7 <- dt03_6 %>%
+  ggplot(aes(x = `Behaviour categories`, y = `Mean score`, fill = `Research field` )) +
+  geom_bar(stat="identity", color="black", position = position_dodge()) +
+scale_fill_manual(values=c("#999999", "#E69F00"))+ scale_x_discrete(limits = positions)+
+geom_text(aes(label = `Mean score`), size = 4, position = position_dodge(.9), fontface = 12)+#, position = position) +
+  theme(
+        text = element_text(size = 18),
+        plot.title = element_text(hjust = 0.5),
+        axis.line = element_line(colour = "black"),
+        axis.text = element_text(size = 18),
+        axis.title = element_text(size = 18),
+        panel.background = element_blank(),
+        panel.border = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "null")
+      ) +
+  coord_flip() +
+  scale_fill_manual("Research field",
+                    values = c(
+                      "Biomedical" = "#E69F00",
+                      "Non biomedical" = "#999999"
+                    )) +
+  guides(fill = guide_legend(reverse = TRUE))
+# dt03_7
+jpeg('figure2.jpeg', units = "in", width = 12, height = 8, res = 300)
+dt03_7
 dev.off()
 ```
 
@@ -735,18 +908,18 @@ model1 <- glm(formula = as.formula('rpq_score~ Location + accademic_rank'),
               data = finalmodel_dataset,
               family = gaussian,
               )
-m1 <-model1 %>%
-  tbl_regression(
-    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-    pvalue_fun = ~style_pvalue(.x, digits = 3),
-  ) %>% 
-  # add_global_p() %>%
-  bold_p(t = 0.05) %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  as_gt() %>%
-  gt::tab_source_note(gt::md("*Best set of dependent variables*")) %>%
-  gt::gtsave(filename = "rrpq.pdf")
+# m1 <-model1 %>%
+#   tbl_regression(
+#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+#     pvalue_fun = ~style_pvalue(.x, digits = 3),
+#   ) %>% 
+#   # add_global_p() %>%
+#   bold_p(t = 0.05) %>%
+#   bold_labels() %>%
+#   italicize_levels() %>%
+#   as_gt() %>%
+#   gt::tab_source_note(gt::md("*Best set of dependent variables*")) %>%
+#   gt::gtsave(filename = "rrpq.pdf")
   # gt::gtsave(filename = "rrpq.rtf")
 
 # full model
@@ -766,18 +939,18 @@ model2 <- glm(formula = as.formula('rpq_score~ Location + accademic_rank + year_
               family = gaussian,
               )
 
-m2 <- model2 %>%
-  tbl_regression(
-    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-    pvalue_fun = ~style_pvalue(.x, digits = 3),
-  ) %>% 
-  # add_global_p() %>%
-  bold_p(t = 0.05) %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  as_gt() %>%
-  gt::tab_source_note(gt::md("*Full model*")) %>%
-  gt::gtsave(filename = "rrpq - full model.pdf")
+# m2 <- model2 %>%
+#   tbl_regression(
+#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+#     pvalue_fun = ~style_pvalue(.x, digits = 3),
+#   ) %>% 
+#   # add_global_p() %>%
+#   bold_p(t = 0.05) %>%
+#   bold_labels() %>%
+#   italicize_levels() %>%
+#   as_gt() %>%
+#   gt::tab_source_note(gt::md("*Full model*")) %>%
+#   gt::gtsave(filename = "rrpq - full model.pdf")
   # gt::gtsave(filename = "rrpq - full model.rtf")
 ```
 At Univariate analysis, only academic rank of the respondents had a category that was significantly associated with responsible research practices. Bachelor or Master degree was associated with -17 (95%CI:-27, -6.9)	(P = 0.001) reduction in the responsible research score compared to Associate Professor or Full Professor. Other variables were not statistically significantly associated with responsible research practices. In the full model, after adjusting for Location, years of involvement, gender, country of origin and discipline of global health, Bachelor or Master degree was associated with -16.5 (95%CI:-30.6, -2.29) (P = 0.025) reduction in the responsible research practice score compared to Associate Professor or Full Professor. While in the reduced model (after stepwise regression analysis) Bachelor or Master degree was still associated with -18.3 (95%CI:-28.7, -7.84)	(P <0.001) reduction in the responsible research score compared to Associate Professor or Full Professor adjusting for location.
@@ -841,18 +1014,18 @@ model3 <- glm(formula = as.formula('fpq_score~ Location + year_involment_researc
               family = gaussian,
               )
 
-model3 %>%
-  tbl_regression(
-    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-    pvalue_fun = ~style_pvalue(.x, digits = 3),
-  ) %>% 
-  # add_global_p() %>%
-  bold_p(t = 0.05) %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  as_gt() %>%
-  gt::tab_source_note(gt::md("*Best set of dependent variables*"))%>%
-  gt::gtsave(filename = "frpq.pdf")
+# model3 %>%
+#   tbl_regression(
+#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+#     pvalue_fun = ~style_pvalue(.x, digits = 3),
+#   ) %>% 
+#   # add_global_p() %>%
+#   bold_p(t = 0.05) %>%
+#   bold_labels() %>%
+#   italicize_levels() %>%
+#   as_gt() %>%
+#   gt::tab_source_note(gt::md("*Best set of dependent variables*"))%>%
+#   gt::gtsave(filename = "frpq.pdf")
   # gt::gtsave(filename = "frpq.rtf")
 #https://data.princeton.edu/wws509/r/robust
 # full model
@@ -872,18 +1045,18 @@ model2 <- glm(formula = as.formula('fpq_score~ Location + accademic_rank + year_
               family = gaussian,
               )
 
-model2 %>%
-  tbl_regression(
-    estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-    pvalue_fun = ~style_pvalue(.x, digits = 3),
-  ) %>% 
-  # add_global_p() %>%
-  bold_p(t = 0.05) %>%
-  bold_labels() %>%
-  italicize_levels() %>%
-  as_gt() %>%
-  gt::tab_source_note(gt::md("*Full model*"))%>%
-  gt::gtsave(filename = "frpq-full_model.pdf")
+# model2 %>%
+#   tbl_regression(
+#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
+#     pvalue_fun = ~style_pvalue(.x, digits = 3),
+#   ) %>% 
+#   # add_global_p() %>%
+#   bold_p(t = 0.05) %>%
+#   bold_labels() %>%
+#   italicize_levels() %>%
+#   as_gt() %>%
+#   gt::tab_source_note(gt::md("*Full model*"))%>%
+#   gt::gtsave(filename = "frpq-full_model.pdf")
   # gt::gtsave(filename = "frpq-full_model.rtf")
 ```
 
