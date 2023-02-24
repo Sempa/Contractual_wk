@@ -584,7 +584,7 @@ dt03 <- final_dataset %>%
                 `Partnership with local researchers`, `Fair agreements between study partners`,
                 `Local ethical approval`, `Respectful data collection`, location) %>%
   tbl_summary(by = location, 
-            # missing = "no",
+            missing = "no",
             type = list(c('Meticulous research process', 'Good mentoring', 'Adequate methods', 
                 'Transparent reporting', 'Ensuring reproducibility', 'Open science', 
                 'Engagement of local decision-makers', 'Engagement of affected populations',
@@ -597,9 +597,9 @@ dt03 <- final_dataset %>%
                 'Local ethical approval', 'Respectful data collection') ~ "{mean} ({sd})")
             ) %>% 
   add_p() %>% #test = everything() ~ "wilcox.test"
-  # add_overall() %>%
+  add_overall() %>%
   add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
+  modify_header(label = "Category") %>% # update the column header
   bold_labels()
 dt03
 
@@ -686,7 +686,8 @@ dt03_5 <- final_dataset %>%
 `other_What discipline of global health based describes you:` == 'EPI AND SOCIAL SCIENCES -MIXED METHODS'|
 `other_What discipline of global health based describes you:` == 'Foof and food safety'|
 `other_What discipline of global health based describes you:` == 'Microbiology'|
-`other_What discipline of global health based describes you:` == 'policy'|
+`other_What discipline of global health based describes you:` == 'psychology'|
+`other_What discipline of global health based describes you:` == 'Public health and psychology'|
 `other_What discipline of global health based describes you:` == 'public health'|
 `other_What discipline of global health based describes you:` == 'Public Health' ~ 'Biomedical',
     `What discipline of global health based describes you:` == 'Sociology/Anthropology' |
@@ -696,8 +697,7 @@ dt03_5 <- final_dataset %>%
 `other_What discipline of global health based describes you:` == 'Health policy and systems research with social sciences bias but with epi work also'|
 `other_What discipline of global health based describes you:` == 'I am a research administrator.'|
 `other_What discipline of global health based describes you:` == 'primary health care, program implementation / evaluation'|
-`other_What discipline of global health based describes you:` == 'psychology'|
-`other_What discipline of global health based describes you:` == 'Public health and psychology'|
+`other_What discipline of global health based describes you:` == 'policy'|
 `other_What discipline of global health based describes you:` == 'Public Health/Behavioral Sciences'|
 `other_What discipline of global health based describes you:` == 'Social sciences & public health' ~ 'Non biomedical'
   ))) %>%
@@ -740,6 +740,8 @@ dt03_6 <- final_dataset %>%
 `other_What discipline of global health based describes you:` == 'Foof and food safety'|
 `other_What discipline of global health based describes you:` == 'Microbiology'|
 `other_What discipline of global health based describes you:` == 'policy'|
+  `other_What discipline of global health based describes you:` == 'psychology'|
+`other_What discipline of global health based describes you:` == 'Public health and psychology'|
 `other_What discipline of global health based describes you:` == 'public health'|
 `other_What discipline of global health based describes you:` == 'Public Health' ~ 'Biomedical',
     `What discipline of global health based describes you:` == 'Sociology/Anthropology' |
@@ -749,8 +751,7 @@ dt03_6 <- final_dataset %>%
 `other_What discipline of global health based describes you:` == 'Health policy and systems research with social sciences bias but with epi work also'|
 `other_What discipline of global health based describes you:` == 'I am a research administrator.'|
 `other_What discipline of global health based describes you:` == 'primary health care, program implementation / evaluation'|
-`other_What discipline of global health based describes you:` == 'psychology'|
-`other_What discipline of global health based describes you:` == 'Public health and psychology'|
+`other_What discipline of global health based describes you:` == 'policy'|
 `other_What discipline of global health based describes you:` == 'Public Health/Behavioral Sciences'|
 `other_What discipline of global health based describes you:` == 'Social sciences & public health' ~ 'Non biomedical'
   ))) %>%
@@ -782,6 +783,13 @@ dt03_6 <- final_dataset %>%
       "Respectful data collection", "Respectful data collection"
     )
   )
+x_sum <- dt03_6 %>% 
+  group_by(`Research field`, category) %>% 
+  summarise(overal_mean = mean(`Mean score`), sd_overal = sd(`Mean score`))
+x_sum_1 <- dt03_6 %>% 
+  group_by(`Behaviour categories`) %>% 
+  summarise(overal_mean = mean(`Mean score`), sd_overal = sd(`Mean score`))
+
 positions = c("Meticulous research process", "Good mentoring", "Adequate methods",
       "Transparent reporting", "Ensuring reproducibility", "Open science",
       "Engagement of local decision-makers", "Engagement of affected populations",
