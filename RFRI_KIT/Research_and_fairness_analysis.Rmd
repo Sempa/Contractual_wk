@@ -46,372 +46,372 @@ library(survey)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 # library(readr)
-final_dataset <- read_csv("final_dataset_new.csv")[-c(19,27,45,122),] %>%
-  filter(`Which of the following best describes you?`!='NA') %>%
-  mutate(`Which of the following best describes you?` = as.factor(ifelse(`Which of the following best describes you?`=='Other (please specify)', 'Researcher from the Global North',  `Which of the following best describes you?`)))
+final_dataset <- read_csv("final_dataset_new.csv")[-c(19, 27, 45, 122), ] %>%
+  filter(`Which of the following best describes you?` != "NA") %>%
+  mutate(`Which of the following best describes you?` = as.factor(ifelse(`Which of the following best describes you?` == "Other (please specify)", "Researcher from the Global North", `Which of the following best describes you?`)))
 final_dataset <- final_dataset %>%
   mutate(
     rpq1 = case_when(
-      `responsible research Practices_q1` == 'Never' ~ 7,
-      `responsible research Practices_q1` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q1` == 'Rarely' ~ 5,
-      `responsible research Practices_q1` == 'Occasionally' ~ 4,
-      `responsible research Practices_q1` == 'Frequently' ~ 3,
-      `responsible research Practices_q1` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q1` == 'Always' ~ 1
+      `responsible research Practices_q1` == "Never" ~ 7,
+      `responsible research Practices_q1` == "Very Rarely" ~ 6,
+      `responsible research Practices_q1` == "Rarely" ~ 5,
+      `responsible research Practices_q1` == "Occasionally" ~ 4,
+      `responsible research Practices_q1` == "Frequently" ~ 3,
+      `responsible research Practices_q1` == "Very Frequently" ~ 2,
+      `responsible research Practices_q1` == "Always" ~ 1
     ),
     rpq2 = case_when(
-      `responsible research Practices_q2` == 'Never' ~ 1,
-      `responsible research Practices_q2` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q2` == 'Rarely' ~ 3,
-      `responsible research Practices_q2` == 'Occasionally' ~ 4,
-      `responsible research Practices_q2` == 'Frequently' ~ 5,
-      `responsible research Practices_q2` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q2` == 'Always' ~ 7
+      `responsible research Practices_q2` == "Never" ~ 1,
+      `responsible research Practices_q2` == "Very Rarely" ~ 2,
+      `responsible research Practices_q2` == "Rarely" ~ 3,
+      `responsible research Practices_q2` == "Occasionally" ~ 4,
+      `responsible research Practices_q2` == "Frequently" ~ 5,
+      `responsible research Practices_q2` == "Very Frequently" ~ 6,
+      `responsible research Practices_q2` == "Always" ~ 7
     ),
     rpq3 = case_when(
-      `responsible research Practices_q3` == 'Never' ~ 7,
-      `responsible research Practices_q3` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q3` == 'Rarely' ~ 5,
-      `responsible research Practices_q3` == 'Occasionally' ~ 4,
-      `responsible research Practices_q3` == 'Frequently' ~ 3,
-      `responsible research Practices_q3` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q3` == 'Always' ~ 1
+      `responsible research Practices_q3` == "Never" ~ 7,
+      `responsible research Practices_q3` == "Very Rarely" ~ 6,
+      `responsible research Practices_q3` == "Rarely" ~ 5,
+      `responsible research Practices_q3` == "Occasionally" ~ 4,
+      `responsible research Practices_q3` == "Frequently" ~ 3,
+      `responsible research Practices_q3` == "Very Frequently" ~ 2,
+      `responsible research Practices_q3` == "Always" ~ 1
     ),
     rpq4 = case_when(
-      `responsible research Practices_q4` == 'Never' ~ 7,
-      `responsible research Practices_q4` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q4` == 'Rarely' ~ 5,
-      `responsible research Practices_q4` == 'Occasionally' ~ 4,
-      `responsible research Practices_q4` == 'Frequently' ~ 3,
-      `responsible research Practices_q4` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q4` == 'Always' ~ 1
+      `responsible research Practices_q4` == "Never" ~ 7,
+      `responsible research Practices_q4` == "Very Rarely" ~ 6,
+      `responsible research Practices_q4` == "Rarely" ~ 5,
+      `responsible research Practices_q4` == "Occasionally" ~ 4,
+      `responsible research Practices_q4` == "Frequently" ~ 3,
+      `responsible research Practices_q4` == "Very Frequently" ~ 2,
+      `responsible research Practices_q4` == "Always" ~ 1
     ),
     rpq5 = case_when(
-      `responsible research Practices_q5` == 'Never' ~ 7,
-      `responsible research Practices_q5` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q5` == 'Rarely' ~ 5,
-      `responsible research Practices_q5` == 'Occasionally' ~ 4,
-      `responsible research Practices_q5` == 'Frequently' ~ 3,
-      `responsible research Practices_q5` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q5` == 'Always' ~ 1
+      `responsible research Practices_q5` == "Never" ~ 7,
+      `responsible research Practices_q5` == "Very Rarely" ~ 6,
+      `responsible research Practices_q5` == "Rarely" ~ 5,
+      `responsible research Practices_q5` == "Occasionally" ~ 4,
+      `responsible research Practices_q5` == "Frequently" ~ 3,
+      `responsible research Practices_q5` == "Very Frequently" ~ 2,
+      `responsible research Practices_q5` == "Always" ~ 1
     ),
     rpq6 = case_when(
-      `responsible research Practices_q6` == 'Never' ~ 1,
-      `responsible research Practices_q6` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q6` == 'Rarely' ~ 3,
-      `responsible research Practices_q6` == 'Occasionally' ~ 4,
-      `responsible research Practices_q6` == 'Frequently' ~ 5,
-      `responsible research Practices_q6` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q6` == 'Always' ~ 7
+      `responsible research Practices_q6` == "Never" ~ 1,
+      `responsible research Practices_q6` == "Very Rarely" ~ 2,
+      `responsible research Practices_q6` == "Rarely" ~ 3,
+      `responsible research Practices_q6` == "Occasionally" ~ 4,
+      `responsible research Practices_q6` == "Frequently" ~ 5,
+      `responsible research Practices_q6` == "Very Frequently" ~ 6,
+      `responsible research Practices_q6` == "Always" ~ 7
     ),
     rpq7 = case_when(
-      `responsible research Practices_q7` == 'Never' ~ 7,
-      `responsible research Practices_q7` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q7` == 'Rarely' ~ 5,
-      `responsible research Practices_q7` == 'Occasionally' ~ 4,
-      `responsible research Practices_q7` == 'Frequently' ~ 3,
-      `responsible research Practices_q7` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q7` == 'Always' ~ 1
+      `responsible research Practices_q7` == "Never" ~ 7,
+      `responsible research Practices_q7` == "Very Rarely" ~ 6,
+      `responsible research Practices_q7` == "Rarely" ~ 5,
+      `responsible research Practices_q7` == "Occasionally" ~ 4,
+      `responsible research Practices_q7` == "Frequently" ~ 3,
+      `responsible research Practices_q7` == "Very Frequently" ~ 2,
+      `responsible research Practices_q7` == "Always" ~ 1
     ),
     rpq8 = case_when(
-      `responsible research Practices_q8` == 'Never' ~ 7,
-      `responsible research Practices_q8` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q8` == 'Rarely' ~ 5,
-      `responsible research Practices_q8` == 'Occasionally' ~ 4,
-      `responsible research Practices_q8` == 'Frequently' ~ 3,
-      `responsible research Practices_q8` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q8` == 'Always' ~ 1
+      `responsible research Practices_q8` == "Never" ~ 7,
+      `responsible research Practices_q8` == "Very Rarely" ~ 6,
+      `responsible research Practices_q8` == "Rarely" ~ 5,
+      `responsible research Practices_q8` == "Occasionally" ~ 4,
+      `responsible research Practices_q8` == "Frequently" ~ 3,
+      `responsible research Practices_q8` == "Very Frequently" ~ 2,
+      `responsible research Practices_q8` == "Always" ~ 1
     ),
     rpq9 = case_when(
-      `responsible research Practices_q9` == 'Never' ~ 1,
-      `responsible research Practices_q9` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q9` == 'Rarely' ~ 3,
-      `responsible research Practices_q9` == 'Occasionally' ~ 4,
-      `responsible research Practices_q9` == 'Frequently' ~ 5,
-      `responsible research Practices_q9` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q9` == 'Always' ~ 7
+      `responsible research Practices_q9` == "Never" ~ 1,
+      `responsible research Practices_q9` == "Very Rarely" ~ 2,
+      `responsible research Practices_q9` == "Rarely" ~ 3,
+      `responsible research Practices_q9` == "Occasionally" ~ 4,
+      `responsible research Practices_q9` == "Frequently" ~ 5,
+      `responsible research Practices_q9` == "Very Frequently" ~ 6,
+      `responsible research Practices_q9` == "Always" ~ 7
     ),
     rpq10 = case_when(
-      `responsible research Practices_q10` == 'Never' ~ 7,
-      `responsible research Practices_q10` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q10` == 'Rarely' ~ 5,
-      `responsible research Practices_q10` == 'Occasionally' ~ 4,
-      `responsible research Practices_q10` == 'Frequently' ~ 3,
-      `responsible research Practices_q10` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q10` == 'Always' ~ 1
+      `responsible research Practices_q10` == "Never" ~ 7,
+      `responsible research Practices_q10` == "Very Rarely" ~ 6,
+      `responsible research Practices_q10` == "Rarely" ~ 5,
+      `responsible research Practices_q10` == "Occasionally" ~ 4,
+      `responsible research Practices_q10` == "Frequently" ~ 3,
+      `responsible research Practices_q10` == "Very Frequently" ~ 2,
+      `responsible research Practices_q10` == "Always" ~ 1
     ),
     rpq11 = case_when(
-      `responsible research Practices_q11` == 'Never' ~ 7,
-      `responsible research Practices_q11` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q11` == 'Rarely' ~ 5,
-      `responsible research Practices_q11` == 'Occasionally' ~ 4,
-      `responsible research Practices_q11` == 'Frequently' ~ 3,
-      `responsible research Practices_q11` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q11` == 'Always' ~ 1
+      `responsible research Practices_q11` == "Never" ~ 7,
+      `responsible research Practices_q11` == "Very Rarely" ~ 6,
+      `responsible research Practices_q11` == "Rarely" ~ 5,
+      `responsible research Practices_q11` == "Occasionally" ~ 4,
+      `responsible research Practices_q11` == "Frequently" ~ 3,
+      `responsible research Practices_q11` == "Very Frequently" ~ 2,
+      `responsible research Practices_q11` == "Always" ~ 1
     ),
     rpq12 = case_when(
-      `responsible research Practices_q12` == 'Never' ~ 1,
-      `responsible research Practices_q12` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q12` == 'Rarely' ~ 3,
-      `responsible research Practices_q12` == 'Occasionally' ~ 4,
-      `responsible research Practices_q12` == 'Frequently' ~ 5,
-      `responsible research Practices_q12` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q12` == 'Always' ~ 7
+      `responsible research Practices_q12` == "Never" ~ 1,
+      `responsible research Practices_q12` == "Very Rarely" ~ 2,
+      `responsible research Practices_q12` == "Rarely" ~ 3,
+      `responsible research Practices_q12` == "Occasionally" ~ 4,
+      `responsible research Practices_q12` == "Frequently" ~ 5,
+      `responsible research Practices_q12` == "Very Frequently" ~ 6,
+      `responsible research Practices_q12` == "Always" ~ 7
     ),
     rpq13 = case_when(
-      `responsible research Practices_q13` == 'Never' ~ 1,
-      `responsible research Practices_q13` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q13` == 'Rarely' ~ 3,
-      `responsible research Practices_q13` == 'Occasionally' ~ 4,
-      `responsible research Practices_q13` == 'Frequently' ~ 5,
-      `responsible research Practices_q13` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q13` == 'Always' ~ 7
+      `responsible research Practices_q13` == "Never" ~ 1,
+      `responsible research Practices_q13` == "Very Rarely" ~ 2,
+      `responsible research Practices_q13` == "Rarely" ~ 3,
+      `responsible research Practices_q13` == "Occasionally" ~ 4,
+      `responsible research Practices_q13` == "Frequently" ~ 5,
+      `responsible research Practices_q13` == "Very Frequently" ~ 6,
+      `responsible research Practices_q13` == "Always" ~ 7
     ),
     rpq14 = case_when(
-      `responsible research Practices_q14` == 'Never' ~ 1,
-      `responsible research Practices_q14` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q14` == 'Rarely' ~ 3,
-      `responsible research Practices_q14` == 'Occasionally' ~ 4,
-      `responsible research Practices_q14` == 'Frequently' ~ 5,
-      `responsible research Practices_q14` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q14` == 'Always' ~ 7
+      `responsible research Practices_q14` == "Never" ~ 1,
+      `responsible research Practices_q14` == "Very Rarely" ~ 2,
+      `responsible research Practices_q14` == "Rarely" ~ 3,
+      `responsible research Practices_q14` == "Occasionally" ~ 4,
+      `responsible research Practices_q14` == "Frequently" ~ 5,
+      `responsible research Practices_q14` == "Very Frequently" ~ 6,
+      `responsible research Practices_q14` == "Always" ~ 7
     ),
     rpq15 = case_when(
-      `responsible research Practices_q15` == 'Never' ~ 7,
-      `responsible research Practices_q15` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q15` == 'Rarely' ~ 5,
-      `responsible research Practices_q15` == 'Occasionally' ~ 4,
-      `responsible research Practices_q15` == 'Frequently' ~ 3,
-      `responsible research Practices_q15` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q15` == 'Always' ~ 1
+      `responsible research Practices_q15` == "Never" ~ 7,
+      `responsible research Practices_q15` == "Very Rarely" ~ 6,
+      `responsible research Practices_q15` == "Rarely" ~ 5,
+      `responsible research Practices_q15` == "Occasionally" ~ 4,
+      `responsible research Practices_q15` == "Frequently" ~ 3,
+      `responsible research Practices_q15` == "Very Frequently" ~ 2,
+      `responsible research Practices_q15` == "Always" ~ 1
     ),
     rpq16 = case_when(
-      `responsible research Practices_q16` == 'Never' ~ 1,
-      `responsible research Practices_q16` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q16` == 'Rarely' ~ 3,
-      `responsible research Practices_q16` == 'Occasionally' ~ 4,
-      `responsible research Practices_q16` == 'Frequently' ~ 5,
-      `responsible research Practices_q16` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q16` == 'Always' ~ 7
+      `responsible research Practices_q16` == "Never" ~ 1,
+      `responsible research Practices_q16` == "Very Rarely" ~ 2,
+      `responsible research Practices_q16` == "Rarely" ~ 3,
+      `responsible research Practices_q16` == "Occasionally" ~ 4,
+      `responsible research Practices_q16` == "Frequently" ~ 5,
+      `responsible research Practices_q16` == "Very Frequently" ~ 6,
+      `responsible research Practices_q16` == "Always" ~ 7
     ),
     rpq17 = case_when(
-      `responsible research Practices_q17` == 'Never' ~ 1,
-      `responsible research Practices_q17` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q17` == 'Rarely' ~ 3,
-      `responsible research Practices_q17` == 'Occasionally' ~ 4,
-      `responsible research Practices_q17` == 'Frequently' ~ 5,
-      `responsible research Practices_q17` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q17` == 'Always' ~ 7
+      `responsible research Practices_q17` == "Never" ~ 1,
+      `responsible research Practices_q17` == "Very Rarely" ~ 2,
+      `responsible research Practices_q17` == "Rarely" ~ 3,
+      `responsible research Practices_q17` == "Occasionally" ~ 4,
+      `responsible research Practices_q17` == "Frequently" ~ 5,
+      `responsible research Practices_q17` == "Very Frequently" ~ 6,
+      `responsible research Practices_q17` == "Always" ~ 7
     ),
     rpq18 = case_when(
-      `responsible research Practices_q18` == 'Never' ~ 7,
-      `responsible research Practices_q18` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q18` == 'Rarely' ~ 5,
-      `responsible research Practices_q18` == 'Occasionally' ~ 4,
-      `responsible research Practices_q18` == 'Frequently' ~ 3,
-      `responsible research Practices_q18` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q18` == 'Always' ~ 1
+      `responsible research Practices_q18` == "Never" ~ 7,
+      `responsible research Practices_q18` == "Very Rarely" ~ 6,
+      `responsible research Practices_q18` == "Rarely" ~ 5,
+      `responsible research Practices_q18` == "Occasionally" ~ 4,
+      `responsible research Practices_q18` == "Frequently" ~ 3,
+      `responsible research Practices_q18` == "Very Frequently" ~ 2,
+      `responsible research Practices_q18` == "Always" ~ 1
     ),
     rpq19 = case_when(
-      `responsible research Practices_q19` == 'Never' ~ 7,
-      `responsible research Practices_q19` == 'Very Rarely' ~ 6,
-      `responsible research Practices_q19` == 'Rarely' ~ 5,
-      `responsible research Practices_q19` == 'Occasionally' ~ 4,
-      `responsible research Practices_q19` == 'Frequently' ~ 3,
-      `responsible research Practices_q19` == 'Very Frequently' ~ 2,
-      `responsible research Practices_q19` == 'Always' ~ 1
+      `responsible research Practices_q19` == "Never" ~ 7,
+      `responsible research Practices_q19` == "Very Rarely" ~ 6,
+      `responsible research Practices_q19` == "Rarely" ~ 5,
+      `responsible research Practices_q19` == "Occasionally" ~ 4,
+      `responsible research Practices_q19` == "Frequently" ~ 3,
+      `responsible research Practices_q19` == "Very Frequently" ~ 2,
+      `responsible research Practices_q19` == "Always" ~ 1
     ),
     rpq20 = case_when(
-      `responsible research Practices_q20` == 'Never' ~ 1,
-      `responsible research Practices_q20` == 'Very Rarely' ~ 2,
-      `responsible research Practices_q20` == 'Rarely' ~ 3,
-      `responsible research Practices_q20` == 'Occasionally' ~ 4,
-      `responsible research Practices_q20` == 'Frequently' ~ 5,
-      `responsible research Practices_q20` == 'Very Frequently' ~ 6,
-      `responsible research Practices_q20` == 'Always' ~ 7
+      `responsible research Practices_q20` == "Never" ~ 1,
+      `responsible research Practices_q20` == "Very Rarely" ~ 2,
+      `responsible research Practices_q20` == "Rarely" ~ 3,
+      `responsible research Practices_q20` == "Occasionally" ~ 4,
+      `responsible research Practices_q20` == "Frequently" ~ 5,
+      `responsible research Practices_q20` == "Very Frequently" ~ 6,
+      `responsible research Practices_q20` == "Always" ~ 7
     )
   ) %>% # 1,2,10,12,13
   mutate(
     fpq1 = case_when(
-      `fair research practices_q1` == 'Never' ~ 7,
-      `fair research practices_q1` == 'Very Rarely' ~ 6,
-      `fair research practices_q1` == 'Rarely' ~ 5,
-      `fair research practices_q1` == 'Occasionally' ~ 4,
-      `fair research practices_q1` == 'Frequently' ~ 3,
-      `fair research practices_q1` == 'Very Frequently' ~ 2,
-      `fair research practices_q1` == 'Always' ~ 1
+      `fair research practices_q1` == "Never" ~ 7,
+      `fair research practices_q1` == "Very Rarely" ~ 6,
+      `fair research practices_q1` == "Rarely" ~ 5,
+      `fair research practices_q1` == "Occasionally" ~ 4,
+      `fair research practices_q1` == "Frequently" ~ 3,
+      `fair research practices_q1` == "Very Frequently" ~ 2,
+      `fair research practices_q1` == "Always" ~ 1
     ),
     fpq2 = case_when(
-      `fair research practices_q2` == 'Never' ~ 7,
-      `fair research practices_q2` == 'Very Rarely' ~ 6,
-      `fair research practices_q2` == 'Rarely' ~ 5,
-      `fair research practices_q2` == 'Occasionally' ~ 4,
-      `fair research practices_q2` == 'Frequently' ~ 3,
-      `fair research practices_q2` == 'Very Frequently' ~ 2,
-      `fair research practices_q2` == 'Always' ~ 1
+      `fair research practices_q2` == "Never" ~ 7,
+      `fair research practices_q2` == "Very Rarely" ~ 6,
+      `fair research practices_q2` == "Rarely" ~ 5,
+      `fair research practices_q2` == "Occasionally" ~ 4,
+      `fair research practices_q2` == "Frequently" ~ 3,
+      `fair research practices_q2` == "Very Frequently" ~ 2,
+      `fair research practices_q2` == "Always" ~ 1
     ),
     fpq3 = case_when(
-      `fair research practices_q3` == 'Never' ~ 1,
-      `fair research practices_q3` == 'Very Rarely' ~ 2,
-      `fair research practices_q3` == 'Rarely' ~ 3,
-      `fair research practices_q3` == 'Occasionally' ~ 4,
-      `fair research practices_q3` == 'Frequently' ~ 5,
-      `fair research practices_q3` == 'Very Frequently' ~ 6,
-      `fair research practices_q3` == 'Always' ~ 7
+      `fair research practices_q3` == "Never" ~ 1,
+      `fair research practices_q3` == "Very Rarely" ~ 2,
+      `fair research practices_q3` == "Rarely" ~ 3,
+      `fair research practices_q3` == "Occasionally" ~ 4,
+      `fair research practices_q3` == "Frequently" ~ 5,
+      `fair research practices_q3` == "Very Frequently" ~ 6,
+      `fair research practices_q3` == "Always" ~ 7
     ),
     fpq4 = case_when(
-      `fair research practices_q4` == 'Never' ~ 1,
-      `fair research practices_q4` == 'Very Rarely' ~ 2,
-      `fair research practices_q4` == 'Rarely' ~ 3,
-      `fair research practices_q4` == 'Occasionally' ~ 4,
-      `fair research practices_q4` == 'Frequently' ~ 5,
-      `fair research practices_q4` == 'Very Frequently' ~ 6,
-      `fair research practices_q4` == 'Always' ~ 7
+      `fair research practices_q4` == "Never" ~ 1,
+      `fair research practices_q4` == "Very Rarely" ~ 2,
+      `fair research practices_q4` == "Rarely" ~ 3,
+      `fair research practices_q4` == "Occasionally" ~ 4,
+      `fair research practices_q4` == "Frequently" ~ 5,
+      `fair research practices_q4` == "Very Frequently" ~ 6,
+      `fair research practices_q4` == "Always" ~ 7
     ),
     fpq5 = case_when(
-      `fair research practices_q5` == 'Never' ~ 1,
-      `fair research practices_q5` == 'Very Rarely' ~ 2,
-      `fair research practices_q5` == 'Rarely' ~ 3,
-      `fair research practices_q5` == 'Occasionally' ~ 4,
-      `fair research practices_q5` == 'Frequently' ~ 5,
-      `fair research practices_q5` == 'Very Frequently' ~ 6,
-      `fair research practices_q5` == 'Always' ~ 7
+      `fair research practices_q5` == "Never" ~ 1,
+      `fair research practices_q5` == "Very Rarely" ~ 2,
+      `fair research practices_q5` == "Rarely" ~ 3,
+      `fair research practices_q5` == "Occasionally" ~ 4,
+      `fair research practices_q5` == "Frequently" ~ 5,
+      `fair research practices_q5` == "Very Frequently" ~ 6,
+      `fair research practices_q5` == "Always" ~ 7
     ),
     fpq6 = case_when(
-      `fair research practices_q6` == 'Never' ~ 1,
-      `fair research practices_q6` == 'Very Rarely' ~ 2,
-      `fair research practices_q6` == 'Rarely' ~ 3,
-      `fair research practices_q6` == 'Occasionally' ~ 4,
-      `fair research practices_q6` == 'Frequently' ~ 5,
-      `fair research practices_q6` == 'Very Frequently' ~ 6,
-      `fair research practices_q6` == 'Always' ~ 7
+      `fair research practices_q6` == "Never" ~ 1,
+      `fair research practices_q6` == "Very Rarely" ~ 2,
+      `fair research practices_q6` == "Rarely" ~ 3,
+      `fair research practices_q6` == "Occasionally" ~ 4,
+      `fair research practices_q6` == "Frequently" ~ 5,
+      `fair research practices_q6` == "Very Frequently" ~ 6,
+      `fair research practices_q6` == "Always" ~ 7
     ),
     fpq7 = case_when(
-      `fair research practices_q7` == 'Never' ~ 1,
-      `fair research practices_q7` == 'Very Rarely' ~ 2,
-      `fair research practices_q7` == 'Rarely' ~ 3,
-      `fair research practices_q7` == 'Occasionally' ~ 4,
-      `fair research practices_q7` == 'Frequently' ~ 5,
-      `fair research practices_q7` == 'Very Frequently' ~ 6,
-      `fair research practices_q7` == 'Always' ~ 7
+      `fair research practices_q7` == "Never" ~ 1,
+      `fair research practices_q7` == "Very Rarely" ~ 2,
+      `fair research practices_q7` == "Rarely" ~ 3,
+      `fair research practices_q7` == "Occasionally" ~ 4,
+      `fair research practices_q7` == "Frequently" ~ 5,
+      `fair research practices_q7` == "Very Frequently" ~ 6,
+      `fair research practices_q7` == "Always" ~ 7
     ),
     fpq8 = case_when(
-      `fair research practices_q8` == 'Never' ~ 1,
-      `fair research practices_q8` == 'Very Rarely' ~ 2,
-      `fair research practices_q8` == 'Rarely' ~ 3,
-      `fair research practices_q8` == 'Occasionally' ~ 4,
-      `fair research practices_q8` == 'Frequently' ~ 5,
-      `fair research practices_q8` == 'Very Frequently' ~ 6,
-      `fair research practices_q8` == 'Always' ~ 7
+      `fair research practices_q8` == "Never" ~ 1,
+      `fair research practices_q8` == "Very Rarely" ~ 2,
+      `fair research practices_q8` == "Rarely" ~ 3,
+      `fair research practices_q8` == "Occasionally" ~ 4,
+      `fair research practices_q8` == "Frequently" ~ 5,
+      `fair research practices_q8` == "Very Frequently" ~ 6,
+      `fair research practices_q8` == "Always" ~ 7
     ),
     fpq9 = case_when(
-      `fair research practices_q9` == 'Never' ~ 1,
-      `fair research practices_q9` == 'Very Rarely' ~ 2,
-      `fair research practices_q9` == 'Rarely' ~ 3,
-      `fair research practices_q9` == 'Occasionally' ~ 4,
-      `fair research practices_q9` == 'Frequently' ~ 5,
-      `fair research practices_q9` == 'Very Frequently' ~ 6,
-      `fair research practices_q9` == 'Always' ~ 7
+      `fair research practices_q9` == "Never" ~ 1,
+      `fair research practices_q9` == "Very Rarely" ~ 2,
+      `fair research practices_q9` == "Rarely" ~ 3,
+      `fair research practices_q9` == "Occasionally" ~ 4,
+      `fair research practices_q9` == "Frequently" ~ 5,
+      `fair research practices_q9` == "Very Frequently" ~ 6,
+      `fair research practices_q9` == "Always" ~ 7
     ),
     fpq10 = case_when(
-      `fair research practices_q10` == 'Never' ~ 7,
-      `fair research practices_q10` == 'Very Rarely' ~ 6,
-      `fair research practices_q10` == 'Rarely' ~ 5,
-      `fair research practices_q10` == 'Occasionally' ~ 4,
-      `fair research practices_q10` == 'Frequently' ~ 3,
-      `fair research practices_q10` == 'Very Frequently' ~ 2,
-      `fair research practices_q10` == 'Always' ~ 1
+      `fair research practices_q10` == "Never" ~ 7,
+      `fair research practices_q10` == "Very Rarely" ~ 6,
+      `fair research practices_q10` == "Rarely" ~ 5,
+      `fair research practices_q10` == "Occasionally" ~ 4,
+      `fair research practices_q10` == "Frequently" ~ 3,
+      `fair research practices_q10` == "Very Frequently" ~ 2,
+      `fair research practices_q10` == "Always" ~ 1
     ),
     fpq11 = case_when(
-      `fair research practices_q11` == 'Never' ~ 1,
-      `fair research practices_q11` == 'Very Rarely' ~ 2,
-      `fair research practices_q11` == 'Rarely' ~ 3,
-      `fair research practices_q11` == 'Occasionally' ~ 4,
-      `fair research practices_q11` == 'Frequently' ~ 5,
-      `fair research practices_q11` == 'Very Frequently' ~ 6,
-      `fair research practices_q11` == 'Always' ~ 7
+      `fair research practices_q11` == "Never" ~ 1,
+      `fair research practices_q11` == "Very Rarely" ~ 2,
+      `fair research practices_q11` == "Rarely" ~ 3,
+      `fair research practices_q11` == "Occasionally" ~ 4,
+      `fair research practices_q11` == "Frequently" ~ 5,
+      `fair research practices_q11` == "Very Frequently" ~ 6,
+      `fair research practices_q11` == "Always" ~ 7
     ),
     fpq12 = case_when(
-      `fair research practices_q12` == 'Never' ~ 7,
-      `fair research practices_q12` == 'Very Rarely' ~ 6,
-      `fair research practices_q12` == 'Rarely' ~ 5,
-      `fair research practices_q12` == 'Occasionally' ~ 4,
-      `fair research practices_q12` == 'Frequently' ~ 3,
-      `fair research practices_q12` == 'Very Frequently' ~ 2,
-      `fair research practices_q12` == 'Always' ~ 1
+      `fair research practices_q12` == "Never" ~ 7,
+      `fair research practices_q12` == "Very Rarely" ~ 6,
+      `fair research practices_q12` == "Rarely" ~ 5,
+      `fair research practices_q12` == "Occasionally" ~ 4,
+      `fair research practices_q12` == "Frequently" ~ 3,
+      `fair research practices_q12` == "Very Frequently" ~ 2,
+      `fair research practices_q12` == "Always" ~ 1
     ),
     fpq13 = case_when(
-      `fair research practices_q13` == 'Never' ~ 7,
-      `fair research practices_q13` == 'Very Rarely' ~ 6,
-      `fair research practices_q13` == 'Rarely' ~ 5,
-      `fair research practices_q13` == 'Occasionally' ~ 4,
-      `fair research practices_q13` == 'Frequently' ~ 3,
-      `fair research practices_q13` == 'Very Frequently' ~ 2,
-      `fair research practices_q13` == 'Always' ~ 1
+      `fair research practices_q13` == "Never" ~ 7,
+      `fair research practices_q13` == "Very Rarely" ~ 6,
+      `fair research practices_q13` == "Rarely" ~ 5,
+      `fair research practices_q13` == "Occasionally" ~ 4,
+      `fair research practices_q13` == "Frequently" ~ 3,
+      `fair research practices_q13` == "Very Frequently" ~ 2,
+      `fair research practices_q13` == "Always" ~ 1
     ),
     fpq14 = case_when(
-      `fair research practices_q14` == 'Never' ~ 1,
-      `fair research practices_q14` == 'Very Rarely' ~ 2,
-      `fair research practices_q14` == 'Rarely' ~ 3,
-      `fair research practices_q14` == 'Occasionally' ~ 4,
-      `fair research practices_q14` == 'Frequently' ~ 5,
-      `fair research practices_q14` == 'Very Frequently' ~ 6,
-      `fair research practices_q14` == 'Always' ~ 7
+      `fair research practices_q14` == "Never" ~ 1,
+      `fair research practices_q14` == "Very Rarely" ~ 2,
+      `fair research practices_q14` == "Rarely" ~ 3,
+      `fair research practices_q14` == "Occasionally" ~ 4,
+      `fair research practices_q14` == "Frequently" ~ 5,
+      `fair research practices_q14` == "Very Frequently" ~ 6,
+      `fair research practices_q14` == "Always" ~ 7
     ),
     fpq15 = case_when(
-      `fair research practices_q15` == 'Never' ~ 1,
-      `fair research practices_q15` == 'Very Rarely' ~ 2,
-      `fair research practices_q15` == 'Rarely' ~ 3,
-      `fair research practices_q15` == 'Occasionally' ~ 4,
-      `fair research practices_q15` == 'Frequently' ~ 5,
-      `fair research practices_q15` == 'Very Frequently' ~ 6,
-      `fair research practices_q15` == 'Always' ~ 7
+      `fair research practices_q15` == "Never" ~ 1,
+      `fair research practices_q15` == "Very Rarely" ~ 2,
+      `fair research practices_q15` == "Rarely" ~ 3,
+      `fair research practices_q15` == "Occasionally" ~ 4,
+      `fair research practices_q15` == "Frequently" ~ 5,
+      `fair research practices_q15` == "Very Frequently" ~ 6,
+      `fair research practices_q15` == "Always" ~ 7
     ),
     fpq16 = case_when(
-      `fair research practices_q16` == 'Never' ~ 1,
-      `fair research practices_q16` == 'Very Rarely' ~ 2,
-      `fair research practices_q16` == 'Rarely' ~ 3,
-      `fair research practices_q16` == 'Occasionally' ~ 4,
-      `fair research practices_q16` == 'Frequently' ~ 5,
-      `fair research practices_q16` == 'Very Frequently' ~ 6,
-      `fair research practices_q16` == 'Always' ~ 7
+      `fair research practices_q16` == "Never" ~ 1,
+      `fair research practices_q16` == "Very Rarely" ~ 2,
+      `fair research practices_q16` == "Rarely" ~ 3,
+      `fair research practices_q16` == "Occasionally" ~ 4,
+      `fair research practices_q16` == "Frequently" ~ 5,
+      `fair research practices_q16` == "Very Frequently" ~ 6,
+      `fair research practices_q16` == "Always" ~ 7
     ),
     fpq17 = case_when(
-      `fair research practices_q17` == 'Never' ~ 1,
-      `fair research practices_q17` == 'Very Rarely' ~ 2,
-      `fair research practices_q17` == 'Rarely' ~ 3,
-      `fair research practices_q17` == 'Occasionally' ~ 4,
-      `fair research practices_q17` == 'Frequently' ~ 5,
-      `fair research practices_q17` == 'Very Frequently' ~ 6,
-      `fair research practices_q17` == 'Always' ~ 7
+      `fair research practices_q17` == "Never" ~ 1,
+      `fair research practices_q17` == "Very Rarely" ~ 2,
+      `fair research practices_q17` == "Rarely" ~ 3,
+      `fair research practices_q17` == "Occasionally" ~ 4,
+      `fair research practices_q17` == "Frequently" ~ 5,
+      `fair research practices_q17` == "Very Frequently" ~ 6,
+      `fair research practices_q17` == "Always" ~ 7
     ),
     fpq18 = case_when(
-      `fair research practices_q18` == 'Never' ~ 1,
-      `fair research practices_q18` == 'Very Rarely' ~ 2,
-      `fair research practices_q18` == 'Rarely' ~ 3,
-      `fair research practices_q18` == 'Occasionally' ~ 4,
-      `fair research practices_q18` == 'Frequently' ~ 5,
-      `fair research practices_q18` == 'Very Frequently' ~ 6,
-      `fair research practices_q18` == 'Always' ~ 7
+      `fair research practices_q18` == "Never" ~ 1,
+      `fair research practices_q18` == "Very Rarely" ~ 2,
+      `fair research practices_q18` == "Rarely" ~ 3,
+      `fair research practices_q18` == "Occasionally" ~ 4,
+      `fair research practices_q18` == "Frequently" ~ 5,
+      `fair research practices_q18` == "Very Frequently" ~ 6,
+      `fair research practices_q18` == "Always" ~ 7
     ),
     fpq19 = case_when(
-      `fair research practices_q19` == 'Never' ~ 1,
-      `fair research practices_q19` == 'Very Rarely' ~ 2,
-      `fair research practices_q19` == 'Rarely' ~ 3,
-      `fair research practices_q19` == 'Occasionally' ~ 4,
-      `fair research practices_q19` == 'Frequently' ~ 5,
-      `fair research practices_q19` == 'Very Frequently' ~ 6,
-      `fair research practices_q19` == 'Always' ~ 7
+      `fair research practices_q19` == "Never" ~ 1,
+      `fair research practices_q19` == "Very Rarely" ~ 2,
+      `fair research practices_q19` == "Rarely" ~ 3,
+      `fair research practices_q19` == "Occasionally" ~ 4,
+      `fair research practices_q19` == "Frequently" ~ 5,
+      `fair research practices_q19` == "Very Frequently" ~ 6,
+      `fair research practices_q19` == "Always" ~ 7
     ),
     fpq20 = case_when(
-      `fair research practices_q20` == 'Never' ~ 1,
-      `fair research practices_q20` == 'Very Rarely' ~ 2,
-      `fair research practices_q20` == 'Rarely' ~ 3,
-      `fair research practices_q20` == 'Occasionally' ~ 4,
-      `fair research practices_q20` == 'Frequently' ~ 5,
-      `fair research practices_q20` == 'Very Frequently' ~ 6,
-      `fair research practices_q20` == 'Always' ~ 7
+      `fair research practices_q20` == "Never" ~ 1,
+      `fair research practices_q20` == "Very Rarely" ~ 2,
+      `fair research practices_q20` == "Rarely" ~ 3,
+      `fair research practices_q20` == "Occasionally" ~ 4,
+      `fair research practices_q20` == "Frequently" ~ 5,
+      `fair research practices_q20` == "Very Frequently" ~ 6,
+      `fair research practices_q20` == "Always" ~ 7
     )
   ) %>%
   rowwise() %>%
@@ -419,23 +419,57 @@ final_dataset <- final_dataset %>%
     rpq = sum(c(rpq1, rpq2, rpq3, rpq4, rpq5, rpq6, rpq7, rpq8, rpq9, rpq10, rpq11, rpq12, rpq13, rpq14, rpq15, rpq16, rpq17, rpq18, rpq19, rpq20), na.rm = T),
     fpq = sum(c(fpq1, fpq2, fpq3, fpq4, fpq5, fpq6, fpq7, fpq8, fpq9, fpq10, fpq11, fpq12, fpq13, fpq14, fpq15, fpq16, fpq17, fpq18, fpq19, fpq20), na.rm = T)
   ) %>%
-  rowwise()%>%
-  mutate(`Meticulous research process` = mean(c(rpq10, rpq12, rpq3, rpq6, rpq20), na.rm = T),
-         `Good mentoring` = mean(c(rpq5, rpq4), na.rm = T),
-         `Adequate methods` = mean(c(rpq7, rpq18, rpq19), na.rm = T),
-         `Transparent reporting` = mean(c(rpq1, rpq8, rpq14, rpq11), na.rm = T),
-         `Ensuring reproducibility` = mean(c(rpq9,rpq15, rpq2), na.rm = T),
-         `Open science` = mean(c(rpq16, rpq17, rpq13), na.rm = T)
-         ) %>% #Research integrity scores
-  mutate(`Engagement of local decision-makers` = mean(c(fpq2, fpq16, fpq15), na.rm = T),
-         `Engagement of affected populations` = mean(c(fpq1, fpq14, fpq17), na.rm = T),
-         `Partnership with local researchers` = mean(c(fpq3, fpq10, fpq4, fpq6), na.rm = T),
-         `Fair agreements between study partners` = mean(c(fpq20, fpq19, fpq18, fpq17, fpq13), na.rm = T),
-         `Local ethical approval` = mean(c(fpq8, fpq9), na.rm = T),
-         `Respectful data collection` = mean(c(fpq5, fpq11, fpq12), na.rm = T)
-         ) %>% #Research fairness score
-  mutate(`responsible research Practices score` = ifelse(rpq == 0, NA, rpq),
-         `fair research practices score` = ifelse(fpq == 0, NA, fpq))
+  rowwise() %>%
+  mutate(
+    `Meticulous research process` = mean(c(rpq10, rpq12, rpq3, rpq6, rpq20), na.rm = T),
+    `Good mentoring` = mean(c(rpq5, rpq4), na.rm = T),
+    `Adequate methods` = mean(c(rpq7, rpq18, rpq19), na.rm = T),
+    `Transparent reporting` = mean(c(rpq1, rpq8, rpq14, rpq11), na.rm = T),
+    `Ensuring reproducibility` = mean(c(rpq9, rpq15, rpq2), na.rm = T),
+    `Open science` = mean(c(rpq16, rpq17, rpq13), na.rm = T)
+  ) %>% # Research integrity scores
+  mutate(
+    `Engagement of local decision-makers` = mean(c(fpq2, fpq16, fpq15), na.rm = T),
+    `Engagement of affected populations` = mean(c(fpq1, fpq14, fpq17), na.rm = T),
+    `Partnership with local researchers` = mean(c(fpq3, fpq10, fpq4, fpq6), na.rm = T),
+    `Fair agreements between study partners` = mean(c(fpq20, fpq19, fpq18, fpq17, fpq13), na.rm = T),
+    `Local ethical approval` = mean(c(fpq8, fpq9), na.rm = T),
+    `Respectful data collection` = mean(c(fpq5, fpq11, fpq12), na.rm = T)
+  ) %>% # Research fairness score
+  mutate(
+    `responsible research Practices score` = ifelse(rpq == 0, NA, rpq),
+    `fair research practices score` = ifelse(fpq == 0, NA, fpq)
+  ) %>%
+  mutate(`Research Discipline` = as.factor(case_when(
+    `other_What discipline of global health based describes you:` == "Applied Health Research/Health Services Research & Health Technology Assessment" |
+      `other_What discipline of global health based describes you:` == "Clinical Trial" ~ "Biomedical sciences",
+    `other_What discipline of global health based describes you:` == "ENVIROMENTAL AND OCCUPATIONAL" |
+      `other_What discipline of global health based describes you:` == "Environmental Health" |
+      `other_What discipline of global health based describes you:` == "Environmental microbiology" |
+      `other_What discipline of global health based describes you:` == "Foof and food safety" |
+      `other_What discipline of global health based describes you:` == "policy" |
+      `other_What discipline of global health based describes you:` == "public health" |
+      `other_What discipline of global health based describes you:` == "Public Health" ~ "Environmental and occupational research",
+    `What discipline of global health based describes you:` == "Biostatistics/Epidemiology" |
+      `other_What discipline of global health based describes you:` == "EPI AND SOCIAL SCIENCES -MIXED METHODS" ~ "Biostatistics/Epidemiology",
+    `What discipline of global health based describes you:` == "Biology/Medicine" |
+      `other_What discipline of global health based describes you:` == "Microbiology" ~ "Biology/Medicine",
+    `What discipline of global health based describes you:` == "Mathematics/Computer science" ~ "Mathematics/Computer science",
+    `other_What discipline of global health based describes you:` == "psychology" |
+      `other_What discipline of global health based describes you:` == "Public health and psychology" |
+
+      `What discipline of global health based describes you:` == "Sociology/Anthropology" ~ "Sociology/Anthropology",
+    `What discipline of global health based describes you:` == "Political sciences/Health economics" ~ "Political sciences/Health economics",
+    `other_What discipline of global health based describes you:` == "health management" |
+      `other_What discipline of global health based describes you:` == "Health Systems research" |
+      `other_What discipline of global health based describes you:` == "Health policy and systems research with social sciences bias but with epi work also" |
+      `other_What discipline of global health based describes you:` == "I am a research administrator." |
+      `other_What discipline of global health based describes you:` == "primary health care, program implementation / evaluation" |
+      `other_What discipline of global health based describes you:` == "Public Health/Behavioral Sciences" |
+      `other_What discipline of global health based describes you:` == "Social sciences & public health" ~ "Health systems research",
+    `What discipline of global health based describes you:` == "Prefer not to disclose" ~ "Prefer not to disclose",
+    `What discipline of global health based describes you:` == "Unknown" ~ "Unknown"
+  )))
   
   # x=final_dataset %>%
   # rowwise()%>%
@@ -462,7 +496,7 @@ final_dataset <- final_dataset %>%
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt01 <- final_dataset %>%
   # mutate(`Which country are you from?` = ifelse(`Which country are you from?`=='NA', 'Missing', `Which country are you from?`)) %>%
-  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`,
+  dplyr::select(`Which country are you from?`, `Research Discipline`, #`What discipline of global health based describes you:`,
                 `What is you gender?`, `How many years of involvement in research do you have?`, 
                 `Which of the following best describes you?`, `What is your highest academic rank?`
                 ) %>%
@@ -475,7 +509,7 @@ dt01 <- final_dataset %>%
             # statistic = list(all_continuous() ~ "{mean} ({sd})")
             ) %>% 
   add_overall() %>%
-  add_n() %>% 
+  # add_n() %>% 
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 
@@ -871,8 +905,8 @@ dat <- final_dataset %>%
     `Which of the following best describes you?` == 'Researcher from the Global South' ~ 'Global South'#,
     # `Which of the following best describes you?` == '' ~ 'Global North',
   ))) %>%
-  drop_na(c('Which country are you from?', 'What discipline of global health based describes you:', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
-  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`, ) 
+  drop_na(c('Which country are you from?', 'Research Discipline', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
+  dplyr::select(`Which country are you from?`, `Research Discipline`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`, ) 
 univariate_table <- dat %>%
   mutate(rpq_score = `responsible research Practices score`) %>%
   mutate(
@@ -880,7 +914,7 @@ univariate_table <- dat %>%
     year_involment_research = as.factor(`How many years of involvement in research do you have?`),
     gender = as.factor(`What is you gender?`),
     country_origin = as.factor(`Which country are you from?`),
-    discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+    discipline_global_health = as.factor(`Research Discipline`)
   ) %>%
   dplyr::select(rpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health) # %>%
 univariate_table_1 <- 
@@ -891,16 +925,16 @@ tbl_uvregression(
   method.args = list(family = gaussian),
   exponentiate = FALSE
 )
-univariate_table_1
+# univariate_table_1
 finalmodel_dataset <- dat %>%
   mutate(rpq_score = `responsible research Practices score`
          )%>%
-  dplyr::select(rpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `What discipline of global health based describes you:`) %>%
+  dplyr::select(rpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `Research Discipline`) %>%
   mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
          year_involment_research = as.factor(`How many years of involvement in research do you have?`),
          gender = as.factor(`What is you gender?`),
          country_origin = as.factor(`Which country are you from?`),
-         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         discipline_global_health = as.factor(`Research Discipline`)
          ) %>%
   dplyr::select(rpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
 
@@ -912,23 +946,11 @@ model <- glm(formula = as.formula('rpq_score~ Location + accademic_rank + year_i
 step.model <- stepAIC(model, direction = "both", 
                       trace = F)
 # summary(step.model)
-model1 <- glm(formula = as.formula('rpq_score~ Location + accademic_rank'),
-              data = finalmodel_dataset,
-              family = gaussian,
-              )
-# m1 <-model1 %>%
-#   tbl_regression(
-#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-#     pvalue_fun = ~style_pvalue(.x, digits = 3),
-#   ) %>% 
-#   # add_global_p() %>%
-#   bold_p(t = 0.05) %>%
-#   bold_labels() %>%
-#   italicize_levels() %>%
-#   as_gt() %>%
-#   gt::tab_source_note(gt::md("*Best set of dependent variables*")) %>%
-#   gt::gtsave(filename = "rrpq.pdf")
-  # gt::gtsave(filename = "rrpq.rtf")
+# glm(formula = as.formula('rpq_score~ Location + accademic_rank'),
+#               data = finalmodel_dataset,
+#               family = gaussian,
+#               ) %>%
+#   tbl_regression(exponentiate = FALSE)
 
 # full model
 finalmodel_dataset2 <- dat %>%
@@ -939,27 +961,22 @@ finalmodel_dataset2 <- dat %>%
          year_involment_research = as.factor(`How many years of involvement in research do you have?`),
          gender = as.factor(`What is you gender?`),
          country_origin = as.factor(`Which country are you from?`),
-         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         discipline_global_health = as.factor(`Research Discipline`)
          ) %>%
   dplyr::select(rpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
-model2 <- glm(formula = as.formula('rpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
+
+mv_model <- glm(formula = as.formula('rpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
               data = finalmodel_dataset2,
               family = gaussian,
-              )
+              ) %>%
+  tbl_regression(exponentiate = FALSE)
 
-# m2 <- model2 %>%
-#   tbl_regression(
-#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-#     pvalue_fun = ~style_pvalue(.x, digits = 3),
-#   ) %>% 
-#   # add_global_p() %>%
-#   bold_p(t = 0.05) %>%
-#   bold_labels() %>%
-#   italicize_levels() %>%
-#   as_gt() %>%
-#   gt::tab_source_note(gt::md("*Full model*")) %>%
-#   gt::gtsave(filename = "rrpq - full model.pdf")
-  # gt::gtsave(filename = "rrpq - full model.rtf")
+tbl_merge_ex1 <-
+  tbl_merge(
+    tbls = list(univariate_table_1, mv_model),
+    tab_spanner = c("**Univariate**", "**Multivariate**")
+  )
+tbl_merge_ex1
 ```
 At Univariate analysis, only academic rank of the respondents had a category that was significantly associated with responsible research practices. Bachelor or Master degree was associated with -17 (95%CI:-27, -6.9)	(P = 0.001) reduction in the responsible research score compared to Associate Professor or Full Professor. Other variables were not statistically significantly associated with responsible research practices. In the full model, after adjusting for Location, years of involvement, gender, country of origin and discipline of global health, Bachelor or Master degree was associated with -16.5 (95%CI:-30.6, -2.29) (P = 0.025) reduction in the responsible research practice score compared to Associate Professor or Full Professor. While in the reduced model (after stepwise regression analysis) Bachelor or Master degree was still associated with -18.3 (95%CI:-28.7, -7.84)	(P <0.001) reduction in the responsible research score compared to Associate Professor or Full Professor adjusting for location.
 
@@ -973,18 +990,18 @@ dat <- final_dataset %>%
     `Which of the following best describes you?` == 'Researcher from the Global South' ~ 'Global South'#,
     # `Which of the following best describes you?` == '' ~ 'Global North',
   ))) %>%
-  drop_na(c('Which country are you from?', 'What discipline of global health based describes you:', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
-  dplyr::select(`Which country are you from?`, `What discipline of global health based describes you:`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`) 
+  drop_na(c('Which country are you from?', 'Research Discipline', 'What is you gender?', 'How many years of involvement in research do you have?', 'Which of the following best describes you?', 'What is your highest academic rank?', 'responsible research Practices score', 'fair research practices score', 'Location')) %>%
+  dplyr::select(`Which country are you from?`, `Research Discipline`, `What is you gender?`, `How many years of involvement in research do you have?`, Location, `What is your highest academic rank?`, `responsible research Practices score`, `fair research practices score`) 
 
 univariate_table_2 <- dat %>%
   mutate(fpq_score = `fair research practices score`
          )%>%
-  dplyr::select(fpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `What discipline of global health based describes you:`) %>%
+  dplyr::select(fpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `Research Discipline`) %>%
   mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
          year_involment_research = as.factor(`How many years of involvement in research do you have?`),
          gender = as.factor(`What is you gender?`),
          country_origin = as.factor(`Which country are you from?`),
-         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         discipline_global_health = as.factor(`Research Discipline`)
          ) %>%
   dplyr::select(fpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
 univariate_table_3 <- 
@@ -995,17 +1012,17 @@ tbl_uvregression(
   method.args = list(family = gaussian),
   exponentiate = FALSE
 )
-univariate_table_3
+# univariate_table_3
 
 finalmodel_dataset <- dat %>%
   mutate(fpq_score = `fair research practices score`
          )%>%
-  dplyr::select(fpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `What discipline of global health based describes you:`) %>%
+  dplyr::select(fpq_score, Location, `What is your highest academic rank?`, `How many years of involvement in research do you have?`, `What is you gender?`, `Which country are you from?`, `Research Discipline`) %>%
   mutate(accademic_rank = as.factor(`What is your highest academic rank?`),
          year_involment_research = as.factor(`How many years of involvement in research do you have?`),
          gender = as.factor(`What is you gender?`),
          country_origin = as.factor(`Which country are you from?`),
-         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         discipline_global_health = as.factor(`Research Discipline`)
          ) %>%
   dplyr::select(fpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
 
@@ -1022,20 +1039,6 @@ model3 <- glm(formula = as.formula('fpq_score~ Location + year_involment_researc
               family = gaussian,
               )
 
-# model3 %>%
-#   tbl_regression(
-#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-#     pvalue_fun = ~style_pvalue(.x, digits = 3),
-#   ) %>% 
-#   # add_global_p() %>%
-#   bold_p(t = 0.05) %>%
-#   bold_labels() %>%
-#   italicize_levels() %>%
-#   as_gt() %>%
-#   gt::tab_source_note(gt::md("*Best set of dependent variables*"))%>%
-#   gt::gtsave(filename = "frpq.pdf")
-  # gt::gtsave(filename = "frpq.rtf")
-#https://data.princeton.edu/wws509/r/robust
 # full model
 finalmodel_dataset3 <- dat %>%
   mutate(fpq_score = `fair research practices score`
@@ -1045,303 +1048,299 @@ finalmodel_dataset3 <- dat %>%
          year_involment_research = as.factor(`How many years of involvement in research do you have?`),
          gender = as.factor(`What is you gender?`),
          country_origin = as.factor(`Which country are you from?`),
-         discipline_global_health = as.factor(`What discipline of global health based describes you:`)
+         discipline_global_health = as.factor(`Research Discipline`)
          ) %>%
   dplyr::select(fpq_score, Location, accademic_rank, year_involment_research, gender, country_origin, discipline_global_health)
-model2 <- glm(formula = as.formula('fpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
+mv_model2 <- glm(formula = as.formula('fpq_score~ Location + accademic_rank + year_involment_research + gender + country_origin + discipline_global_health'),
               data = finalmodel_dataset3,
               family = gaussian,
-              )
+              )%>%
+  tbl_regression(exponentiate = FALSE)
 
-# model2 %>%
-#   tbl_regression(
-#     estimate_fun = purrr::partial(style_ratio, digits = 2),# exponentiate = F, 
-#     pvalue_fun = ~style_pvalue(.x, digits = 3),
-#   ) %>% 
-#   # add_global_p() %>%
-#   bold_p(t = 0.05) %>%
-#   bold_labels() %>%
-#   italicize_levels() %>%
-#   as_gt() %>%
-#   gt::tab_source_note(gt::md("*Full model*"))%>%
-#   gt::gtsave(filename = "frpq-full_model.pdf")
-  # gt::gtsave(filename = "frpq-full_model.rtf")
+tbl_merge_ex2 <-
+  tbl_merge(
+    tbls = list(univariate_table_3, mv_model2),
+    tab_spanner = c("**Univariate**", "**Multivariate**")
+  )
+tbl_merge_ex2
+
+
 ```
 
 At Univariate analysis, coming from the global north was associated with -10 (95%CI:-19, -1.6)	(P = 0.022) reduction the fair research practices scores compared to respondent from global south, while those who preferred not to say their number of years of involvement in research  had a -55	(95%CI:-101, -8.1)	(P = 0.023) reduction in fair research practices scores compared to Early Career (< 3 years post-education). Respondent from the sub-Saharan region had a 15 (95%CI:0.24, 29)	(P = 0.049) increase in fair research practices scores compared to those from East Asia and Pacific. Other variables were not statistically significantly associated with fair research practices. 
 In the full model, after adjusting for Location, years of involvement, gender, country of origin and discipline of global health, respondents who preferred not to disclose their years of involvement in research had a -50.0 (95%CI:-98.7, -1.25)	(P = 0.048) reduction in the fair research scores compared to Early Career (< 3 years post-education). While in the reduced model (after stepwise regression analysis) respondents who preferred not to disclose their years of involvement in research had a -59.0 (95%CI:-104, -14.1)	(P = 0.012) reduction in the fair research scores compared to Early Career (< 3 years post-education) after adjusting for location and global north respondents had a -13.1 (95%CI:-21.9, -4.42) (P = 0.004) reduction in the fair research practices score compared to the global south adjusting for year of involvement.. 
 
-# Analysis for those who responded N/A
-In this analysis, I have only tabulated those who said N/A in any of the 40 questions
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+<!-- # Analysis for those who responded N/A -->
+<!-- In this analysis, I have only tabulated those who said N/A in any of the 40 questions -->
+<!-- ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'} -->
 
-dt1 <- final_dataset %>%
-    dplyr::select(`responsible research Practices_q1`, `na_responsible research Practices_q1`, `Which of the following best describes you?`) %>%
-    filter(`responsible research Practices_q1` == 'N/A') %>%
-    dplyr::select(`na_responsible research Practices_q1`, `Which of the following best describes you?`) %>% #x[i], 
-    tbl_summary(by = `Which of the following best describes you?`,
-            # missing = "no",
-            # statistic = list(all_continuous() ~ "{mean} ({sd})")
-            ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels() 
-dt1
-# flextable::set_table_properties(dt1, width = .01, layout = "autofit")%>% autofit() %>% fit_to_width(7.5)
+<!-- dt1 <- final_dataset %>% -->
+<!--     dplyr::select(`responsible research Practices_q1`, `na_responsible research Practices_q1`, `Which of the following best describes you?`) %>% -->
+<!--     filter(`responsible research Practices_q1` == 'N/A') %>% -->
+<!--     dplyr::select(`na_responsible research Practices_q1`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--     tbl_summary(by = `Which of the following best describes you?`, -->
+<!--             # missing = "no", -->
+<!--             # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--             ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels()  -->
+<!-- dt1 -->
+<!-- # flextable::set_table_properties(dt1, width = .01, layout = "autofit")%>% autofit() %>% fit_to_width(7.5) -->
 
-dt2 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q2`, `na_responsible research Practices_q2`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q2` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q2`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-# dt2
-flextable::set_table_properties(dt2, layout = "autofit")
+<!-- dt2 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q2`, `na_responsible research Practices_q2`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q2` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q2`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- # dt2 -->
+<!-- flextable::set_table_properties(dt2, layout = "autofit") -->
 
-dt3 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q3`, `na_responsible research Practices_q3`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q3` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q3`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt3
+<!-- dt3 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q3`, `na_responsible research Practices_q3`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q3` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q3`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt3 -->
 
-dt4 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q4`, `na_responsible research Practices_q4`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q4` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q4`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt4
-dt5 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q5`, `na_responsible research Practices_q5`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q5` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q5`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt5
-dt6 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q6`, `na_responsible research Practices_q6`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q6` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q6`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt6
-dt7 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q7`, `na_responsible research Practices_q7`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q7` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q7`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt7
-dt8 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q8`, `na_responsible research Practices_q8`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q8` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q8`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt8
-dt9 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q9`, `na_responsible research Practices_q9`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q9` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q9`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt9
-dt10 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q10`, `na_responsible research Practices_q10`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q10` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q10`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt10
-dt11 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q11`, `na_responsible research Practices_q11`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q11` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q11`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt11
-dt12 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q12`, `na_responsible research Practices_q12`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q12` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q12`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt12
-dt13 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q13`, `na_responsible research Practices_q13`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q13` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q13`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt13
-dt14 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q14`, `na_responsible research Practices_q14`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q14` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q14`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt14
-dt15 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q15`, `na_responsible research Practices_q15`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q15` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q15`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt15
-dt16 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q16`, `na_responsible research Practices_q16`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q16` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q16`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt16
-dt17 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q17`, `na_responsible research Practices_q17`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q17` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q17`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt17
-dt18 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q18`, `na_responsible research Practices_q18`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q18` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q18`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt18
-dt19 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q19`, `na_responsible research Practices_q19`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q19` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q19`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt19
-dt20 <- final_dataset %>%
-  dplyr::select(`responsible research Practices_q20`, `na_responsible research Practices_q20`, `Which of the following best describes you?`) %>%
-  filter(`responsible research Practices_q20` == 'N/A') %>%
-  dplyr::select(`na_responsible research Practices_q20`, `Which of the following best describes you?`) %>% #x[i], 
-  tbl_summary(by = `Which of the following best describes you?`,
-    # missing = "no",
-    # statistic = list(all_continuous() ~ "{mean} ({sd})")
-  ) %>%
-  # add_p() %>%
-  add_n() %>% 
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()
-dt20
+<!-- dt4 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q4`, `na_responsible research Practices_q4`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q4` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q4`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt4 -->
+<!-- dt5 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q5`, `na_responsible research Practices_q5`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q5` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q5`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt5 -->
+<!-- dt6 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q6`, `na_responsible research Practices_q6`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q6` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q6`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt6 -->
+<!-- dt7 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q7`, `na_responsible research Practices_q7`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q7` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q7`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt7 -->
+<!-- dt8 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q8`, `na_responsible research Practices_q8`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q8` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q8`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt8 -->
+<!-- dt9 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q9`, `na_responsible research Practices_q9`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q9` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q9`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt9 -->
+<!-- dt10 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q10`, `na_responsible research Practices_q10`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q10` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q10`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt10 -->
+<!-- dt11 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q11`, `na_responsible research Practices_q11`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q11` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q11`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt11 -->
+<!-- dt12 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q12`, `na_responsible research Practices_q12`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q12` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q12`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt12 -->
+<!-- dt13 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q13`, `na_responsible research Practices_q13`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q13` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q13`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt13 -->
+<!-- dt14 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q14`, `na_responsible research Practices_q14`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q14` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q14`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt14 -->
+<!-- dt15 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q15`, `na_responsible research Practices_q15`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q15` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q15`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt15 -->
+<!-- dt16 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q16`, `na_responsible research Practices_q16`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q16` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q16`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt16 -->
+<!-- dt17 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q17`, `na_responsible research Practices_q17`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q17` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q17`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt17 -->
+<!-- dt18 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q18`, `na_responsible research Practices_q18`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q18` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q18`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt18 -->
+<!-- dt19 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q19`, `na_responsible research Practices_q19`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q19` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q19`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt19 -->
+<!-- dt20 <- final_dataset %>% -->
+<!--   dplyr::select(`responsible research Practices_q20`, `na_responsible research Practices_q20`, `Which of the following best describes you?`) %>% -->
+<!--   filter(`responsible research Practices_q20` == 'N/A') %>% -->
+<!--   dplyr::select(`na_responsible research Practices_q20`, `Which of the following best describes you?`) %>% #x[i],  -->
+<!--   tbl_summary(by = `Which of the following best describes you?`, -->
+<!--     # missing = "no", -->
+<!--     # statistic = list(all_continuous() ~ "{mean} ({sd})") -->
+<!--   ) %>% -->
+<!--   # add_p() %>% -->
+<!--   add_n() %>%  -->
+<!--   modify_header(label = "Variable") %>% # update the column header -->
+<!--   bold_labels() -->
+<!-- dt20 -->
 
-```
+<!-- ``` -->
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt1 <- final_dataset %>%
