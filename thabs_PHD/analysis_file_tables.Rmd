@@ -51,7 +51,12 @@ library(survminer)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 final_dataset <- read_csv("final_dataset.csv", show_col_types = F) %>%
-  mutate(addisons_disease = ifelse(`Random cortisol result` < 500 & (`Synacthen: 30 minute cortisol result`< 500 & `ACTH result`> 13.9), 1, 0)) #%>%
+  mutate(addisons_disease = ifelse((`Random cortisol result` < 200 | `Synacthen: 30 minute cortisol result`< 500), 1, 0),
+         PAI = ifelse((`Random cortisol result` < 200 | `Synacthen: 30 minute cortisol result`< 500) & `ACTH result`>= 64.6, 1, 0),
+         SAI = ifelse(((`Random cortisol result` < 200 | `Synacthen: 30 minute cortisol result`< 500) & `ACTH result`< 64.6), 1, 0),
+         total_AI = ifelse((PAI == 1 | SAI == 1) & `Random cortisol result` < 200, '<200', ifelse((PAI == 1 | SAI == 1) & `Synacthen: 30 minute cortisol result` < 500, '<500', NA))
+           ) %>%
+  mutate(AI = ifelse(PAI == 1, 'PAI', ifelse(SAI == 1, 'SAI', '')))
 # dat <- final_dataset %>%
 # dplyr::select(`Hospital folder number`,`Random cortisol result`, `ACTH sample drawn`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
 # write.csv(dat, 'outcome_dat.csv')
@@ -146,44 +151,105 @@ table_12
 
 table_2 <- final_dataset %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
-  mutate(`log10 viral load` = log(`HIV viral load`, 10),
-         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
-         gender = factor(Gender, labels = c('Females', 'Males')),
-         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
-         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity),
-         ) %>%
-  dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection` = `Opportunistic infection present`, `Viral load (log10 Copies/mL)` = `log10 viral load`, `Total CD4 count...9`, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `Addisons disease`) %>%
+  mutate(
+    `log10 viral load` = log(`HIV viral load`, 10),
+    HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format = "%m/%d/%Y") - as.Date(`HIV, when diagnosed`, format = "%m/%d/%Y")),
+    gender = factor(Gender, labels = c("Females", "Males")),
+    `Addisons disease` = as.factor(ifelse(addisons_disease == 1, "yes", ifelse(addisons_disease == 0, "no", ""))),
+    Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity),
+  ) %>%
+  filter(AI != "") %>%
+  dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection` = `Opportunistic infection present`, `Viral load (log10 Copies/mL)` = `log10 viral load`, `Total CD4 count...9`, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`, `Addisons disease`) %>%
   mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
-tbl_summary(#table_1,
-            missing = "no",
-            by = `Addisons disease`,
-            # statistic = list(all_continuous() ~ "{mean} ({sd})"),
-            digits = list(all_categorical() ~ c(0, 1)),
-            label = list(`Total CD4 count...9` ~ 'Total CD4 count')
-            ) %>%
+  tbl_summary( # table_1,
+    missing = "no",
+    by = `Addisons disease`,
+    # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+    digits = list(all_categorical() ~ c(0, 1)),
+    label = list(`Total CD4 count...9` ~ "Total CD4 count")
+  ) %>%
   add_p() %>%
   add_n() %>%
+  add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()
 table_2
 
 table_2_1 <- final_dataset %>%
-  filter(`Loss of axillary and pubic hair, if female` != 'Not applicable') %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
-  mutate(`log10 viral load` = log(`HIV viral load`, 10),
-         HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
-         gender = factor(Gender, labels = c('Females', 'Males')),
-         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'yes', ifelse(addisons_disease ==0, 'no', ''))),
-         Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity)) %>%
+  mutate(
+    `log10 viral load` = log(`HIV viral load`, 10),
+    HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format = "%m/%d/%Y") - as.Date(`HIV, when diagnosed`, format = "%m/%d/%Y")),
+    gender = factor(Gender, labels = c("Females", "Males")),
+    `Addisons disease` = as.factor(ifelse(addisons_disease == 1, "yes", ifelse(addisons_disease == 0, "no", ""))),
+    Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity),
+  ) %>%
+  filter(AI != '') %>%
+  dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, 
+    `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection` = `Opportunistic infection present`, `Viral load (log10 Copies/mL)` = `log10 viral load`, `CD4 count` = `Total CD4 count...9`, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`, `AI`#, `total AI` = total_AI
+                ) %>%
+        tbl_summary( # table_1,
+          missing = "no",
+          by = `AI`,
+          type = list(c("Duration of current illness, median (IQR) (days)", "Random cortisol", "Basal cortisol", "Stimulated cortisol", "ACTH", "BP (systolic)", "BP (diastolic)", "Potassium mmol/L", "Age at enrolment, median (IQR) (years)", "Viral load (log10 Copies/mL)", "CD4 count", "White cell count X109", "Haemoglobin g/dL", "Sodium mmol/L", "Heart rate", "Lymphocyte count X109", "Neutrophils") ~ "continuous"),#
+          statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+          digits = list(all_categorical() ~ c(0, 1))
+        ) %>%
+        add_p() %>%
+        add_overall() %>%
+        modify_header(label = "Variable") %>% # update the column header
+        bold_labels()
+
+table_2_1
+
+table_2_2 <- final_dataset %>%
+  mutate(Ethnicity = as.character(Ethnicity),
+         AI_recoded = ifelse(AI != '', 'No-AI', 'AI')) %>%
+  mutate(
+    `log10 viral load` = log(`HIV viral load`, 10),
+    HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format = "%m/%d/%Y") - as.Date(`HIV, when diagnosed`, format = "%m/%d/%Y")),
+    gender = factor(Gender, labels = c("Females", "Males")),
+    `Addisons disease` = as.factor(ifelse(addisons_disease == 1, "yes", ifelse(addisons_disease == 0, "no", ""))),
+    Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity),
+  ) %>%
+  dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, 
+    `Gender, n(%)` = gender, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, `Presence of an opportunistic infection` = `Opportunistic infection present`, `Viral load (log10 Copies/mL)` = `log10 viral load`, `CD4 count` = `Total CD4 count...9`, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Haemoglobin g/dL` = Haemoglobin, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`, AI_recoded#, `total AI` = total_AI
+                ) %>%
+        tbl_summary( # table_1,
+          missing = "no",
+          by = `AI_recoded`,
+          type = list(c("Duration of current illness, median (IQR) (days)", "Random cortisol", "Basal cortisol", "Stimulated cortisol", "ACTH", "BP (systolic)", "BP (diastolic)", "Potassium mmol/L", "Age at enrolment, median (IQR) (years)", "Viral load (log10 Copies/mL)", "CD4 count", "White cell count X109", "Haemoglobin g/dL", "Sodium mmol/L", "Heart rate", "Lymphocyte count X109", "Neutrophils") ~ "continuous"),#
+          statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+          digits = list(all_categorical() ~ c(0, 1))
+        ) %>%
+        add_p() %>%
+        # add_overall() %>%
+        modify_header(label = "Variable") %>% # update the column header
+        bold_labels()
+
+table_2_2
+
+table_2_3 <- tbl_merge(list(table_2_1, table_2_2))
+
+table_2_1 <- final_dataset %>%
+  filter(`Loss of axillary and pubic hair, if female` != "Not applicable") %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(
+    `log10 viral load` = log(`HIV viral load`, 10),
+    HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format = "%m/%d/%Y") - as.Date(`HIV, when diagnosed`, format = "%m/%d/%Y")),
+    gender = factor(Gender, labels = c("Females", "Males")),
+    `Addisons disease` = as.factor(ifelse(addisons_disease == 1, "yes", ifelse(addisons_disease == 0, "no", ""))),
+    Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity)
+  ) %>%
   dplyr::select(`Loss of axillary and pubic hair, if female`, `Addisons disease`) %>%
   mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
-tbl_summary(#table_1,
-            missing = "no",
-            by = `Addisons disease`,
-            # statistic = list(all_continuous() ~ "{mean} ({sd})"),
-            digits = list(all_categorical() ~ c(0, 1))#,
-            # label = list(`Total CD4 count...9` ~ 'Total CD4 count')
-            ) %>%
+  tbl_summary( # table_1,
+    missing = "no",
+    by = `Addisons disease`,
+    # statistic = list(all_continuous() ~ "{mean} ({sd})"),
+    digits = list(all_categorical() ~ c(0, 1)) # ,
+    # label = list(`Total CD4 count...9` ~ 'Total CD4 count')
+  ) %>%
   add_p() %>%
   add_n() %>%
   modify_header(label = "Variable") %>% # update the column header
