@@ -671,11 +671,8 @@ dt03_3 <- final_dataset %>%
       "Respectful data collection", "Respectful data collection"
     )
   )
-positions = c("Meticulous research process", "Good mentoring", "Adequate methods",
-      "Transparent reporting", "Ensuring reproducibility", "Open science",
-      "Engagement of local decision-makers", "Engagement of affected populations",
-      "Partnership with local researchers", "Fair agreements between study partners",
-      "Local ethical approval","Respectful data collection")
+positions = c(
+  "Respectful data collection", "Local ethical approval","Fair agreements between study partners","Partnership with local researchers", "Engagement of affected populations","Engagement of local decision-makers","Open science","Ensuring reproducibility", "Transparent reporting","Adequate methods","Good mentoring", "Meticulous research process")
 dt03_4 <- dt03_3 %>%
   ggplot(aes(x = `Behaviour categories`, y = `Mean score`, fill = Location )) +
   geom_bar(stat="identity", color="black", position = position_dodge()) +
