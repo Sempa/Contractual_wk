@@ -1,0 +1,432 @@
+"","Hospital folder number","If deceased, cause of death","Point of exit from study","Outcome of hospitalization","addisons_disease","PAI","SAI","total_AI"
+"1","GSH 39151 055","MDR Chronic Diarrhoea","Deceased","Discharged home",NA,0,NA,NA
+"2","GSH 157929 217",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"3","GSH 66628 561",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"4","GSH 118125 186",NA,"LTFU (lost to follow-up)","Discharged home",NA,NA,0,NA
+"5","GSH 145775 565",NA,"Finished study follow-up","Discharged home",1,0,1,"<200"
+"6","GSH 163555 055","Unknown","Deceased","Discharged home",NA,NA,0,NA
+"7","GSH 162994 719",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"8","GSH 103795 951",NA,"Deceased","Discharged home",NA,0,NA,NA
+"9","GSH 148268 725",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"10","GSH 121011 423",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"11","GSH 163484 421",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"12","GSH 33533 852",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"13","GSH 64719 891",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"14","GSH 163320 179","HIV-Encephalous","Deceased","Other",NA,0,NA,NA
+"15","GSH 11401 502",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"16","GSH 32127 482",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"17","GSH 43312 966",NA,"Deceased","Demised --> EXIT form",0,0,0,NA
+"18","GSH 13464 946","MDR TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"19","GSH 84226 232","Lymphoma","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"20","GSH 83722 629",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"21","GSH 148913 122",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"22","GSH 147077 937","PTB","Deceased","Demised --> EXIT form",0,0,0,NA
+"23","GSH 19691 674",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"24","GSH 20300 216","COPD","Deceased","Demised --> EXIT form",0,0,0,NA
+"25","GSH 84954 403","+ MDR","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"26","GSH 16616 005","PTB","Deceased","Demised --> EXIT form",NA,NA,0,NA
+"27","GSH 18468 686",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"28","GSH 105572 002","TB Default","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"29","GSH 30483 838",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"30","GSH 22665 269","Unknown","Deceased","Discharged home",0,0,0,NA
+"31","GSH 67815 076","Pulmonary TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"32","GSH 31097 041",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"33","GSH 75370 767",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"34","GSH 115225 807",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"35","GSH 161526 306",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"36","GSH 86960 580",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"37","GSH 164801 144",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"38","GSH 15814 510",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"39","GSH 38691 879","Cryptococcal meningitis","Deceased","Demised --> EXIT form",NA,NA,0,NA
+"40","GSH 56871 593",NA,"LTFU (lost to follow-up)","Discharged home",NA,NA,0,NA
+"41","GSH 57166 704",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"42","GSH 139197 420",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"43","GSH 74056 185",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"44","GSH 35024 504",NA,"Finished study follow-up","Discharged home",1,0,1,"<200"
+"45","GSH 164899 676",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"46","GSH 120495 189",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"47","GSH 55906 366","Acute gastroenteritis hypocalemia","Deceased","Discharged home",NA,0,NA,NA
+"48","GSH 158701 581",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"49","GSH 160658 316",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"50","GSH 160019 899","Pneumonia","Deceased","Discharged home",NA,0,NA,NA
+"51","GSH 89652 853",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"52","GSH 85664 753",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"53","GSH 30505 382",NA,"Finished study follow-up","Discharged home",1,0,1,"<500"
+"54","GSH 63286 744",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"55","GSH 25901 281",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"56","GSH 115206 237","Renal failure","Deceased","Discharged home",NA,0,NA,NA
+"57","GSH 84217 785","LRTI/RVD","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"58","GSH 44107 217",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"59","GSH 124078 759",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"60","GSH 117119 297",NA,"LTFU (lost to follow-up)","Discharged home",1,1,0,"<500"
+"61","GSH 140735 952",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"62","GSH 81029 175","Diss/TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"63","GSH 110999 141","Drug induced pancreatitis","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"64","GSH 165421 363",NA,"Finished study follow-up","Discharged home",1,0,1,"<200"
+"65","GSH 70976 501",NA,"LTFU (lost to follow-up)","Discharged home",1,0,1,"<500"
+"66","GSH 165526 724",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"67","GSH 11370 863",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"68","GSH 106556 798",NA,"Deceased","Demised --> EXIT form",0,0,0,NA
+"69","GSH 112790 597",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"70","GSH 36516 219",NA,"Finished study follow-up","Discharged home",1,0,1,"<500"
+"71","GSH 88193 180",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"72","GSH 165497 314",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"73","GSH 146126 131",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"74","GSH 116397 837",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"75","GSH 13828 074",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"76","GSH 151688 900",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"77","GSH 64531 304","PTB/Diss. TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"78","GSH 60707 759",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"79","GSH 33691 478",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"80","GSH 152234 332",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"81","GSH 165668 732","Acute kidney injury","Deceased","Demised --> EXIT form",NA,NA,0,NA
+"82","GSH 165692 476",NA,"Other","Discharged home",NA,0,NA,NA
+"83","GSH 25339 417",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"84","GSH 51095 941",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"85","GSH 165861 311","TB Meningitis","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"86","GSH 40624 900","Sepsis","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"87","GSH 158422 741",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"88","GSH 76644 731","Liver failure","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"89","GSH 18345 389",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"90","GSH 117352 138",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"91","GSH 113679 823",NA,"Other","Discharged home",NA,NA,0,NA
+"92","GSH 119339 984",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"93","GSH 23588 189","Hepatitis B","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"94","GSH 107367 682",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"95","GSH 119105 955",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"96","GSH 151265 212",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"97","GSH 77098 457",NA,"Finished study follow-up","Discharged home",1,0,1,"<200"
+"98","GSH 14634 588",NA,"Other","Discharged home",NA,0,NA,NA
+"99","GSH 33094 194",NA,"LTFU (lost to follow-up)","Discharged home",1,0,1,"<500"
+"100","GSH 33987 033",NA,"Finished study follow-up","Discharged home",1,0,1,"<500"
+"101","GSH 130736 044",NA,"Finished study follow-up","Discharged home",1,1,0,"<500"
+"102","GSH 135280 725",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"103","GSH 132648 510",NA,"Deceased","Demised --> EXIT form",NA,NA,0,NA
+"104","GSH 38266 334",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"105","GSH 151051 778","Tuberculosis","Deceased","Discharged home",0,0,0,NA
+"106","GSH 84405 828",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"107","GSH 166766 501",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"108","GSH 18052 829",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"109","GSH 18303 016",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"110","GSH 14756 126",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"111","GSH 18715 060",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"112","GSH 107223 059",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"113","GSH 167036 094","Diss/TB","Deceased","Demised --> EXIT form",NA,NA,0,NA
+"114","GSH 167073 154",NA,"Deceased","Discharged home",1,0,1,"<500"
+"115","GSH 167075 803","HIV","Deceased","Discharged home",1,0,1,"<200"
+"116","GSH 120163 878",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"117","GSH 163071 244","TB intestines","Deceased","Demised --> EXIT form",0,0,0,NA
+"118","GSH 48480 610",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"119","GSH 83704 999","TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"120","GSH 167367 341",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"121","GSH 24481 335",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"122","GSH 23457 336","Meningitis / MDR TB","Deceased","Discharged home",NA,0,NA,NA
+"123","GSH 120211 974",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"124","GSH 54983 242",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"125","GSH 158419 283","PTB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"126","GSH 58627 795",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"127","GSH 157407 347",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"128","GSH 102098 159",NA,"Other","Discharged home",NA,0,NA,NA
+"129","GSH 120175 500",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"130","GSH 125498 824",NA,"Finished study follow-up","Discharged home",1,0,1,"<500"
+"131","GSH 120709 415",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"132","GSH 163389 455",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"133","GSH 36446 821","MDR","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"134","GSH 31773 716",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"135","GSH 163450 604",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"136","GSH 164558 223",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"137","GSH 17295 460","TB/Ascites","Deceased","Demised --> EXIT form",0,0,0,NA
+"138","GSH 167901 255",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"139","GSH 153738 133","Lymphoid. Haematopoietic related tissue","Deceased","Discharged home",NA,0,NA,NA
+"140","GSH 23210 206",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"141","GSH 16065 625",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"142","GSH 22964 308","Septicemia","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"143","GSH 39197 991",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"144","GSH 30461 586","Sepsis","Deceased","Discharged home",NA,0,NA,NA
+"145","GSH 129901 393",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"146","GSH 143315 752",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"147","GSH 10912 905","Lymphoma","Deceased","Demised --> EXIT form",NA,NA,NA,NA
+"148","GSH 45810 215",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"149","GSH 79600 672","Pulmonary TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"150","GSH 102759 727","Sepsis/TBM","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"151","GSH 83830 497",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"152","GSH 110113 297",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"153","GSH 102865 151",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"154","GSH 26792 127",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"155","GSH 15635 261",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"156","GSH 168241 180",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"157","GSH 166397 208",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"158","GSH 165672 197",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"159","GSH 26314 955",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"160","GSH 168394 674","Renal Failure","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"161","GSH 19159 433",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"162","GSH 19111 418",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"163","GSH 15106 719",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"164","GSH 100124 916","Cancer (According to the wife)","Deceased","Discharged home",0,0,0,NA
+"165","GSH 102962 198",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"166","GSH 33784 786",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"167","GSH 44919 033",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"168","GSH 168408 839",NA,"Deceased","Discharged home",NA,0,NA,NA
+"169","GSH 122579 857",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"170","GSH 17117 565","PTB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"171","GSH 165267 535",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"172","GSH 42689 752",NA,"LTFU (lost to follow-up)","Discharged home",NA,NA,0,NA
+"173","GSH 167885 839","Diss. TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"174","GSH 10038 297",NA,"Finished study follow-up",NA,NA,0,NA,NA
+"175","GSH 168670 560",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"176","GSH 36508 315","Female pelvic inflammatory disease, unspecified","Deceased","Discharged home",NA,0,NA,NA
+"177","GSH 159700 483",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"178","GSH 168231 074",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"179","GSH 166615 284",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"180","GSH 80438 625",NA,"Finished study follow-up",NA,0,0,0,NA
+"181","GSH 105572 002B","TB Default","Deceased","Demised --> EXIT form",NA,NA,0,NA
+"182","GSH 168734 887",NA,"Deceased","Discharged home",0,0,0,NA
+"183","GSH 19810 241","Sepsis TB","Deceased","Discharged home",0,0,0,NA
+"184","GSH 40402 919","Meningitis","Deceased","Discharged home",1,1,0,"<500"
+"185","GSH 115257 891",NA,"Deceased","Discharged home",1,0,1,"<200"
+"186","GSH 45688 132",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"187","GSH 15887 029",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"188","GSH 79071 908","Chronic kidney disease, stage 5","Deceased","Discharged home",1,0,1,"<500"
+"189","GSH 58773 177","Interstitial pulmonary disease","Deceased","Discharged home",NA,0,NA,NA
+"190","GSH 124716 267",NA,"Deceased","Discharged home",0,0,0,NA
+"191","GSH 43338 524","Pneumonia","Deceased","Discharged home",NA,0,NA,NA
+"192","GSH 142469 337",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"193","GSH 77165 173",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"194","GSH 74106 162",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"195","GSH 80270 416",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"196","GSH 87322 137","Respiratory Pneumonia","Deceased","Demised --> EXIT form",0,0,0,NA
+"197","GSH 26605 857",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"198","GSH 70113 808","Natural causes","Deceased","Discharged home",NA,NA,0,NA
+"199","GSH 31285 018","PTB","Deceased","Discharged home",0,0,0,NA
+"200","GSH 168766 269",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"201","GSH 78718 939",NA,"LTFU (lost to follow-up)","Discharged home",NA,NA,0,NA
+"202","GSH 24559 619","Natural causes","Deceased","Discharged home",0,0,0,NA
+"203","GSH 40179 061",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"204","GSH 69215 812",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"205","GSH 20200 754","Chronic diarrhea","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"206","GSH 168892 131",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"207","GSH 82235 995",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"208","GSH 77346 690","Diss. TB","Deceased","Discharged home",0,0,0,NA
+"209","GSH 35054 121","TB and Meningitis","Deceased","Discharged home",NA,NA,0,NA
+"210","GSH 47086 566",NA,"Finished study follow-up","Discharged home",1,0,1,"<500"
+"211","GSH 115977 373",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"212","GSH 11691 342","Pulmonary TB","Deceased","Discharged home",0,0,0,NA
+"213","GSH 64541 139",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"214","GSH 70330 766",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"215","GSH 129282 752",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"216","GSH 144936 770",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"217","GSH 25631 938","Kidney failure and PTB","Deceased","Discharged home",NA,0,NA,NA
+"218","GSH 169383 973","Pancytopenia and TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"219","GSH 72775 018",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"220","GSH 168462 372",NA,"LTFU (lost to follow-up)","Discharged home",1,0,1,"<500"
+"221","GSH 36949 428",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"222","GSH 169638 244",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"223","GSH 102999 018",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"224","GSH 83657 015",NA,"LTFU (lost to follow-up)","Discharged home",NA,NA,0,NA
+"225","GSH 167750 405",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"226","GSH 28967 701","Kaposi Sarcoma","Deceased","Discharged home",NA,0,NA,NA
+"227","GSH 71876 916",NA,"LTFU (lost to follow-up)","Discharged home",1,0,1,"<500"
+"228","GSH 169757 382",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"229","GSH 114079 353","Head Trauma","Deceased","Discharged home",NA,0,NA,NA
+"230","GSH 55872 196",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"231","GSH 161885 777",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"232","GSH 103318 044",NA,NA,"Discharged home",NA,NA,0,NA
+"233","GSH 146440 334",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"234","GSH 55633 283",NA,"Finished study follow-up","Discharged home",1,1,0,"<500"
+"235","GSH 33880 923","Diss. TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"236","GSH 117693 481","Drug induced liver injury (DILI)","Deceased","Demised --> EXIT form",0,0,0,NA
+"237","GSH 23349 483",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"238","GSH 166670 927",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"239","GSH 169239 779","Gastroenteritis","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"240","GSH 112435 532",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"241","GSH 81943 557",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"242","GSH 113605 893","Diss. TB","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"243","GSH 148707 078",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"244","GSH 22847 354",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"245","GSH 14416 234",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"246","GSH 13296 850",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"247","GSH 168993 178","No diagnosis","Deceased","Discharged home",0,0,0,NA
+"248","GSH 39323 357",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"249","GSH 47531 215",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"250","GSH 68545 250",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"251","GSH 83628 503","Seizures","Deceased","Discharged home",1,0,1,"<500"
+"252","GSH 36510 881",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"253","GSH 70197 710","Unknown","Deceased","Discharged home",1,1,0,"<500"
+"254","GSH 19528 371",NA,"LTFU (lost to follow-up)","Discharged home",1,1,0,"<500"
+"255","GSH 170440 044","Kidney failure","Deceased","Discharged home",NA,0,NA,NA
+"256","GSH 170638 845",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"257","GSH 86094 299",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"258","GSH 170119 945",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"259","GSH 13856 497","Renal failure","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"260","GSH 103758 652","Seizures","Deceased","Discharged home",NA,0,NA,NA
+"261","GSH 32743 585",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"262","GSH 129079 109",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"263","GSH 170517 858",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"264","GSH 15006 752","Jaundice","Deceased","Demised --> EXIT form",1,0,1,"<500"
+"265","GSH 24223 794",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"266","GSH 63900 120",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"267","GSH 102364 536",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"268","GSH 18262 295",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"269","GSH 33158 593",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"270","GSH 84911 080",NA,"Deceased","Demised --> EXIT form",NA,NA,0,NA
+"271","GSH 171161 789",NA,"Finished study follow-up","Discharged home",1,0,1,"<500"
+"272","GSH 79934 352",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"273","GSH 170759 435","Sepsis? Had boil in neck","Deceased","Discharged home",1,1,0,"<500"
+"274","GSH 85782 183",NA,NA,"Discharged home",NA,NA,NA,NA
+"275","GSH 167643 451",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"276","GSH 31616 493",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"277","GSH 47841 242",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"278","GSH 106615 859",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"279","GSH 30635 783",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"280","GSH 112273 214","Oesophageal Conditis","Deceased","Demised --> EXIT form",NA,0,NA,NA
+"281","GSH 27088 822","PTB","Deceased","Discharged home",NA,0,NA,NA
+"282","GSH 171505 886","Natural causes","Deceased","Discharged home",NA,0,NA,NA
+"283","GSH 63637 581",NA,"Deceased","Discharged home",0,0,0,NA
+"284","GSH 77075 349",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"285","GSH 108313 867",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"286","GSH 171402 860",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"287","GSH 23776 339",NA,"Deceased","Demised --> EXIT form",NA,0,NA,NA
+"288","GSH 33159 476",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"289","GSH 170205 751",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"290","GSH 158388 769",NA,"Deceased","Discharged home",0,0,0,NA
+"291","GSH 135659 621",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"292","GSH 45485 182","Cancer","Deceased","Discharged home",NA,0,NA,NA
+"293","GSH 22785 901",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"294","GSH 156430 316",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"295","GSH 39761 739",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"296","GSH 149245 995",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"297","GSH 13710 090",NA,"LTFU (lost to follow-up)","Discharged home",NA,NA,0,NA
+"298","GSH 171924 707","Unknown","Deceased","Discharged home",NA,0,NA,NA
+"299","GSH 69832 723",NA,"Finished study follow-up","Discharged home",NA,NA,0,NA
+"300","GSH 169563 608",NA,"Finished study follow-up","Discharged home",NA,0,NA,NA
+"301","GSH 20279 949",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"302","GSH 120064 548",NA,"Finished study follow-up","Discharged home",0,0,0,NA
+"303","GSH 82911 983","Natural causes","Deceased","Demised --> EXIT form",0,0,0,NA
+"304","GSH 112559 679",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"305","GSH 156956 765",NA,"Deceased","Demised --> EXIT form",NA,NA,0,NA
+"306","GSH 31629 041",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"307","GSH 112138 276",NA,"Deceased","Discharged home",0,0,0,NA
+"308","GSH 171139 306",NA,"LTFU (lost to follow-up)","Discharged home",0,0,0,NA
+"309","GSH 166015 206",NA,NA,"Discharged home",NA,0,NA,NA
+"310","GSH 118925 296",NA,NA,"Discharged home",NA,0,NA,NA
+"311","GSH 28156 560",NA,NA,"Discharged home",NA,0,NA,NA
+"312","GSH 13043 849",NA,NA,"Discharged home",NA,0,NA,NA
+"313","GSH 45801 685",NA,NA,"Discharged home",0,0,0,NA
+"314","GSH 114355 126",NA,NA,"Discharged home",NA,0,NA,NA
+"315","GSH 139623 201","TB(according to caousin)",NA,"Discharged home",NA,NA,0,NA
+"316","GSH 16005 670",NA,NA,"Discharged home",NA,0,NA,NA
+"317","GSH 79194 841",NA,NA,"Discharged home",0,0,0,NA
+"318","GSH 158305 896",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"319","GSH 112745 856",NA,NA,"Discharged home",NA,0,NA,NA
+"320","GSH 111051 363",NA,NA,"Discharged home",1,0,1,"<500"
+"321","GSH 28274 405",NA,NA,"Discharged home",NA,0,NA,NA
+"322","GSH 88419 718",NA,NA,"Discharged home",0,0,0,NA
+"323","GSH 119109 973",NA,NA,"Discharged home",NA,0,NA,NA
+"324","GSH 116566 639",NA,NA,"Discharged home",1,0,1,"<200"
+"325","GSH 28143 261",NA,NA,"Discharged home",NA,0,NA,NA
+"326","GSH 119473 965",NA,"LTFU (lost to follow-up)","Discharged home",NA,0,NA,NA
+"327","GSH 18679 563",NA,NA,"Discharged home",1,0,1,"<500"
+"328","GSH 111550 059",NA,NA,"Discharged home",NA,0,NA,NA
+"329","GSH 103193 843",NA,NA,NA,NA,0,NA,NA
+"330","GSH 34495 853",NA,"LTFU (lost to follow-up)",NA,NA,0,NA,NA
+"331","GSH 14574 917",NA,NA,NA,0,0,0,NA
+"332","GSH 79028 569",NA,"LTFU (lost to follow-up)",NA,NA,0,NA,NA
+"333","GSH 172610 156","HIV Complications",NA,NA,NA,NA,0,NA
+"334","GSH 167204 718",NA,NA,NA,NA,0,NA,NA
+"335","GSH 58163 437",NA,NA,NA,0,0,0,NA
+"336","GSH 162806 491",NA,NA,NA,0,0,0,NA
+"337","GSH 28011 401",NA,NA,NA,0,0,0,NA
+"338","GSH 136688 819",NA,NA,NA,NA,0,NA,NA
+"339","GSH 107386 617",NA,"LTFU (lost to follow-up)",NA,0,0,0,NA
+"340","GSH 104391 289",NA,"LTFU (lost to follow-up)",NA,NA,0,NA,NA
+"341","GSH 45759 495","TB accrding to nephew",NA,NA,NA,0,NA,NA
+"342","GSH 144193 943",NA,NA,NA,0,0,0,NA
+"343","GSH 172214 678",NA,NA,NA,NA,NA,0,NA
+"344","GSH 150795 359",NA,NA,NA,NA,0,NA,NA
+"345","GSH 75818 401",NA,NA,NA,0,0,0,NA
+"346","GSH 173427 998",NA,NA,NA,0,0,0,NA
+"347","GSH 15602 717",NA,"LTFU (lost to follow-up)",NA,0,0,0,NA
+"348","GSH 172826 711",NA,NA,NA,NA,NA,0,NA
+"349","GSH 173098 989",NA,NA,NA,NA,0,NA,NA
+"350","GSH 64000 128",NA,NA,NA,NA,0,NA,NA
+"351","GSH 69480 978",NA,NA,NA,NA,0,NA,NA
+"352","GSH 173761 339","Kidney failure","Deceased",NA,NA,0,NA,NA
+"353","GSH 167370 527",NA,NA,NA,NA,0,NA,NA
+"354","GSH 51881 183",NA,NA,NA,0,0,0,NA
+"355","GSH 25552 886",NA,NA,NA,0,0,0,NA
+"356","GSH 59049 478",NA,"LTFU (lost to follow-up)",NA,NA,NA,0,NA
+"357","GSH 32235 731","Double Pneumonia","Deceased",NA,1,0,1,"<500"
+"358","GSH 160515 292",NA,NA,NA,NA,0,NA,NA
+"359","GSH 120957 535","TB and heart failure","Deceased",NA,0,0,0,NA
+"360","GSH 129415 584",NA,"LTFU (lost to follow-up)",NA,0,0,0,NA
+"361","GSH 26665 893","Unknown","Deceased",NA,0,0,0,NA
+"362","GSH 36149 300","Unknown","Deceased",NA,NA,0,NA,NA
+"363","GSH 70365 069","Unknown","Deceased",NA,0,0,0,NA
+"364","GSH 173780 297",NA,"LTFU (lost to follow-up)",NA,NA,0,NA,NA
+"365","GSH 11418 027",NA,"Finished study follow-up",NA,NA,0,NA,NA
+"366","GSH 83142 562",NA,"LTFU (lost to follow-up)",NA,NA,0,NA,NA
+"367","GSH 170201 503",NA,"LTFU (lost to follow-up)",NA,0,0,0,NA
+"368","GSH 40949 174","unknown","Deceased",NA,NA,0,NA,NA
+"369","GSH 62254 636","Natural causes","Deceased",NA,NA,NA,0,NA
+"370","GSH 59531 012",NA,"LTFU (lost to follow-up)",NA,0,0,0,NA
+"371","GSH 113935 027",NA,"LTFU (lost to follow-up)",NA,NA,0,NA,NA
+"372","GSH 46247 235",NA,"Finished study follow-up",NA,NA,0,NA,NA
+"373","GSH 130226 905",NA,"LTFU (lost to follow-up)",NA,NA,NA,0,NA
+"374","GSH 174310 755",NA,"Finished study follow-up",NA,NA,0,NA,NA
+"375","GSH 173499 575",NA,"Finished study follow-up",NA,0,0,0,NA
+"376","GSH 73982 936",NA,"Finished study follow-up",NA,NA,0,NA,NA
+"377","GSH 19397 561",NA,"Finished study follow-up",NA,NA,0,NA,NA
+"378","GSH 82830 027",NA,"LTFU (lost to follow-up)",NA,0,0,0,NA
+"379","GSH 174838 458",NA,"Finished study follow-up",NA,NA,0,NA,NA
+"380","GSH 174901 082","Natural causes","Deceased",NA,NA,NA,0,NA
+"381","GSH 174360 404",NA,"LTFU (lost to follow-up)",NA,NA,0,NA,NA
+"382","GSH 142375 500","Natural causes","Deceased",NA,0,0,0,NA
+"383","GSH 173311 903",NA,"LTFU (lost to follow-up)",NA,NA,NA,0,NA
+"384","GSH 121937 635",NA,"LTFU (lost to follow-up)",NA,NA,NA,NA,NA
+"385","GSH 31581 192",NA,"LTFU (lost to follow-up)",NA,NA,NA,NA,NA
+"386","GSH 174862 748",NA,NA,NA,NA,NA,NA,NA
+"387","GSH 174353 821",NA,"LTFU (lost to follow-up)",NA,NA,NA,NA,NA
+"388","GSH 175131 739",NA,"LTFU (lost to follow-up)",NA,NA,NA,NA,NA
+"389","GSH 17903683",NA,NA,NA,NA,NA,NA,NA
+"390","GSH 100775 584",NA,NA,NA,NA,NA,NA,NA
+"391","GSH 121468 508",NA,"Deceased",NA,NA,NA,NA,NA
+"392","GSH 112457 486",NA,NA,NA,NA,NA,NA,NA
+"393","GSH 31309 529",NA,NA,NA,NA,NA,NA,NA
+"394","GSH 149131 641",NA,NA,NA,NA,NA,NA,NA
+"395","GSH 14038 533",NA,NA,NA,NA,NA,NA,NA
+"396","GSH 80456 304",NA,NA,NA,NA,NA,NA,NA
+"397","GSH 155686 629",NA,NA,NA,NA,NA,NA,NA
+"398","GSH 176782 514",NA,NA,NA,NA,NA,NA,NA
+"399","GSH 144593 712",NA,NA,NA,NA,NA,NA,NA
+"400","GSH 164857 724",NA,NA,NA,NA,NA,NA,NA
+"401","GSH 169528 056","unknown",NA,NA,NA,NA,NA,NA
+"402","GSH 134441 807",NA,NA,NA,NA,NA,NA,NA
+"403","GSH 14564 835",NA,NA,NA,NA,NA,NA,NA
+"404","GSH 134869 833",NA,NA,NA,NA,NA,NA,NA
+"405","GSH 178541 991",NA,NA,NA,NA,NA,NA,NA
+"406","GSH 177768 892",NA,NA,NA,NA,NA,NA,NA
+"407","GSH 131730 269",NA,NA,NA,NA,NA,NA,NA
+"408","GSH 15115 637",NA,NA,NA,NA,NA,NA,NA
+"409","GSH 111918 058",NA,NA,NA,NA,NA,NA,NA
+"410","GSH 11418 027b",NA,NA,NA,NA,NA,NA,NA
+"411","GSH 88056 064",NA,NA,NA,NA,NA,NA,NA
+"412","GSH 131608 960",NA,NA,NA,NA,NA,NA,NA
+"413","GSH 126552 983",NA,NA,NA,NA,NA,NA,NA
+"414","GSH 83720 409",NA,NA,NA,NA,NA,NA,NA
+"415","GSH 147774 087",NA,NA,NA,NA,NA,NA,NA
+"416","GSH 120268 420",NA,NA,NA,NA,NA,NA,NA
+"417","GSH 11406 196",NA,NA,NA,NA,NA,NA,NA
+"418","GSH 62008 990",NA,NA,NA,NA,NA,NA,NA
+"419","GSH 47568 704",NA,NA,NA,NA,NA,NA,NA
+"420","GSH 36788 222",NA,NA,NA,NA,NA,NA,NA
+"421","GSH 14371 090",NA,NA,NA,NA,NA,NA,NA
+"422","GSH 26914 655",NA,NA,NA,NA,NA,NA,NA
+"423","GSH 76240 258",NA,NA,NA,NA,NA,NA,NA
+"424","GSH 66661 943",NA,NA,NA,NA,NA,NA,NA
+"425","GSH 35979 020",NA,NA,NA,NA,NA,NA,NA
+"426","GSH 155509 383",NA,NA,NA,NA,NA,NA,NA
+"427","GSH 32962 953",NA,NA,NA,NA,NA,NA,NA
+"428","GSH 43321 967",NA,NA,NA,NA,NA,NA,NA
+"429","GSH 179575 303",NA,NA,NA,NA,NA,NA,NA
+"430","425",NA,NA,NA,NA,NA,NA,NA
+"431","GSH 837 20409",NA,NA,NA,NA,NA,NA,NA

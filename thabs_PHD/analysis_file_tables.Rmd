@@ -65,6 +65,8 @@ final_dataset<- final_dataset%>%
 contrasts(final_dataset$Ethnicity) <- 
   contr.treatment(levels(final_dataset$Ethnicity),                                                   
                   base = which(levels(final_dataset$Ethnicity) == 'Black African'))
+cod_oi <- read_excel("hypo_alldata_wide_labels_cod_oi.xls") %>%
+  dplyr::select(`Hospital folder number`, `If deceased, cause of death`)
 ```
 
 # Table 1
@@ -176,6 +178,15 @@ table_2 <- final_dataset %>%
 table_2
 ```
 
+# Table 2.2: Cause of moratlity
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+table_2_2  <- cod_oi %>%
+  right_join(final_dataset %>%
+              dplyr::select(`Hospital folder number`, `Point of exit from study`, `Outcome of hospitalization`, addisons_disease, PAI, SAI, total_AI), 
+            by = 'Hospital folder number')
+write.csv(table_2_2, 'table_2_2.csv')
+```
+
 ## cross-tabulation
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 table_2_1 <- final_dataset %>%
@@ -282,6 +293,41 @@ table_2_1 <- final_dataset %>%
 table_2_1
 
 
+```
+
+
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+dt02_2 <- final_dataset %>%
+  filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
+  dplyr::select(`Hospital folder number`, value = `Random cortisol result`) %>%
+  mutate(group = 'Basal')
+dt02_1 <- final_dataset %>%
+  filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
+  dplyr::select(`Hospital folder number`, value = `Synacthen: 30 minute cortisol result`) %>%
+  mutate(group = '+30 minute')
+dt02 <- rbind(dt02_1, dt02_2) %>%
+  mutate(group = as.factor(group)) %>%
+  mutate(group = factor(group, levels=c('Basal', '+30 minute')))
+dot_plot <- ggplot(dt02, aes(x = group, y = value, fill = group)) +
+  geom_dotplot(binaxis='y', stackdir='center') +
+  scale_fill_manual(values=c("#E7B800", "#2E9FDF")) +
+  scale_y_continuous(breaks = seq(0, 1600, 100)) +
+  theme(
+    text = element_text(size = 24),
+    axis.line = element_line(colour = "black"), panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), panel.background = element_blank(),
+    panel.border = element_blank(),
+    aspect.ratio = 1,
+    plot.margin = unit(c(0, 0, 0, 0), "null"),
+    legend.position = "none")
+dot_plot
+
+jpeg('dot_plot.png', units = "in", width = 15, height = 9, res = 300)
+
+dot_plot
+
+dev.off()
+ggsave('dot_plot.png', width = 8, height = 9, dpi = 300)
 ```
 
 # Table 3: Bivariate table
