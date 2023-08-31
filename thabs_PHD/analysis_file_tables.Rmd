@@ -300,14 +300,14 @@ table_2_1
 dt02_2 <- final_dataset %>%
   filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
   dplyr::select(`Hospital folder number`, value = `Random cortisol result`) %>%
-  mutate(group = 'Basal')
+  mutate(group = 'Random')
 dt02_1 <- final_dataset %>%
   filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
   dplyr::select(`Hospital folder number`, value = `Synacthen: 30 minute cortisol result`) %>%
   mutate(group = '+30 minute')
 dt02 <- rbind(dt02_1, dt02_2) %>%
   mutate(group = as.factor(group)) %>%
-  mutate(group = factor(group, levels=c('Basal', '+30 minute')))
+  mutate(group = factor(group, levels=c('Random', '+30 minute')))
 dot_plot <- ggplot(dt02, aes(x = group, y = value, fill = group)) +
   geom_dotplot(binaxis='y', stackdir='center') +
   scale_fill_manual(values=c("#E7B800", "#2E9FDF")) +
@@ -327,7 +327,7 @@ jpeg('dot_plot.png', units = "in", width = 15, height = 9, res = 300)
 dot_plot
 
 dev.off()
-ggsave('dot_plot.png', width = 8, height = 9, dpi = 300)
+
 ```
 
 # Table 3: Bivariate table
@@ -561,8 +561,8 @@ summary(model1, conf.int = TRUE)
 # write.csv(final_model_table, 'final_table_updated_ver 2.csv')
 model_dataset <- complete(imputedData, 2)
 km_fit <- survival::survfit(Surv(ttdeath, mortality) ~ AI_recoded,
-  data = model_dataset %>%
-  mutate(Addisons = as.factor(ifelse(as.character(AI_recoded) == 'AI', "Yes", "No")))
+  data = model_dataset #%>%
+  # mutate(Addisons = as.factor(ifelse(as.character(AI_recoded) == 'AI', "Yes", "No")))
 )
 jpeg('KM_curve.jpeg', width = 480, height = 480, units = 'px', pointsize = 14, quality = 75, bg = 'white')
 survminer::ggsurvplot(km_fit,
