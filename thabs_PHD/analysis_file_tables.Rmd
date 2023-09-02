@@ -295,7 +295,7 @@ table_2_1
 
 ```
 
-
+# Dotplot
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 dt02_2 <- final_dataset %>%
   filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
@@ -308,23 +308,73 @@ dt02_1 <- final_dataset %>%
 dt02 <- rbind(dt02_1, dt02_2) %>%
   mutate(group = as.factor(group)) %>%
   mutate(group = factor(group, levels=c('Random', '+30 minute')))
-dot_plot <- ggplot(dt02, aes(x = group, y = value, fill = group)) +
-  geom_dotplot(binaxis='y', stackdir='center') +
+
+dt02_3 <- bind_rows(final_dataset %>%
+  filter(PAI == 1) %>%
+  filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
+  dplyr::select(`Hospital folder number`, value = `Random cortisol result`) %>%
+  mutate(group = 'Random',
+         AI = 'PAI'), 
+  final_dataset %>%
+  filter(PAI == 1) %>%
+  filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
+  dplyr::select(`Hospital folder number`, value = `Synacthen: 30 minute cortisol result`) %>%
+  mutate(group = '+30 minute',
+         AI = 'PAI')) 
+  
+dt02_4 <- bind_rows(final_dataset %>%
+  filter(SAI == 1) %>%
+  filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
+  dplyr::select(`Hospital folder number`, value = `Random cortisol result`) %>%
+  mutate(group = 'Random',
+         AI = 'SAI'), 
+  final_dataset %>%
+  filter(SAI == 1) %>%
+  filter(!is.na(`Synacthen: 30 minute cortisol result`)) %>%
+  dplyr::select(`Hospital folder number`, value = `Synacthen: 30 minute cortisol result`) %>%
+  mutate(group = '+30 minute',
+         AI = 'SAI'))
+dt02_5 <- bind_rows(dt02_4, dt02_3) %>%
+  mutate(group = as.factor(group),
+         AI = as.factor(AI)) %>%
+  mutate(group = factor(group, levels=c('Random', '+30 minute')),
+         AI = factor(AI, levels=c('PAI', 'SAI')))
+
+dot_plot1 <- ggplot(dt02, aes(x = group, y = value, fill = group)) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize = 0.5) +
   scale_fill_manual(values=c("#E7B800", "#2E9FDF")) +
   scale_y_continuous(breaks = seq(0, 1600, 100)) +
   theme(
-    text = element_text(size = 24),
+    text = element_text(size = 18),
     axis.line = element_line(colour = "black"), panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(), panel.background = element_blank(),
     panel.border = element_blank(),
     aspect.ratio = 1,
-    plot.margin = unit(c(0, 0, 0, 0), "null"),
-    legend.position = "none")
-dot_plot
+    plot.margin = unit(c(0, 0, 0, 0), "lines"),
+    legend.position = "none") +
+  ggtitle('A')
+dot_plot1
+dot_plot2 <- ggplot(dt02_5, aes(x = AI, y = value, fill = group)) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize = 1,
+               position=position_dodge(0.8)) +
+  scale_fill_manual(values=c("#E7B800", "#2E9FDF")) + #ylim(0, 1600) +
+  scale_y_continuous(breaks = seq(0, 1600, 100)) +
+  theme(
+    text = element_text(size = 18),
+    axis.line = element_line(colour = "black"), panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(), panel.background = element_blank(),
+    panel.border = element_blank(),
+    aspect.ratio = 1,
+    plot.margin = unit(c(0, 0, 0, 0), "lines")#,
+    # legend.position = "none"
+    ) +
+  ggtitle('B')
+dot_plot2
 
-jpeg('dot_plot.png', units = "in", width = 15, height = 9, res = 300)
+jpeg('dot_plot.png', units = "in", width = 8, height = 9, res = 300)
+ggarrange(dot_plot1, dot_plot2, #labels = c("A", "B"),
+                    ncol = 2, nrow = 1)
 
-dot_plot
 
 dev.off()
 
