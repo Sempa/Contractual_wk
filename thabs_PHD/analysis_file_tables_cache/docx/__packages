@@ -7,9 +7,9 @@ purrr
 dplyr
 stringr
 forcats
+lubridate
 magrittr
 knitr
-kableExtra
 tinytex
 gmodels
 readxl
@@ -21,7 +21,6 @@ MASS
 predtools
 randomForest
 mice
-psfmi
 survival
 ranger
 ggfortify
