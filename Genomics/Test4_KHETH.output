@@ -1,0 +1,604 @@
+33.477 sec elapsed
+Linear mixed-effects model fit by REML
+  Data: pt_dataset1 
+       AIC      BIC    logLik
+  374770.4 374850.5 -187377.2
+
+Random effects:
+ Formula: ~yrs.fu | patient
+ Structure: General positive-definite, Log-Cholesky parametrization
+            StdDev    Corr  
+(Intercept) 0.5163338 (Intr)
+yrs.fu      0.0862465 -0.622
+Residual    0.6709438       
+
+Fixed effects:  logvl ~ bs(yrs.fu, 3) 
+                    Value  Std.Error     DF   t-value p-value
+(Intercept)      4.250397 0.00501675 140686  847.2407       0
+bs(yrs.fu, 3)1  -5.780681 0.02235805 140686 -258.5503       0
+bs(yrs.fu, 3)2   7.405804 0.06096768 140686  121.4710       0
+bs(yrs.fu, 3)3 -13.142158 0.13277785 140686  -98.9785       0
+ Correlation: 
+               (Intr) b(.,3)1 b(.,3)2
+bs(yrs.fu, 3)1 -0.584                
+bs(yrs.fu, 3)2  0.201 -0.800         
+bs(yrs.fu, 3)3 -0.235  0.643  -0.850 
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-3.8959929 -0.4687831 -0.0750376  0.2709109  7.1351133 
+
+Number of Observations: 163994
+Number of Groups: 23305 
+9.667 sec elapsed
+Linear mixed-effects model fit by REML
+  Data: pt_dataset1 
+     AIC      BIC  logLik
+  368494 368574.1 -184239
+
+Random effects:
+ Formula: ~yrs.fu | patient
+ Structure: General positive-definite, Log-Cholesky parametrization
+            StdDev    Corr  
+(Intercept) 0.3676938 (Intr)
+yrs.fu      0.5617742 0.124 
+Residual    0.5098558       
+
+Fixed effects:  cumvl ~ bs(yrs.fu, 3) 
+                   Value  Std.Error     DF   t-value p-value
+(Intercept)     0.135792 0.00371763 140686  36.52651       0
+bs(yrs.fu, 3)1  6.111045 0.02929949 140686 208.57171       0
+bs(yrs.fu, 3)2  0.292527 0.07093927 140686   4.12363       0
+bs(yrs.fu, 3)3 -1.863517 0.12862474 140686 -14.48801       0
+ Correlation: 
+               (Intr) b(.,3)1 b(.,3)2
+bs(yrs.fu, 3)1 -0.258                
+bs(yrs.fu, 3)2  0.235  0.148         
+bs(yrs.fu, 3)3 -0.120  0.731  -0.128 
+
+Standardized Within-Group Residuals:
+        Min          Q1         Med          Q3         Max 
+-9.86408878 -0.40692072 -0.09726037  0.37911245 17.07564229 
+
+Number of Observations: 163994
+Number of Groups: 23305 
+46.286 sec elapsed
+Linear mixed-effects model fit by REML
+  Data: pt_dataset1 
+       AIC      BIC    logLik
+  374770.4 374850.5 -187377.2
+
+Random effects:
+ Formula: ~yrs.fu | patient
+ Structure: General positive-definite, Log-Cholesky parametrization
+            StdDev    Corr  
+(Intercept) 0.5163338 (Intr)
+yrs.fu      0.0862465 -0.622
+Residual    0.6709438       
+
+Fixed effects:  cvl.l ~ bs(yrs.fu, 3) 
+                    Value  Std.Error     DF   t-value p-value
+(Intercept)      1.648337 0.00501675 140686  328.5665       0
+bs(yrs.fu, 3)1  -5.780681 0.02235805 140686 -258.5503       0
+bs(yrs.fu, 3)2   7.405804 0.06096768 140686  121.4710       0
+bs(yrs.fu, 3)3 -13.142158 0.13277785 140686  -98.9785       0
+ Correlation: 
+               (Intr) b(.,3)1 b(.,3)2
+bs(yrs.fu, 3)1 -0.584                
+bs(yrs.fu, 3)2  0.201 -0.800         
+bs(yrs.fu, 3)3 -0.235  0.643  -0.850 
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-3.8959929 -0.4687831 -0.0750376  0.2709109  7.1351133 
+
+Number of Observations: 163994
+Number of Groups: 23305 
+Linear mixed-effects model fit by REML
+  Data: pt_dataset1 
+      AIC     BIC   logLik
+  2104893 2104973 -1052439
+
+Random effects:
+ Formula: ~yrs.fu | patient
+ Structure: General positive-definite, Log-Cholesky parametrization
+            StdDev    Corr  
+(Intercept) 148.15134 (Intr)
+yrs.fu       36.75123 0.084 
+Residual    110.96976       
+
+Fixed effects:  cd4.l ~ bs(yrs.fu, 3) 
+                   Value Std.Error     DF   t-value p-value
+(Intercept)     218.0467  1.151786 140686 189.31183       0
+bs(yrs.fu, 3)1  725.8613  4.136218 140686 175.48911       0
+bs(yrs.fu, 3)2 -311.4197 11.654329 140686 -26.72137       0
+bs(yrs.fu, 3)3 1221.6186 24.116069 140686  50.65580       0
+ Correlation: 
+               (Intr) b(.,3)1 b(.,3)2
+bs(yrs.fu, 3)1 -0.319                
+bs(yrs.fu, 3)2  0.183 -0.650         
+bs(yrs.fu, 3)3 -0.117  0.617  -0.711 
+
+Standardized Within-Group Residuals:
+       Min         Q1        Med         Q3        Max 
+-9.2884718 -0.4175047 -0.0556754  0.4035455 12.3186945 
+
+Number of Observations: 163994
+Number of Groups: 23305 
+14.985 sec elapsed
+Call:
+coxph(formula = Surv(artstart_to_mort, as.numeric(status)) ~ 
+    base.age + sex + vl_b + cd4_b, data = pt_dataset2.id)
+
+  n= 23305, number of events= 524 
+
+               coef  exp(coef)   se(coef)      z Pr(>|z|)    
+base.age  0.0453962  1.0464424  0.0042066 10.792  < 2e-16 ***
+sex      -0.6522681  0.5208631  0.0912138 -7.151 8.62e-13 ***
+vl_b      0.1460974  1.1573089  0.0639770  2.284   0.0224 *  
+cd4_b    -0.0008781  0.9991222  0.0003992 -2.200   0.0278 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+         exp(coef) exp(-coef) lower .95 upper .95
+base.age    1.0464     0.9556    1.0379    1.0551
+sex         0.5209     1.9199    0.4356    0.6228
+vl_b        1.1573     0.8641    1.0209    1.3119
+cd4_b       0.9991     1.0009    0.9983    0.9999
+
+Concordance= 0.676  (se = 0.013 )
+Likelihood ratio test= 232.2  on 4 df,   p=<2e-16
+Wald test            = 246.3  on 4 df,   p=<2e-16
+Score (logrank) test = 256.4  on 4 df,   p=<2e-16
+
+Call:
+coxph(formula = Surv(artstart_to_mort, as.numeric(status2)) ~ 
+    (base.age + sex + vl_b + cd4_b), data = pt_dataset3.id)
+
+  n= 46610, number of events= 5804 
+
+               coef  exp(coef)   se(coef)      z Pr(>|z|)    
+base.age -0.0111192  0.9889424  0.0014799 -7.513 5.77e-14 ***
+sex      -0.1693057  0.8442508  0.0306838 -5.518 3.43e-08 ***
+vl_b     -0.0002069  0.9997931  0.0188264 -0.011    0.991    
+cd4_b    -0.0008572  0.9991432  0.0001134 -7.559 4.05e-14 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+         exp(coef) exp(-coef) lower .95 upper .95
+base.age    0.9889      1.011    0.9861    0.9918
+sex         0.8443      1.184    0.7950    0.8966
+vl_b        0.9998      1.000    0.9636    1.0374
+cd4_b       0.9991      1.001    0.9989    0.9994
+
+Concordance= 0.55  (se = 0.004 )
+Likelihood ratio test= 148.3  on 4 df,   p=<2e-16
+Wald test            = 143.3  on 4 df,   p=<2e-16
+Score (logrank) test = 143.1  on 4 df,   p=<2e-16
+
+46665.798 sec elapsed
+
+Call:
+jm(Surv_object = coxfit1, Mixed_objects = list(CD4_model, cumvl_model), 
+    time_var = "yrs.fu", control = list(cores = 73), n_iter = 12000L, 
+    n_burnin = 2000L, n_thin = 5L)
+
+Data Descriptives:
+Number of Groups: 23305		Number of events: 524 (2.2%)
+Number of Observations:
+  cd4.l: 163994
+  cumvl: 163994
+
+                DIC    WAIC     LPML
+marginal    2475993 2475547 -1237775
+conditional 2938861 2910352 -1487278
+
+Random-effects covariance matrix:
+                                      
+       StdDev     Corr                
+(Intr) 148.4727 (Intr)  yrs.fu  (Intr)
+yrs.fu 36.5606  0.0891                
+(Intr) 0.3696   -0.2373 0.2115        
+yrs.fu 0.5631   -0.3405 -0.2166 0.1197
+
+Survival Outcome:
+                Mean  StDev    2.5%   97.5%      P   Rhat
+base.age      0.0444 0.0067  0.0314  0.0572 0.0000 1.0017
+sex          -0.4456 0.1001 -0.6386 -0.2490 0.0000 1.0031
+vl_b          0.1127 0.0655 -0.0175  0.2435 0.0867 1.0002
+cd4_b         0.0008 0.0004  0.0000  0.0015 0.0580 1.0014
+value(cd4.l) -0.0030 0.0003 -0.0035 -0.0024 0.0000 1.0038
+value(cumvl)  0.0241 0.0109  0.0032  0.0455 0.0273 1.0076
+
+Longitudinal Outcome: cd4.l (family = gaussian, link = identity)
+                    Mean   StDev      2.5%     97.5% P   Rhat
+(Intercept)     216.7029  1.2579  214.3779  219.2847 0 1.0138
+bs(yrs.fu, 3)1  718.7889  3.7307  711.3198  725.9261 0 1.0010
+bs(yrs.fu, 3)2 -269.4964 10.5872 -290.5030 -248.5257 0 1.0631
+bs(yrs.fu, 3)3 1195.5496 19.5812 1157.5922 1234.3764 0 1.0044
+sigma           110.9858  0.2303  110.5244  111.4380 0 1.0006
+
+Longitudinal Outcome: cumvl (family = gaussian, link = identity)
+                  Mean  StDev    2.5%   97.5%      P   Rhat
+(Intercept)     0.1374 0.0038  0.1298  0.1449 0.0000 1.0016
+bs(yrs.fu, 3)1  6.0847 0.0412  5.9826  6.1449 0.0000 1.0557
+bs(yrs.fu, 3)2  0.2779 0.0978  0.0471  0.4407 0.0257 1.0882
+bs(yrs.fu, 3)3 -1.8050 0.1579 -2.1710 -1.5388 0.0000 1.0308
+sigma           0.5095 0.0010  0.5075  0.5115 0.0000 1.0037
+
+MCMC summary:
+chains: 3 
+iterations per chain: 12000 
+burn-in per chain: 2000 
+thinning: 5 
+time: 11 hours
+                  Mean      2.5%     97.5%
+base.age     1.0453666 1.0318807 1.0588663
+sex          0.6404453 0.5280516 0.7795616
+vl_b         1.1192696 0.9826679 1.2756884
+cd4_b        1.0007543 0.9999743 1.0015071
+value(cd4.l) 0.9970541 0.9965301 0.9975793
+value(cumvl) 1.0244033 1.0031677 1.0465995
+46431.903 sec elapsed
+
+Call:
+jm(Surv_object = coxfit1, Mixed_objects = list(CD4_model, vl_model), 
+    time_var = "yrs.fu", control = list(cores = 73), n_iter = 12000L, 
+    n_burnin = 2000L, n_thin = 5L)
+
+Data Descriptives:
+Number of Groups: 23305		Number of events: 524 (2.2%)
+Number of Observations:
+  cd4.l: 163994
+  logvl: 163994
+
+                DIC    WAIC     LPML
+marginal    2449772 2479200 -1239605
+conditional 2904424 2905319 -1484677
+
+Random-effects covariance matrix:
+                                       
+       StdDev     Corr                 
+(Intr) 149.1308 (Intr)  yrs.fu  (Intr) 
+yrs.fu 37.1433  0.0630                 
+(Intr) 0.5128   -0.5294 -0.0060        
+yrs.fu 0.0894   0.4046  -0.5092 -0.5881
+
+Survival Outcome:
+                Mean  StDev    2.5%   97.5%      P   Rhat
+base.age      0.0547 0.0067  0.0416  0.0680 0.0000 1.0012
+sex          -0.3844 0.1025 -0.5833 -0.1871 0.0000 1.0017
+vl_b          0.0708 0.0650 -0.0535  0.2002 0.2827 1.0010
+cd4_b         0.0003 0.0004 -0.0005  0.0011 0.5157 1.0000
+value(cd4.l) -0.0014 0.0003 -0.0020 -0.0008 0.0000 1.0033
+value(logvl)  1.1543 0.0925  0.9771  1.3431 0.0000 1.0088
+
+Longitudinal Outcome: cd4.l (family = gaussian, link = identity)
+                    Mean   StDev      2.5%     97.5% P   Rhat
+(Intercept)     214.9921  1.1476  212.8232  217.2791 0 1.0005
+bs(yrs.fu, 3)1  740.4988  3.7362  733.3148  747.8561 0 1.0284
+bs(yrs.fu, 3)2 -342.9463 10.0102 -362.5900 -323.2870 0 1.1125
+bs(yrs.fu, 3)3 1197.5541 19.2018 1159.6629 1234.1345 0 1.0348
+sigma           110.8148  0.2304  110.3589  111.2608 0 1.0008
+
+Longitudinal Outcome: logvl (family = gaussian, link = identity)
+                   Mean  StDev     2.5%    97.5% P   Rhat
+(Intercept)      4.2493 0.0050   4.2395   4.2593 0 1.0039
+bs(yrs.fu, 3)1  -5.7877 0.0220  -5.8310  -5.7436 0 1.0510
+bs(yrs.fu, 3)2   7.4196 0.0597   7.3013   7.5344 0 1.0832
+bs(yrs.fu, 3)3 -12.7773 0.1272 -13.0169 -12.5190 0 1.0826
+sigma            0.6692 0.0013   0.6665   0.6718 0 1.0015
+
+MCMC summary:
+chains: 3 
+iterations per chain: 12000 
+burn-in per chain: 2000 
+thinning: 5 
+time: 11 hours
+                  Mean      2.5%     97.5%
+base.age     1.0562035 1.0424697 1.0703715
+sex          0.6808829 0.5580514 0.8293339
+vl_b         1.0733487 0.9478811 1.2216421
+cd4_b        1.0002640 0.9994689 1.0010545
+value(cd4.l) 0.9985859 0.9979912 0.9991740
+value(logvl) 3.1719195 2.6567140 3.8307610
+27484.344 sec elapsed
+
+Call:
+jm(Surv_object = coxfit1, Mixed_objects = CD4_model, time_var = "yrs.fu", 
+    control = list(cores = 73), n_iter = 12000L, n_burnin = 2000L, 
+    n_thin = 5L)
+
+Data Descriptives:
+Number of Groups: 23305		Number of events: 524 (2.2%)
+Number of Observations:
+  cd4.l: 163994
+
+                DIC    WAIC     LPML
+marginal    2111174 2111158 -1055579
+conditional 2595857 2581578 -1310629
+
+Random-effects covariance matrix:
+                      
+       StdDev     Corr
+(Intr) 148.1525 (Intr)
+yrs.fu 36.8379  0.0831
+
+Survival Outcome:
+                Mean  StDev    2.5%   97.5%      P   Rhat
+base.age      0.0422 0.0067  0.0288  0.0552 0.0000 1.0010
+sex          -0.4453 0.1022 -0.6484 -0.2437 0.0000 1.0024
+vl_b          0.1447 0.0628  0.0220  0.2694 0.0210 1.0032
+cd4_b         0.0008 0.0004  0.0000  0.0015 0.0607 1.0004
+value(cd4.l) -0.0031 0.0003 -0.0037 -0.0026 0.0000 1.0003
+
+Longitudinal Outcome: cd4.l (family = gaussian, link = identity)
+                    Mean   StDev      2.5%     97.5% P   Rhat
+(Intercept)     218.0807  1.1428  215.9046  220.3315 0 1.0058
+bs(yrs.fu, 3)1  726.7586  3.7460  719.2725  733.9361 0 1.0267
+bs(yrs.fu, 3)2 -314.9124  9.9288 -334.4072 -295.6739 0 1.0909
+bs(yrs.fu, 3)3 1218.3810 19.0045 1181.4826 1255.9078 0 1.0220
+sigma           110.9532  0.2276  110.4931  111.3920 0 1.0005
+
+MCMC summary:
+chains: 3 
+iterations per chain: 12000 
+burn-in per chain: 2000 
+thinning: 5 
+time: 6.1 hours
+                  Mean      2.5%     97.5%
+base.age     1.0431007 1.0291813 1.0567631
+sex          0.6406163 0.5229022 0.7836894
+vl_b         1.1556352 1.0222355 1.3092345
+cd4_b        1.0007678 0.9999597 1.0015173
+value(cd4.l) 0.9968603 0.9963464 0.9973839
+27607.322 sec elapsed
+
+Call:
+jm(Surv_object = coxfit1, Mixed_objects = vl_model, time_var = "yrs.fu", 
+    control = list(cores = 73), n_iter = 12000L, n_burnin = 2000L, 
+    n_thin = 5L)
+
+Data Descriptives:
+Number of Groups: 23305		Number of events: 524 (2.2%)
+Number of Observations:
+  logvl: 163994
+
+                 DIC     WAIC      LPML
+marginal    380824.9 380846.0 -190424.5
+conditional 363291.9 349031.6 -194388.7
+
+Random-effects covariance matrix:
+                     
+       StdDev   Corr 
+(Intr) 0.5169 (Intr) 
+yrs.fu 0.0872 -0.6207
+
+Survival Outcome:
+                Mean  StDev    2.5%   97.5%     P   Rhat
+base.age      0.0576 0.0070  0.0440  0.0715 0.000 1.0002
+sex          -0.4718 0.1042 -0.6779 -0.2709 0.000 1.0014
+vl_b          0.0535 0.0632 -0.0691  0.1788 0.398 1.0030
+cd4_b        -0.0004 0.0004 -0.0012  0.0003 0.305 1.0002
+value(logvl)  1.3716 0.0735  1.2232  1.5137 0.000 1.0009
+
+Longitudinal Outcome: logvl (family = gaussian, link = identity)
+                   Mean  StDev     2.5%    97.5% P   Rhat
+(Intercept)      4.2500 0.0051   4.2401   4.2599 0 1.0069
+bs(yrs.fu, 3)1  -5.7784 0.0232  -5.8240  -5.7316 0 1.0396
+bs(yrs.fu, 3)2   7.3925 0.0650   7.2603   7.5162 0 1.0540
+bs(yrs.fu, 3)3 -13.0099 0.1370 -13.2696 -12.7330 0 1.0368
+sigma            0.6705 0.0013   0.6679   0.6732 0 1.0044
+
+MCMC summary:
+chains: 3 
+iterations per chain: 12000 
+burn-in per chain: 2000 
+thinning: 5 
+time: 6.1 hours
+                  Mean      2.5%     97.5%
+base.age     1.0592400 1.0449507 1.0740862
+sex          0.6238500 0.5076751 0.7626633
+vl_b         1.0549785 0.9332798 1.1958085
+cd4_b        0.9996024 0.9988305 1.0003471
+value(logvl) 3.9414709 3.3980093 4.5434360
+27438.738 sec elapsed
+
+Call:
+jm(Surv_object = coxfit1, Mixed_objects = cumvl_model, time_var = "yrs.fu", 
+    control = list(cores = 73), n_iter = 12000L, n_burnin = 2000L, 
+    n_thin = 5L)
+
+Data Descriptives:
+Number of Groups: 23305		Number of events: 524 (2.2%)
+Number of Observations:
+  cumvl: 163994
+
+                 DIC     WAIC      LPML
+marginal    375284.2 374915.8 -187458.3
+conditional 355792.6 341547.2 -190739.3
+
+Random-effects covariance matrix:
+                    
+       StdDev   Corr
+(Intr) 0.3677 (Intr)
+yrs.fu 0.5619 0.1230
+
+Survival Outcome:
+                Mean  StDev    2.5%   97.5%      P   Rhat
+base.age      0.0487 0.0067  0.0358  0.0616 0.0000 1.0008
+sex          -0.6257 0.1019 -0.8248 -0.4282 0.0000 1.0020
+vl_b          0.0451 0.0645 -0.0809  0.1723 0.4840 1.0020
+cd4_b        -0.0007 0.0004 -0.0015  0.0000 0.0517 1.0000
+value(cumvl)  0.0682 0.0113  0.0449  0.0895 0.0000 1.0014
+
+Longitudinal Outcome: cumvl (family = gaussian, link = identity)
+                  Mean  StDev    2.5%   97.5%     P   Rhat
+(Intercept)     0.1357 0.0037  0.1285  0.1430 0.000 1.0139
+bs(yrs.fu, 3)1  6.1055 0.0394  6.0057  6.1726 0.000 1.0541
+bs(yrs.fu, 3)2  0.2816 0.0928  0.0755  0.4370 0.009 1.1588
+bs(yrs.fu, 3)3 -1.8796 0.1617 -2.2360 -1.5892 0.000 1.0980
+sigma           0.5098 0.0010  0.5078  0.5119 0.000 1.0001
+
+MCMC summary:
+chains: 3 
+iterations per chain: 12000 
+burn-in per chain: 2000 
+thinning: 5 
+time: 6.1 hours
+                  Mean      2.5%     97.5%
+base.age     1.0499519 1.0364764 1.0635044
+sex          0.5348765 0.4383162 0.6516972
+vl_b         1.0461294 0.9222883 1.1880464
+cd4_b        0.9992520 0.9984862 1.0000026
+value(cumvl) 1.0705860 1.0458928 1.0936338
+69051.012 sec elapsed
+
+Call:
+jm(Surv_object = coxfit1, Mixed_objects = list(CD4_model, cumvl_model, 
+    vl_model), time_var = "yrs.fu", control = list(cores = 73), 
+    n_iter = 12000L, n_burnin = 2000L, n_thin = 5L)
+
+Data Descriptives:
+Number of Groups: 23305		Number of events: 524 (2.2%)
+Number of Observations:
+  cd4.l: 163994
+  cumvl: 163994
+  logvl: 163994
+
+                DIC    WAIC     LPML
+marginal    3279277 8691519 -1938568
+conditional 3004824 3048358 -1555892
+
+Random-effects covariance matrix:
+                                                       
+       StdDev     Corr                                 
+(Intr) 151.8617 (Intr)  yrs.fu  (Intr)  yrs.fu  (Intr) 
+yrs.fu 36.5840  0.0613                                 
+(Intr) 0.3873   -0.2952 0.2399                         
+yrs.fu 0.5700   -0.3808 -0.1792 0.1801                 
+(Intr) 0.6976   -0.5073 -0.0003 0.5455  0.8544         
+yrs.fu 0.1373   0.3936  -0.2693 -0.5826 -0.2964 -0.7274
+
+Survival Outcome:
+                Mean  StDev    2.5%   97.5%      P   Rhat
+base.age      0.0508 0.0071  0.0370  0.0649 0.0000 1.0137
+sex          -0.4094 0.1054 -0.6118 -0.1985 0.0013 1.0031
+vl_b          0.2478 0.0719  0.1092  0.3921 0.0003 1.2070
+cd4_b         0.0003 0.0004 -0.0006  0.0011 0.5173 1.0696
+value(cd4.l) -0.0017 0.0004 -0.0024 -0.0010 0.0000 1.5929
+value(cumvl) -0.1056 0.0170 -0.1373 -0.0721 0.0000 1.1593
+value(logvl)  1.3063 0.1484  0.9999  1.5499 0.0000 2.0352
+
+Longitudinal Outcome: cd4.l (family = gaussian, link = identity)
+                    Mean   StDev      2.5%     97.5% P    Rhat
+(Intercept)     235.3311 12.6701  219.8634  256.0182 0 17.9832
+bs(yrs.fu, 3)1  724.3227  9.6814  706.6143  739.9548 0  3.9424
+bs(yrs.fu, 3)2 -309.6109 34.6901 -370.2610 -258.8698 0  6.0146
+bs(yrs.fu, 3)3 1156.2343 39.2290 1083.2937 1217.5367 0  3.5570
+sigma           110.9455  0.2310  110.5075  111.4004 0  1.0081
+
+Longitudinal Outcome: cumvl (family = gaussian, link = identity)
+                  Mean  StDev    2.5%   97.5% P    Rhat
+(Intercept)     0.0950 0.0398  0.0320  0.1462 0 15.6617
+bs(yrs.fu, 3)1  5.2737 0.2261  4.9758  5.6415 0 15.7550
+bs(yrs.fu, 3)2 -1.1669 0.4289 -1.7464 -0.4424 0 13.2963
+bs(yrs.fu, 3)3 -3.8593 0.7110 -4.8393 -2.6819 0 10.5535
+sigma           0.5040 0.0010  0.5020  0.5060 0  1.0877
+
+Longitudinal Outcome: logvl (family = gaussian, link = identity)
+                   Mean  StDev     2.5%   97.5% P    Rhat
+(Intercept)      4.1238 0.0768   3.9948  4.2213 0 22.6104
+bs(yrs.fu, 3)1  -5.3931 0.0733  -5.4778 -5.2317 0  5.1319
+bs(yrs.fu, 3)2   6.9265 0.7184   6.0176  8.0384 0 16.3515
+bs(yrs.fu, 3)3 -10.2201 1.1806 -11.9309 -8.4579 0 16.7148
+sigma            0.6277 0.0042   0.6221  0.6351 0  6.1589
+
+MCMC summary:
+chains: 3 
+iterations per chain: 12000 
+burn-in per chain: 2000 
+thinning: 5 
+time: 17.6 hours
+                  Mean      2.5%     97.5%
+base.age     1.0520659 1.0377420 1.0670093
+sex          0.6640239 0.5423924 0.8199269
+vl_b         1.2811866 1.1153350 1.4800961
+cd4_b        1.0002743 0.9994177 1.0010819
+value(cd4.l) 0.9983387 0.9975725 0.9990434
+value(cumvl) 0.8997472 0.8716757 0.9304491
+value(logvl) 3.6924319 2.7181244 4.7112096
+44926.647 sec elapsed
+
+Call:
+jm(Surv_object = coxfit1, Mixed_objects = list(cumvl_model, vl_model), 
+    time_var = "yrs.fu", control = list(cores = 73), n_iter = 12000L, 
+    n_burnin = 2000L, n_thin = 5L)
+
+Data Descriptives:
+Number of Groups: 23305		Number of events: 524 (2.2%)
+Number of Observations:
+  cumvl: 163994
+  logvl: 163994
+
+                 DIC      WAIC      LPML
+marginal    920112.6 1705891.8 -516999.0
+conditional 457966.5  480417.2 -262738.9
+
+Random-effects covariance matrix:
+                                     
+       StdDev   Corr                 
+(Intr) 0.3960 (Intr)  yrs.fu  (Intr) 
+yrs.fu 0.5730 0.2276                 
+(Intr) 0.7169 0.5960  0.8726         
+yrs.fu 0.1252 -0.6586 -0.3654 -0.7520
+
+Survival Outcome:
+                Mean  StDev    2.5%   97.5%      P   Rhat
+base.age      0.0536 0.0069  0.0401  0.0669 0.0000 1.0067
+sex          -0.5185 0.1041 -0.7263 -0.3106 0.0003 1.0212
+vl_b          0.2151 0.0691  0.0808  0.3534 0.0017 1.0855
+cd4_b        -0.0004 0.0004 -0.0012  0.0003 0.2820 1.0045
+value(cumvl) -0.0839 0.0155 -0.1135 -0.0538 0.0000 1.0433
+value(logvl)  1.3911 0.1048  1.1797  1.5824 0.0000 1.4087
+
+Longitudinal Outcome: cumvl (family = gaussian, link = identity)
+                  Mean  StDev    2.5%   97.5% P    Rhat
+(Intercept)     0.1075 0.0331  0.0494  0.1459 0 12.9082
+bs(yrs.fu, 3)1  5.3061 0.2634  4.8535  5.6233 0 17.7711
+bs(yrs.fu, 3)2 -1.1139 0.5121 -1.9812 -0.4664 0 13.9406
+bs(yrs.fu, 3)3 -3.7679 0.8347 -5.2698 -2.6634 0 12.2065
+sigma           0.5033 0.0010  0.5013  0.5053 0  1.0066
+
+Longitudinal Outcome: logvl (family = gaussian, link = identity)
+                   Mean  StDev     2.5%   97.5% P    Rhat
+(Intercept)      4.1482 0.0717   4.0171  4.2250 0 15.1645
+bs(yrs.fu, 3)1  -5.3910 0.0467  -5.4593 -5.2905 0  3.0854
+bs(yrs.fu, 3)2   6.4882 0.5093   5.9257  7.4051 0 11.0568
+bs(yrs.fu, 3)3 -10.5689 0.8953 -11.7292 -9.0341 0 13.7219
+sigma            0.6298 0.0028   0.6248  0.6342 0  3.7575
+
+MCMC summary:
+chains: 3 
+iterations per chain: 12000 
+burn-in per chain: 2000 
+thinning: 5 
+time: 11 hours
+                  Mean      2.5%     97.5%
+base.age     1.0550289 1.0408655 1.0691812
+sex          0.5954111 0.4837087 0.7329882
+vl_b         1.2400219 1.0842003 1.4238572
+cd4_b        0.9995834 0.9988276 1.0003376
+value(cumvl) 0.9195112 0.8926722 0.9475865
+value(logvl) 4.0191437 3.2532628 4.8666506
+
+                       DIC      WAIC       LPML
+ jm_mortality5.2  375284.2  374915.8  -187458.3
+ jm_mortality5.1  380824.9  380846.0  -190424.5
+ jm_mortality6.1  920112.6 1705891.8  -516999.0
+   jm_mortality5 2111174.5 2111157.9 -1055579.0
+   jm_mortality4 2475993.2 2475546.8 -1237775.4
+ jm_mortality4.1 2449771.9 2479200.4 -1239604.7
+   jm_mortality6 3279276.8 8691519.4 -1938567.7
+
+The criteria are calculated based on the marginal log-likelihood.
