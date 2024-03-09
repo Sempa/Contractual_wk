@@ -67,13 +67,15 @@ write.csv(final_dataset, 'opportunistic infections.csv')
 # dat <- final_dataset %>%
 # dplyr::select(`Hospital folder number`,`Random cortisol result`, `ACTH sample drawn`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
 # write.csv(dat, 'outcome_dat.csv')
-final_dataset<- final_dataset%>%
-  mutate(Ethnicity = as.factor(Ethnicity))
-contrasts(final_dataset$Ethnicity) <- 
-  contr.treatment(levels(final_dataset$Ethnicity),                                                   
-                  base = which(levels(final_dataset$Ethnicity) == 'Black African'))
-cod_oi <- read_excel("hypo_alldata_wide_labels_cod_oi.xls") %>%
-  dplyr::select(`Hospital folder number`, `If deceased, cause of death`)
+final_dataset<- final_dataset %>%
+  left_join(read_excel("Updated OI's  05 March 2024.xlsx") %>%
+              dplyr::select(`Hospital folder number`, `Opportunistic infection  (choice=Tuberculosis)`, `Opportunistic infection  (choice=Cryptococcus neoformans)`, `Opportunistic infection  (choice=Pneumonia)`, `Opportunistic infection  (choice=Staph aureus)`, `Opportunistic infection  (choice=Kaposis sarcoma)`, `Opportunistic infection  (choice=Cytomegalovirus)`, `Opportunistic infection  (choice=HSV)`, `Opportunistic infection  (choice=HepB)`, `Opportunistic infection  (choice=Candida)`, `Opportunistic infection  (choice=Other)`, `Opportunistic infection  (choice=GE / C diff)`, `Opportunistic infection  (choice=Parvo B19)`, `Opportunistic infection  (choice=Syphilis)`, `Opportunistic infection  (choice=B menigitis)`, `Opportunistic infection  (choice=UTI / Leptospirosis)`, `Opportunistic infection  (choice=PCP)`, `Opportunistic infection  (choice=covid)`, `Opportunistic infection  (choice=Neurocysticercosis)`), by = 'Hospital folder number')
+#   mutate(Ethnicity = as.factor(Ethnicity))
+# contrasts(final_dataset$Ethnicity) <- 
+#   contr.treatment(levels(final_dataset$Ethnicity),                                                   
+#                   base = which(levels(final_dataset$Ethnicity) == 'Black African'))
+# cod_oi <- read_excel("hypo_alldata_wide_labels_cod_oi.xls") %>%
+#   dplyr::select(`Hospital folder number`, `If deceased, cause of death`)
 ```
 
 # Baseline table
@@ -402,8 +404,8 @@ dot_plot1 <- ggplot(dt02, aes(x = group, y = value, fill = group)) +
     panel.border = element_blank(),
     aspect.ratio = 1,
     plot.margin = unit(c(0, 0, 0, 0), "lines"),
-    legend.position = "none") +
-  ggtitle('A')
+    legend.position = "none")# +
+  # ggtitle('A')
 dot_plot1
 dot_plot2 <- ggplot(dt02_5, aes(x = AI, y = value, fill = group)) +
   geom_dotplot(binaxis='y', stackdir='center', dotsize = 1,
@@ -419,8 +421,8 @@ dot_plot2 <- ggplot(dt02_5, aes(x = AI, y = value, fill = group)) +
     aspect.ratio = 1,
     plot.margin = unit(c(0, 0, 0, 0), "lines")#,
     # legend.position = "none"
-    ) +
-  ggtitle('B')
+    ) #+
+  # ggtitle('B')
 dot_plot2
 dot_plot3 <- ggplot(dt02_6, aes(x = group, y = value, fill = group)) +
   geom_dotplot(binaxis='y', stackdir='center', dotsize = 0.5) +
@@ -444,11 +446,15 @@ jpeg('dot_plot1.png', units = "in", width = 8, height = 9, res = 300)
 dot_plot1
 
 dev.off()
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 jpeg('dot_plot2.png', units = "in", width = 8, height = 9, res = 300)
 # ggarrange(dot_plot1, dot_plot2, #labels = c("A", "B"),
                     # ncol = 2, nrow = 1)
 dot_plot2
+<<<<<<< Updated upstream
 
 dev.off()
 
@@ -456,6 +462,8 @@ jpeg('dot_plot3.png', units = "in", width = 8, height = 9, res = 300)
 # ggarrange(dot_plot1, dot_plot2, #labels = c("A", "B"),
                     # ncol = 2, nrow = 1)
 dot_plot3
+=======
+>>>>>>> Stashed changes
 
 dev.off()
 
