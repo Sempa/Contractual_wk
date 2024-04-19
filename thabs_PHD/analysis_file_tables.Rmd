@@ -117,6 +117,15 @@ final_dataset<- final_dataset %>%
          Neutrophils = as.numeric(Neutrophils))
 cod_oi <- read_excel("hypo_alldata_wide_labels_cod_oi.xls") %>%
   dplyr::select(`Hospital folder number`, `If deceased, cause of death`)
+# write.csv(final_dataset %>% 
+#             # mutate(total_AI = ifelse(is.na(total_AI), 0, total_AI)) %>%
+#             relocate(addisons_disease, .after = `Hospital folder number`), "Full_528_dataset.csv")
+# write.csv(final_dataset %>% 
+#             # mutate(total_AI = ifelse(is.na(total_AI), 0, total_AI)) %>%
+#             relocate(addisons_disease, .after = `Hospital folder number`) %>%
+#             dplyr::select(`Hospital folder number`, addisons_disease, `Random cortisol result`, 
+#                           `Synacthen: 0 minute cortisol result`, `ACTH result`, 
+#                           `Synacthen: 30 minute cortisol result`), "stimulation_test_dataset.csv")
 ```
 
 # Baseline table
@@ -325,7 +334,7 @@ stat.test <- dt02 %>%
   add_xy_position(x = "Group", dodge = 0.8)
 stat.test
 
-box_plot <- ggboxplot(
+box_plot_1 <- ggboxplot(
   dt02, x = 'Group', y = 'result',
   fill = "AI status", palette = c("#00AFBB", "#E7B800")
   ) +
@@ -333,8 +342,25 @@ box_plot <- ggboxplot(
   stat.test,  label = "{p.adj}{p.adj.signif}", 
   tip.length = 0, hide.ns = FALSE
   )+
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
-box_plot
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    axis.line = element_line(colour = "black"),
+    axis.text = element_text(size = 18),
+    axis.title = element_text(size = 18),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    plot.margin = unit(c(0, 0, 0, 0), "null")#,
+    # axis.text.x = element_text(angle = 60, hjust = 1)
+  )
+
+jpeg('boxplot_1.png', units = "in", width = 10, height = 9, res = 300)
+
+box_plot_1
+
+dev.off()
+
 
 dt03 <- final_dataset %>%
   dplyr::select(id = `Hospital folder number`, `Concomitant therapy (1)`, `Concomitant therapy (2)`, `Concomitant therapy (3)`, `Concomitant therapy (4)`, `Concomitant therapy (5)`, `Concomitant therapy (6)`, `Concomitant therapy (7)`, `Concomitant therapy (8)`, `Concomitant therapy (9)`, `Concomitant therapy (10)`) %>%
@@ -357,7 +383,7 @@ dt04 <- dt03 %>%
   # mutate(ART = ifelse(ART == 1, "ART", "no ART")) %>%
   distinct( id, .keep_all = T) %>%
   dplyr::select(id, ART_exposure)
-dt05 <- final_dataset %>%
+box_plot_CD4 <- final_dataset %>%
   dplyr::select(id = `Hospital folder number`, `CD4 count` = `Total CD4 count...10`) %>%
   left_join(dt04, by = 'id') %>%
   mutate(`ART exposure` = as.factor(ifelse(is.na(ART_exposure), 'no ART',
@@ -365,8 +391,26 @@ dt05 <- final_dataset %>%
                                                 ifelse(ART_exposure == 0, 'no ART', ART_exposure))))) %>%
   mutate(`CD4 count` = as.numeric(`CD4 count`)) %>%
   ggplot(aes(x= `ART exposure`, y = `CD4 count`)) +
-geom_boxplot()
-dt05
+geom_boxplot() +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    axis.line = element_line(colour = "black"),
+    axis.text = element_text(size = 18),
+    axis.title = element_text(size = 18),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    plot.margin = unit(c(0, 0, 0, 0), "null")#,
+    # axis.text.x = element_text(angle = 60, hjust = 1)
+  )
+
+jpeg('boxplot_CD4.png', units = "in", width = 8, height = 9, res = 300)
+
+box_plot_CD4
+
+dev.off()
+
+
 ```
 
 # Table 2: comparing Addisons status with other variables
