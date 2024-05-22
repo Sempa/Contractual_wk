@@ -1,0 +1,22 @@
+Hospital folder number;Primary medical conditions (1);Primary medical conditions (2);Primary medical conditions (3);Primary medical conditions (4);Co-existing medical conditions (2);Other, specify;Opportunistic infection  (choice=Tuberculosis);Opportunistic infection  (choice=Cryptococcus neoformans);Opportunistic infection  (choice=Toxoplasmosis);Opportunistic infection  (choice=Mycobacterium avium-intracellulare);Opportunistic infection  (choice=Kaposis sarcoma);Opportunistic infection  (choice=Cytomegalovirus);Opportunistic infection  (choice=Other);Opportunistic infection  (choice=Tuberculosis);Opportunistic infection  (choice=Cryptococcus neoformans);Opportunistic infection  (choice=Pneumonia);Opportunistic infection  (choice=Staph aureus);Opportunistic infection  (choice=Kaposis sarcoma);Opportunistic infection  (choice=Cytomegalovirus);Opportunistic infection  (choice=HSV);Opportunistic infection  (choice=HepB);Opportunistic infection  (choice=Candida);Opportunistic infection  (choice=Other);Opportunistic infection  (choice=GE / C diff);Opportunistic infection  (choice=Parvo B19);Opportunistic infection  (choice=Syphilis);Opportunistic infection  (choice=B menigitis);Opportunistic infection  (choice=UTI / Leptospirosis);Opportunistic infection  (choice=PCP);Opportunistic infection  (choice=covid);Opportunistic infection  (choice=Neurocysticercosis)
+GSH 78295011;NA;NA;NA;NA;NA;NA;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;;;;;;;;;;;;;;;;;;
+GSH 135436 376;Chronic Diarhoea;Oral candida;Severly wasted;NA;PTB X 2;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;1;;1;;;;;;;
+GSH 119274 298;Pneumo hovax;surgical emphysema;NA;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 21417829;Anemia;Oesphageul candida;NA;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;;;;;;;;;1;;;;;;;;;
+GSH 28388 361;Diss - TB;diarrhoea;Dyspnoea;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;1;;;;;;;
+GSH 159255413;NA;servere cough;?disseminated TB;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 114640089;Jaundice & anemia;Sezure & sever headache;NA;NA;Epilepsy;Meningitis;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Checked;;;;;;;;;;;;;;1;;;;
+GSH 79695482;Jaundice;Candida;NA;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;1;Unchecked;Unchecked;;;;;;;;;1;;;;;;;;;
+GSH 85567 857;Joint Pains;Polyarthritis;NA;NA;TB;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 105673 149;GTC Seizures;NA;NA;NA;Prev CVA in 2022;NA;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;1;;;;;;;
+GSH 108230608;Generalised body weakness;Diarhoea/Vomiting;Tachycardia;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;;;;;;;;;;;1;;;;;;;
+GSH 26476705;SOB;Productive cough;Pleuratic chest pain;consititutioncel Sx;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 29651539;Delirium;NA;NA;NA;NA;PSU;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Checked;1;;;;;;;;;;;;;;;;;
+GSH 13190244;Anemia;Sever weight loss;NA;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;1;;;;;;;;;
+GSH  69660355;Anemia;NA;NA;NA;Salmouella - diarrhoea;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;1;;;;;;;
+GSH 27941830;Lymphoma;NA;NA;NA;P TB;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 121812 234;Short of breth;Weak;Tachycardia;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 35628 684;Anaemia;Seizures;NA;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 114665235;Headache;Vomiting;Abdominal Pain;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;;;
+GSH 110173549;Jaundice;Dehydration;NA;NA;NA;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;1;;;;;;;;;
+GSH 111103 933;Haenoptsis;Productive cough;NA;NA;PTB;NA;Checked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;Unchecked;1;;;;;;;;;;;;;;;1;;
