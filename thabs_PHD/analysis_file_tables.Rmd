@@ -82,8 +82,9 @@ final_dataset <- read_excel("hypo_alldata_wide_labels 549.xlsx") %>%
          Anorexia = as.logical(ifelse(Anorexia == 'Yes', 1, 0)),
          `Loss of axillary and pubic hair, if female` = ifelse(`Loss of axillary and pubic hair, if female` == 'NA', 'No', `Loss of axillary and pubic hair, if female`),
          `Any postural drop in blood pressure` = as.logical(ifelse(`Any postural drop in blood pressure` == 'Yes', 1, 0)),
-         incremental_cortisol = abs(`Synacthen: 30 minute cortisol result` - `Synacthen: 0 minute cortisol result`)
-         ) #%>%
+         incremental_cortisol = (`Synacthen: 30 minute cortisol result` - `Synacthen: 0 minute cortisol result`)
+         ) %>%
+  mutate(incremental_cortisol = ifelse(incremental_cortisol<0, NA, incremental_cortisol)) #%>%
 #   dplyr::select(id = UIN...1, `Hospital folder number`, `Primary medical conditions (1)`, `Primary medical conditions (2)`, `Primary medical conditions (3)`, `Primary medical conditions (4)`, `Co-existing medical conditions (2)`, `Other, specify...67`,
 #                 `Opportunistic infection  (choice=Tuberculosis)`, `Opportunistic infection  (choice=Cryptococcus neoformans)`,
 # `Opportunistic infection  (choice=Toxoplasmosis)`, `Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`, `Opportunistic infection  (choice=Kaposis sarcoma)`, `Opportunistic infection  (choice=Cytomegalovirus)`,`Opportunistic infection  (choice=Other)`)
@@ -1222,7 +1223,7 @@ dt <- completeData_mort %>%
 results <- rfe(dt[,c(3:29)], dt[[1]], rfeControl = control)
 var_selected <- predictors(results)
 
-model4 <- survival::coxph(Surv(time = ttdeath, event = mortality) ~ Viral_load + Cryptococcus_neoformans + BP_diastolic + Nausea + incremental_cortisol,
+model4 <- survival::coxph(Surv(time = ttdeath, event = mortality) ~ Viral_load + Cryptococcus_neoformans + Kidney_medication + Diarrhoea + incremental_cortisol,
                           data = completeData_mort %>%
                             # filter(as.character(Gender) != 'Unknown') %>%
                             mutate(Basal_cortisol = Basal_cortisol/50)
@@ -1231,7 +1232,7 @@ model4 <- survival::coxph(Surv(time = ttdeath, event = mortality) ~ Viral_load +
   # modify_caption('COXPH model on effect of Addisons on mortality')
 # model4
 
-model5 <- glm(mortality ~ Viral_load + Cryptococcus_neoformans + BP_diastolic + Nausea + incremental_cortisol,
+model5 <- glm(mortality ~ Viral_load + Cryptococcus_neoformans + Kidney_medication + Diarrhoea + incremental_cortisol,
               family = binomial(link = "logit"),
               data = completeData_mort %>%
                 mutate(Basal_cortisol = Basal_cortisol/50)
