@@ -1184,7 +1184,12 @@ univariate_mortality <- tbl_uvregression(
   table_3 %>%
     mutate(
       HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format = "%m/%d/%Y") - as.Date(`HIV, when diagnosed`, format = "%m/%d/%Y")),
-      `mortality with Addisons disease` = ifelse(mortality == 1, "yes", "no") 
+      `mortality with Addisons disease` = ifelse(mortality == 1, "yes", "no"),
+      incremental_cortisol = incremental_cortisol/50,
+      `ACTH` = `ACTH`/50,
+      `Random cortisol` = `Random cortisol`/50,
+      `Basal cortisol` = `Basal cortisol`/50,
+      `Stimulated cortisol` = `Stimulated cortisol`/50
     ) %>%
     dplyr::select(Age_at_enrolment, Gender, Ethnicity, # HIV_duration,
       Random_cortisol = `Random cortisol`, Basal_cortisol = `Basal cortisol`, Stimulated_cortisol = `Stimulated cortisol`, `ACTH`, BP_systolic = `BP (systolic)`, BP_diastolic = `BP (diastolic)`, incremental_cortisol, Heart_rate = `Heart rate`, Hypotension, Weakness, Tiredness, Poor_appetite = `Poor appetite`, Weight_loss = `Weight loss`, Increased_pigmentation_of_the_skin = `Increased pigmentation of the skin`, Nausea, Vomiting, Liking_for_salt = `Liking for salt`, Hypoglycaemia, Loss_of_consciousness = `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, Loss_of_axillary_and_pubic_hair = `Loss of axillary and pubic hair, if female`, Any_postural_drop_in_blood_pressure = `Any postural drop in blood pressure`, Presence_of_anaemia = `Presence of anaemia`, # Presence_of_an_opportunistic_infection = `Presence of an opportunistic infection`,
