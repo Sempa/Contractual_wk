@@ -278,8 +278,8 @@ table_1_2 <- final_dataset %>%
          Haemoglobin = as.numeric(Haemoglobin),
          `White cell count` = as.numeric(`White cell count`),
          `Lymphocyte count` = as.numeric(`Lymphocyte count`),
-         Neutrophils = as.numeric(Neutrophils),
-         Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", ifelse(Ethnicity == 'NA', 'Unknown', Ethnicity))
+         Neutrophils = as.numeric(Neutrophils)#,
+         # Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", ifelse(Ethnicity == 'NA', 'Unknown', Ethnicity))
          ) %>%
   mutate(
     # `Age at enrolment` = cut(as.numeric(`Age at enrolment`), breaks = c(-Inf, 30, 37, Inf)),
@@ -1113,6 +1113,31 @@ tbl_summary(#table_1,
   bold_labels() %>%
   modify_caption('Mortality: Non-AI vs AI')
 # table_4
+dt04 <- table_3 %>%
+  mutate(flag = ifelse(Addisons_disease == 2 & mortality == 1, 'AI deaths', 
+                       ifelse(Addisons_disease == 1 & mortality == 0, 'Alive without AI', ''))) %>%
+  filter(flag != '') %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y'))#,
+         # gender = factor(gender, labels = c('Females', 'Males')),
+         # Ethnicity = ifelse(Ethnicity== 'Asian' | Ethnicity== 'Coloured' | Ethnicity== 'White', 'Other', Ethnicity),
+  ) %>%
+  dplyr::select(
+    `Age at enrolment, median (IQR) (years)` = Age_at_enrolment, `Gender, n(%)` = `Gender`, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = Duration_of_current_illness, `Weight loss`, `Viral load (log10 Copies/mL)`, Tuberculosis, `Cryptococcus neoformans`, Pneumonia, `Staph aureus`, `Kaposis sarcoma`, Cytomegalovirus, HSV, HepB, Candida, `GE/c diff`, `Parvo B19`, `Syphilis`, `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`, `Total CD4 count` = `CD4 count`, `White cell count X109` = White_cell_count, `Lymphocyte count X109` = Lymphocyte_count, Neutrophils, `Sodium mmol/L` = Sodium, `Potassium mmol/L`, `Haemoglobin g/dL` = Haemoglobin, 
+    `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, #`Presence of an opportunistic infection`, 
+    `ART exposure`, `Kidney medication`, incremental_cortisol, flag) %>% #`Addisons disease` = Addisons_disease
+  # mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
+  tbl_summary(#table_1,
+    missing = "no",
+    by = flag,#`Addisons disease`,
+    digits = list(all_categorical() ~ c(0, 1)),
+  ) %>%
+  add_p() %>%
+  # add_n() %>%
+  modify_header(label = "Variable") %>%
+  bold_labels() %>%
+  modify_caption('Mortality: Non-AI vs AI')
+dt04
 ```
 
 <!-- # Table 3b: Deep dive in mortality between PAI and SAI -->
