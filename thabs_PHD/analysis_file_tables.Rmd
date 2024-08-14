@@ -1334,8 +1334,8 @@ control <- rfeControl(functions = rfFuncs, # random forest
                       method = "cv", # repeated cvrepeated
                       # repeats = 3, # number of repeats
                       number = 5) # number of folds
-results <- rfe(completeData_mort[,c(3:28)], completeData_mort[[1]], rfeControl = control)
-var_selected <- predictors(results)
+# results <- rfe(completeData_mort[,c(3:28)], completeData_mort[[1]], rfeControl = control)
+# var_selected <- predictors(results)
 
 model2 <- survival::coxph(Surv(time = ttdeath, event = mortality) ~ Viral_load + Cryptococcus_neoformans + Basal_cortisol + CD4_count,
                           data = completeData_mort %>%
