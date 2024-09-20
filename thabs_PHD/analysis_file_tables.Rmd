@@ -652,7 +652,7 @@ table_2 <- final_dataset %>%
     
     `BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, #`Presence of an opportunistic infection` = `Opportunistic infection present`, 
                 # `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`, 
-    mortality, `ART exposure`, `Kidney medication`, `Addisons disease`) %>%
+    mortality, `ART exposure`, `Kidney medication`, `Kidney medication`, Rifampicin, Fluconazole, Opiates, `Addisons disease`) %>%
   mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
   tbl_summary( # table_1,
     missing = "no",
@@ -1447,31 +1447,31 @@ ggsurvplot(
   ggtheme = theme_bw()      # Change ggplot2 theme
 )
 
-jpeg('KM_curve.jpeg', width = 480, height = 480, units = 'px', pointsize = 14, quality = 75, bg = 'white')
-
-ggpar(survminer::ggsurvplot(km_fit,
-  #conf.int = TRUE,
-  risk.table.col = "strata", # Change risk table color by groups
-  ggtheme = theme_bw(), # Change ggplot2 theme
-  palette = c("#E7B800", "#2E9FDF"),
-  xlim = c(0, 12.5),
-  legend.labs =
-    c("No AI", "AI"),
-  pval = TRUE,
-  xlab = "Time in months",              # Add p-value
-  risk.table = TRUE,        # Add risk table
-  # risk.table.col = "strata",# Risk table color by groups
-  # legend.labs =
-  #   c("Male", "Female"),    # Change legend labels
-  risk.table.height = 0.25
-),
-      font.main = c(15, "bold"),
-      font.x = c(15, "bold"),
-      font.y = c(15, "bold"),
-      font.caption = c(15, "bold"), 
-      font.legend = c(15, "bold"), 
-      font.tickslab = c(15, "bold"))
-dev.off()
+# jpeg('KM_curve.jpeg', width = 480, height = 480, units = 'px', pointsize = 14, quality = 75, bg = 'white')
+# 
+# ggpar(survminer::ggsurvplot(km_fit,
+#   #conf.int = TRUE,
+#   risk.table.col = "strata", # Change risk table color by groups
+#   ggtheme = theme_bw(), # Change ggplot2 theme
+#   palette = c("#E7B800", "#2E9FDF"),
+#   xlim = c(0, 12.5),
+#   legend.labs =
+#     c("No AI", "AI"),
+#   pval = TRUE,
+#   xlab = "Time in months",              # Add p-value
+#   risk.table = TRUE,        # Add risk table
+#   # risk.table.col = "strata",# Risk table color by groups
+#   # legend.labs =
+#   #   c("Male", "Female"),    # Change legend labels
+#   risk.table.height = 0.25
+# ),
+#       font.main = c(15, "bold"),
+#       font.x = c(15, "bold"),
+#       font.y = c(15, "bold"),
+#       font.caption = c(15, "bold"), 
+#       font.legend = c(15, "bold"), 
+#       font.tickslab = c(15, "bold"))
+# dev.off()
 
 
 ```
