@@ -438,6 +438,16 @@ dt02 <- bind_rows(final_dataset %>%
   ) %>%
   mutate(result = as.numeric(result))
 
+dt02_1 <- dt02 %>%
+   group_by(Group, Strata) %>%
+   summarise(med_ian = median(result, na.rm = T),
+             p25 = quantile(result, 0.25, na.rm = T),
+             p75 = quantile(result, 0.75, na.rm = T),
+             min = min(result, na.rm = T),
+             max = max(result, na.rm = T))
+View(dt02_1)
+write.csv(dt02_1, 'Cortisol_measurements.csv')
+
 stat.test <- dt02 %>%
   mutate(AI_status = as.factor(`AI status`)) %>%
   group_by(Group) %>%
@@ -1078,7 +1088,8 @@ table_3 <- final_dataset %>%
     # `Kaposis sarcoma` = as.factor(`Opportunistic infection  (choice=Kaposis sarcoma)`),
     # `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`),
     # `Other` = as.factor(`Opportunistic infection  (choice=Other)`),
-         AI_recoded = as.factor(ifelse(AI %in% c('PAI', 'SAI'), 'AI', 'No-AI'))
+         AI_recoded = as.factor(ifelse(AI %in% c('PAI', 'SAI'), 'AI', 'No-AI')),
+    mortality = ifelse(`Point of exit from study` == 'Deceased', 1, mortality)
   ) %>%
   dplyr::select(`Age at enrolment`, Gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath, `Random cortisol result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, `ACTH result`, `BP (systolic)`, `BP (diastolic)`, discharged,
                 `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, #`Presence of an opportunistic infection` = `Opportunistic infection present`,

@@ -1,0 +1,9 @@
+"","Group","Strata","med_ian","p25","p75","min","max"
+"1","Random cortisol","Adrenal insufficiency",332,252,382,80,485
+"2","Random cortisol","No Adrenal insufficiency",478,372.5,578,91,1371
+"3","Basal cortisol","Adrenal insufficiency",300,188.5,359,100,586
+"4","Basal cortisol","No Adrenal insufficiency",466,352,573,164,1300
+"5","Stimulated cortisol","Adrenal insufficiency",379,314.5,440,0,494
+"6","Stimulated cortisol","No Adrenal insufficiency",722,630,858,514,1543
+"7","ACTH","Adrenal insufficiency",28.7999992370605,22.1499996185303,67.7999992370605,1,312.600006103516
+"8","ACTH","No Adrenal insufficiency",32,20,49.3500003814697,0.600000023841858,433
