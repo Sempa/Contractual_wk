@@ -52,7 +52,7 @@ library(rstatix)
 
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-final_dataset <- read_excel("hypo_alldata_wide_labels 549.xlsx") %>%
+final_dataset <- read_excel("hypo_alldata_wide_labels - 554.xls") %>%
   mutate(addisons_disease = ifelse(as.numeric(`Random cortisol result`) < 500, 1, 0),
          # addisons_status = ifelse(as.numeric(`Random cortisol result`) < 200, "probable", ifelse(as.numeric(`Random cortisol result`) >=200 & as.numeric(`Random cortisol result`) < 500, 'Suspects')),
          # addisons_disease = ifelse(addisons_disease == 1 & as.numeric(``) < 500), 1, 0),
@@ -87,18 +87,19 @@ final_dataset <- read_excel("hypo_alldata_wide_labels 549.xlsx") %>%
   mutate(incremental_cortisol = ifelse(incremental_cortisol<0, NA, incremental_cortisol)) #%>%
 #   dplyr::select(id = UIN...1, `Hospital folder number`, `Primary medical conditions (1)`, `Primary medical conditions (2)`, `Primary medical conditions (3)`, `Primary medical conditions (4)`, `Co-existing medical conditions (2)`, `Other, specify...67`,
 #                 `Opportunistic infection  (choice=Tuberculosis)`, `Opportunistic infection  (choice=Cryptococcus neoformans)`,
-# `Opportunistic infection  (choice=Toxoplasmosis)`, `Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`, `Opportunistic infection  (choice=Kaposis sarcoma)`, `Opportunistic infection  (choice=Cytomegalovirus)`,`Opportunistic infection  (choice=Other)`)
-# write.csv(final_dataset, 'opportunistic infections_549.csv')
-# dt01 <- read_csv("opportunistic infections_549.csv") %>%
-#   filter(!(`Hospital folder number` %in% read_csv("opportunistic infections.csv")$`Hospital folder number`))
-# write.csv(dt01, 'opportunistic infections_updated_528_to_549.csv')
-# dat <- final_dataset %>%
-# dplyr::select(`Hospital folder number`,`Random cortisol result`, `ACTH sample drawn`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
-# write.csv(dat, 'outcome_dat.csv')
+# `Opportunistic infection  (choice=Toxoplasmosis)`, `Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`, `Opportunistic infection  (choice=Kaposis sarcoma)`, `Opportunistic infection  (choice=Cytomegalovirus)`,`Opportunistic infection  (choice=Other)`) 
+# write.csv(final_dataset, 'opportunistic infections_554.csv')
+# dt01 <- read_csv("opportunistic infections_554.csv") %>%
+#   filter(!(`Hospital folder number` %in% read_excel("hypo_alldata_wide_labels 549.xlsx")$`Hospital folder number`))
+# write.csv(dt01, 'opportunistic infections_updated_549_to_554.csv')
+dat <- final_dataset %>%
+dplyr::select(`Hospital folder number`,`Random cortisol result`, `ACTH sample drawn`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, addisons_disease)
+write.csv(dat, 'outcome_dat.csv')
 final_dataset <- final_dataset %>%
   left_join(bind_rows(
   read_excel("Updated OI's  05 March 2024.xlsx"), 
-  read_excel("opportunistic infections_additional_patients +OI_updated.xlsx")
+  read_excel("opportunistic infections_additional_patients +OI_updated.xlsx"),
+  read_excel("opportunistic infections_additional_patients +OI - 554.xlsx")
 ) %>%
   mutate(Tuberculosis = as.logical(`Opportunistic infection  (choice=Tuberculosis)`), 
          `Cryptococcus neoformans` = as.logical(`Opportunistic infection  (choice=Cryptococcus neoformans)`), 
@@ -120,7 +121,8 @@ final_dataset <- final_dataset %>%
          `Neurocysticercosis` = as.logical(`Opportunistic infection  (choice=Neurocysticercosis)`)) %>%
   dplyr::select(`Hospital folder number`, Tuberculosis,  `Cryptococcus neoformans`, Pneumonia, `Staph aureus`, `Kaposis sarcoma`, Cytomegalovirus, HSV, HepB, Candida, Other, `GE/c diff`, `Parvo B19`, `Syphilis`, `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`) %>% 
   replace(is.na(.), 0), by = 'Hospital folder number') %>%
-  left_join(read_csv("opportunistic infections_549 - TB.csv") %>%
+  left_join(read_delim("opportunistic infections_554 - TB.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE) %>%
               dplyr::select(`Hospital folder number`, PTB, EPTB), by = 'Hospital folder number') %>%
   mutate(`White cell count` = as.numeric(`White cell count`),
          `Lymphocyte count` = as.numeric(`Lymphocyte count`),
@@ -136,7 +138,7 @@ final_dataset <- final_dataset %>%
 #             dplyr::select(`Hospital folder number`, addisons_disease, `Random cortisol result`, 
 #                           `Synacthen: 0 minute cortisol result`, `ACTH result`, 
 #                           `Synacthen: 30 minute cortisol result`), "stimulation_test_dataset.csv")
-
+# 
 # dt02 <- final_dataset %>%
 #   filter(!(`Hospital folder number` %in% read_csv("opportunistic infections.csv")$`Hospital folder number`)) %>%
 #   dplyr::select(id = `Hospital folder number`, `Concomitant therapy (1)`, `Concomitant therapy (2)`, `Concomitant therapy (3)`, `Concomitant therapy (4)`, `Concomitant therapy (5)`, `Concomitant therapy (6)`, `Concomitant therapy (7)`, `Concomitant therapy (8)`, `Concomitant therapy (9)`, `Concomitant therapy (10)`) %>%

@@ -1,0 +1,6 @@
+id;Hospital folder number;Opportunistic infection  (choice=Tuberculosis);Opportunistic infection  (choice=Cryptococcus neoformans);Opportunistic infection  (choice=Pneumonia);Opportunistic infection  (choice=Staph aureus);Opportunistic infection  (choice=Kaposis sarcoma);Opportunistic infection  (choice=Cytomegalovirus);Opportunistic infection  (choice=HSV);Opportunistic infection  (choice=HepB);Opportunistic infection  (choice=Candida);Opportunistic infection  (choice=Other);Opportunistic infection  (choice=GE / C diff);Opportunistic infection  (choice=Parvo B19);Opportunistic infection  (choice=Syphilis);Opportunistic infection  (choice=B menigitis);Opportunistic infection  (choice=UTI / Leptospirosis);Opportunistic infection  (choice=PCP);Opportunistic infection  (choice=covid);Opportunistic infection  (choice=Neurocysticercosis)
+558;GSH 17325848;1;;;;;;;;;;;;;;;;;
+560;GSH 25139338;1;;;;;;;;;;;;1;;;;;
+561;GSH 63104 129;1;;;;;;;;;;;;;;;;;
+563;GSH 46077392;1;;;;;;;;1;;;;;;;;;
+NA;GSH 63104129;;;;;;;;;;;;;;;;;;
