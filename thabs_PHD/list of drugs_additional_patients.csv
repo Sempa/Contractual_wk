@@ -1,115 +1,145 @@
-"","id","drug","drug2"
-"1","GSH 135436 376","Concomitant therapy (1)","Hzithromycin, 500mg, daily"
-"2","GSH 135436 376","Concomitant therapy (2)","TDF, 300mg, daily"
-"3","GSH 135436 376","Concomitant therapy (3)","FTC, 200mg, daily"
-"4","GSH 135436 376","Concomitant therapy (4)","Atazanavin, 300mg, daily"
-"5","GSH 135436 376","Concomitant therapy (5)","Rifufour, 200mg, daily"
-"6","GSH 135436 376","Concomitant therapy (6)","Myastatin, 5ml, BD"
-"7","GSH 135436 376","Concomitant therapy (7)","Fluconazole, 200,g. BD"
-"8","GSH 135436 376","Concomitant therapy (8)","Thiamine, 100mg, daily"
-"9","GSH 135436 376","Concomitant therapy (9)","zinc, 20mg, daily"
-"10","GSH 135436 376","Concomitant therapy (10)","vit c, 500mg, daily"
-"11","GSH 119274 298","Concomitant therapy (1)","Rifafour, 4 tabs, daily"
-"12","GSH 119274 298","Concomitant therapy (2)","Pyridoxine, 25mgs, daily"
-"13","GSH 119274 298","Concomitant therapy (3)","Clexane, 40mg, daily"
-"14","GSH 119274 298","Concomitant therapy (4)","Cotrimoxole, 2 tabs, daily"
-"15","GSH 119274 298","Concomitant therapy (5)","Paracetamol, 1g, 6hurly"
-"16","GSH 21417829","Concomitant therapy (1)","Pyroloxine, 50mg, daily"
-"17","GSH 21417829","Concomitant therapy (2)","Fluconazole, 150mg, daily"
-"18","GSH 21417829","Concomitant therapy (3)","Thiamine, 100mg, daily"
-"19","GSH 21417829","Concomitant therapy (4)","Linozolid, 600mg, daily"
-"20","GSH 21417829","Concomitant therapy (5)","Isanizid, 450mg, daily"
-"21","GSH 21417829","Concomitant therapy (6)","Bedaquilliune, 400mg, daily"
-"22","GSH 21417829","Concomitant therapy (7)","Levo hoxacli, 750mg, daily"
-"23","GSH 21417829","Concomitant therapy (8)","Pyraxiuide, 1500mg, daily"
-"24","GSH 28388 361","Concomitant therapy (1)","Rifafour, 5 tabs, daily"
-"25","GSH 28388 361","Concomitant therapy (2)","Clexaue, 5mg, daily"
-"26","GSH 28388 361","Concomitant therapy (3)","Pyridoxine, 25mg, daily"
-"27","GSH 28388 361","Concomitant therapy (4)","Folic Acid, 5mg, daily"
-"28","GSH 28388 361","Concomitant therapy (5)","Olauzepine, 2.5mg, nocte"
-"29","GSH 28388 361","Concomitant therapy (6)","Thiamul, 100mg, BD"
-"30","GSH 28388 361","Concomitant therapy (7)","amytaypuline, 10mg, nocte"
-"31","GSH 159255413","Concomitant therapy (1)","Tramodol, 50mg, TDS"
-"32","GSH 159255413","Concomitant therapy (2)","Rifafour, 3 tabs, daily"
-"33","GSH 159255413","Concomitant therapy (3)","Clexaue, 40up?, daily"
-"34","GSH 159255413","Concomitant therapy (4)","Pyridoxiue, 25mg?, daily"
-"35","GSH 114640089","Concomitant therapy (1)","Epilum, 500mg?, 12hurly"
-"36","GSH 114640089","Concomitant therapy (2)","Aulodepiue, 5mg?, 12hurly"
-"37","GSH 114640089","Concomitant therapy (3)","IBubrufen?, 400mgs, 8hurly"
-"38","GSH 114640089","Concomitant therapy (4)","Paracatamol, 1g, 6 hurly"
-"39","GSH 79695482","Concomitant therapy (1)","Vit K, 10mgs, IVI daily"
-"40","GSH 79695482","Concomitant therapy (2)","Vit k, 5mgs, po daily"
-"41","GSH 79695482","Concomitant therapy (3)","Nyastain 1ml, QID"
-"42","GSH 85567 857","Concomitant therapy (1)","Enoxaparin, 40mg, SC dly"
-"43","GSH 85567 857","Concomitant therapy (2)","Enalapril, 10mg, po dly"
-"44","GSH 85567 857","Concomitant therapy (3)","Ibprophen, 400mg, po TDS"
-"45","GSH 85567 857","Concomitant therapy (4)","Amitriptyline, 25mg, po nocte"
-"46","GSH 85567 857","Concomitant therapy (5)","Mist morphine, 5mls, 6huirly po"
-"47","GSH 85567 857","Concomitant therapy (6)","Lactolose, 10ml, po TDS"
-"48","GSH 85567 857","Concomitant therapy (7)","Senna, 2 T, po TDS"
-"49","GSH 85567 857","Concomitant therapy (8)","Lanseprozole, 30mg, po dly"
-"50","GSH 85567 857","Concomitant therapy (9)","Rifafour, 5 T, po dly"
-"51","GSH 85567 857","Concomitant therapy (10)","Pyridoxine, 25mg, po dly"
-"52","GSH 105673 149","Concomitant therapy (1)","Tenofovirl/Lamivudine/Dolutegravir, 300/300/150mg, po dly"
-"53","GSH 105673 149","Concomitant therapy (2)","Rosuvastatin, 10mg, op daily"
-"54","GSH 105673 149","Concomitant therapy (3)","Flucrnazole, 400mg, po daily"
-"55","GSH 105673 149","Concomitant therapy (4)","Valproate, 500mg, po BD"
-"56","GSH 108230608","Concomitant therapy (1)","Ruqere Lactate, ???, IVI 8hurly"
-"57","GSH 108230608","Concomitant therapy (2)","Rifafour, 4 tabs, daily"
-"58","GSH 108230608","Concomitant therapy (3)","Pyridoxine, 25mgs, daily"
-"59","GSH 26476705","Concomitant therapy (1)","Rifafour, 3 tabs, po dilay"
-"60","GSH 26476705","Concomitant therapy (2)","Pyridoxine, 25mg, po daily"
-"61","GSH 26476705","Concomitant therapy (3)","Paracetamol, 1mg, po"
-"62","GSH 26476705","Concomitant therapy (4)","Tramoelol, 50mg, TDS"
-"63","GSH 26476705","Concomitant therapy (5)","Clexane, 40mg, S/C daily"
-"64","GSH 29651539","Concomitant therapy (1)","Rifafour, 4 tabs, po daily"
-"65","GSH 29651539","Concomitant therapy (2)","Pyridoxine, 25mg, po dly"
-"66","GSH 29651539","Concomitant therapy (3)","TLD, , po dly"
-"67","GSH 29651539","Concomitant therapy (4)","Dolutegravir, 50mg"
-"68","GSH 29651539","Concomitant therapy (5)","Bactrim, 2 tabs, po dly"
-"69","GSH 29651539","Concomitant therapy (6)","Folate, 5mg, po dly"
-"70","GSH 29651539","Concomitant therapy (7)","Thiamine, 300mg, dly"
-"71","GSH 13190244","Concomitant therapy (1)","Myastitin, 5ml, 6hutly"
-"72","GSH 13190244","Concomitant therapy (2)","Rifafour, 2 tab, daily"
-"73","GSH 13190244","Concomitant therapy (3)","Pyridoxine, 25mg, daily"
-"74","GSH 13190244","Concomitant therapy (4)","Fluiozomole, 200mg, daily"
-"75","GSH 13190244","Concomitant therapy (5)","Thiamine, 100mg, TDS"
-"76","GSH  69660355","Concomitant therapy (1)","Pyridoxine, 25mg, daily"
-"77","GSH  69660355","Concomitant therapy (2)","Thiamiue? 100mg, daily"
-"78","GSH  69660355","Concomitant therapy (3)","Rivaroxaban, 10mg, daily"
-"79","GSH  69660355","Concomitant therapy (4)","Vit B12, 3ml, daily"
-"80","GSH  69660355","Concomitant therapy (5)","Folate, 5mg, daily"
-"81","GSH  69660355","Concomitant therapy (6)","Clexaue, 50mg, daily"
-"82","GSH  69660355","Concomitant therapy (7)","Rifafour, 3tabs, daily"
-"83","GSH 27941830","Concomitant therapy (1)","Pyridoxine, 25mg, daily1"
-"84","GSH 27941830","Concomitant therapy (2)","Bactria, 2 tabs, daily"
-"85","GSH 27941830","Concomitant therapy (3)","Lan sopvozole?, 30mg, daily"
-"86","GSH 27941830","Concomitant therapy (4)","nyastatin, 2ml, 6hurly"
-"87","GSH 27941830","Concomitant therapy (5)","Clexaue, 40mgs, daily"
-"88","GSH 27941830","Concomitant therapy (6)","Rifafour, 4 tyabs, daily"
-"89","GSH 121812 234","Concomitant therapy (1)","Thiamnine, 100mg, po dly"
-"90","GSH 121812 234","Concomitant therapy (2)","RHZE, 3 tabs, po dly"
-"91","GSH 121812 234","Concomitant therapy (3)","Pyridoxine, 25mg, po dly"
-"92","GSH 121812 234","Concomitant therapy (4)","Folate, 5mg, po dly"
-"93","GSH 121812 234","Concomitant therapy (5)","TLD, T, po dly"
-"94","GSH 121812 234","Concomitant therapy (6)","Vit K, 10mg, po dly"
-"95","GSH 121812 234","Concomitant therapy (7)","mist pot chloride, 10ml, po dld"
-"96","GSH 35628 684","Concomitant therapy (1)","Rifafour, 4 tabs, daily"
-"97","GSH 35628 684","Concomitant therapy (2)","Pyridoxine, 25mgs, daily"
-"98","GSH 35628 684","Concomitant therapy (3)","Epilum, 300mg, BD"
-"99","GSH 35628 684","Concomitant therapy (4)","Thiamiue, 100mg, daily"
-"100","GSH 35628 684","Concomitant therapy (5)","RHZE, 3 tabs, daily"
-"101","GSH 35628 684","Concomitant therapy (6)","Bactrim, 2 tabs, daily"
-"102","GSH 114665235","Concomitant therapy (1)","Panado, 1g, po 6hurly"
-"103","GSH 114665235","Concomitant therapy (2)","TLD, 1 tab, po dly"
-"104","GSH 114665235","Concomitant therapy (3)","Rifafour, 2 tab, po dly"
-"105","GSH 114665235","Concomitant therapy (4)","Pyridoxine, 25mg, po dly"
-"106","GSH 114665235","Concomitant therapy (5)","Dolutegravir, 50mg, po dly"
-"107","GSH 114665235","Concomitant therapy (6)","Loseprazole, 30mg, po dly"
-"108","GSH 114665235","Concomitant therapy (7)","Thiamine, 1mg, po dly"
-"109","GSH 110173549","Concomitant therapy (1)","Pyrdozxine, 25mg, daily"
-"110","GSH 110173549","Concomitant therapy (2)","Rasomix?, 10gm, daily"
-"111","GSH 110173549","Concomitant therapy (3)","HRZE, 3 tabs, daily"
-"112","GSH 110173549","Concomitant therapy (4)","Flucokozide?, 400mg, BD"
-"113","GSH 110173549","Concomitant therapy (5)","Paracetamal, 2 tabs, 6hurly"
-"114","GSH 111103 933","Concomitant therapy (1)","Co - amoxyclav, 1mg BD"
+;id;drug;drug2
+1;GSH 78295011;Concomitant therapy (1);Clexane, 40mg, daily
+2;GSH 78295011;Concomitant therapy (2);Rifafour, 4 tabs, daily
+3;GSH 78295011;Concomitant therapy (3);Pyrodoxine, 25mg, daily
+4;GSH 78295011;Concomitant therapy (4);Maxilon, 10mg, TDS/PRN
+5;GSH 78295011;Concomitant therapy (5);Centiaxone, 1mg, IVI daily
+6;GSH 135436 376;Concomitant therapy (1);Hzithromycin, 500mg, daily
+7;GSH 135436 376;Concomitant therapy (2);TDF, 300mg, daily
+8;GSH 135436 376;Concomitant therapy (3);FTC, 200mg, daily
+9;GSH 135436 376;Concomitant therapy (4);Atazanavin, 300mg, daily
+10;GSH 135436 376;Concomitant therapy (5);Rifufour, 200mg, daily
+11;GSH 135436 376;Concomitant therapy (6);Myastatin, 5ml, BD
+12;GSH 135436 376;Concomitant therapy (7);Fluconazole, 200,g. BD
+13;GSH 135436 376;Concomitant therapy (8);Thiamine, 100mg, daily
+14;GSH 135436 376;Concomitant therapy (9);zinc, 20mg, daily
+15;GSH 135436 376;Concomitant therapy (10);vit c, 500mg, daily
+16;GSH 119274 298;Concomitant therapy (1);Rifafour, 4 tabs, daily
+17;GSH 119274 298;Concomitant therapy (2);Pyridoxine, 25mgs, daily
+18;GSH 119274 298;Concomitant therapy (3);Clexane, 40mg, daily
+19;GSH 119274 298;Concomitant therapy (4);Cotrimoxole, 2 tabs, daily
+20;GSH 119274 298;Concomitant therapy (5);Paracetamol, 1g, 6hurly
+21;GSH 21417829;Concomitant therapy (1);Pyroloxine, 50mg, daily
+22;GSH 21417829;Concomitant therapy (2);Fluconazole, 150mg, daily
+23;GSH 21417829;Concomitant therapy (3);Thiamine, 100mg, daily
+24;GSH 21417829;Concomitant therapy (4);Linozolid, 600mg, daily
+25;GSH 21417829;Concomitant therapy (5);Isanizid, 450mg, daily
+26;GSH 21417829;Concomitant therapy (6);Bedaquilliune, 400mg, daily
+27;GSH 21417829;Concomitant therapy (7);Levo hoxacli, 750mg, daily
+28;GSH 21417829;Concomitant therapy (8);Pyraxiuide, 1500mg, daily
+29;GSH 28388 361;Concomitant therapy (1);Rifafour, 5 tabs, daily
+30;GSH 28388 361;Concomitant therapy (2);Clexaue, 5mg, daily
+31;GSH 28388 361;Concomitant therapy (3);Pyridoxine, 25mg, daily
+32;GSH 28388 361;Concomitant therapy (4);Folic Acid, 5mg, daily
+33;GSH 28388 361;Concomitant therapy (5);Olauzepine, 2.5mg, nocte
+34;GSH 28388 361;Concomitant therapy (6);Thiamul, 100mg, BD
+35;GSH 28388 361;Concomitant therapy (7);amytaypuline, 10mg, nocte
+36;GSH 159255413;Concomitant therapy (1);Tramodol, 50mg, TDS
+37;GSH 159255413;Concomitant therapy (2);Rifafour, 3 tabs, daily
+38;GSH 159255413;Concomitant therapy (3);Clexaue, 40up?, daily
+39;GSH 159255413;Concomitant therapy (4);Pyridoxiue, 25mg?, daily
+40;GSH 114640089;Concomitant therapy (1);Epilum, 500mg?, 12hurly
+41;GSH 114640089;Concomitant therapy (2);Aulodepiue, 5mg?, 12hurly
+42;GSH 114640089;Concomitant therapy (3);IBubrufen?, 400mgs, 8hurly
+43;GSH 114640089;Concomitant therapy (4);Paracatamol, 1g, 6 hurly
+44;GSH 79695482;Concomitant therapy (1);Vit K, 10mgs, IVI daily
+45;GSH 79695482;Concomitant therapy (2);Vit k, 5mgs, po daily
+46;GSH 79695482;Concomitant therapy (3);Nyastain 1ml, QID
+47;GSH 85567 857;Concomitant therapy (1);Enoxaparin, 40mg, SC dly
+48;GSH 85567 857;Concomitant therapy (2);Enalapril, 10mg, po dly
+49;GSH 85567 857;Concomitant therapy (3);Ibprophen, 400mg, po TDS
+50;GSH 85567 857;Concomitant therapy (4);Amitriptyline, 25mg, po nocte
+51;GSH 85567 857;Concomitant therapy (5);Mist morphine, 5mls, 6huirly po
+52;GSH 85567 857;Concomitant therapy (6);Lactolose, 10ml, po TDS
+53;GSH 85567 857;Concomitant therapy (7);Senna, 2 T, po TDS
+54;GSH 85567 857;Concomitant therapy (8);Lanseprozole, 30mg, po dly
+55;GSH 85567 857;Concomitant therapy (9);Rifafour, 5 T, po dly
+56;GSH 85567 857;Concomitant therapy (10);Pyridoxine, 25mg, po dly
+57;GSH 105673 149;Concomitant therapy (1);Tenofovirl/Lamivudine/Dolutegravir, 300/300/150mg, po dly
+58;GSH 105673 149;Concomitant therapy (2);Rosuvastatin, 10mg, op daily
+59;GSH 105673 149;Concomitant therapy (3);Flucrnazole, 400mg, po daily
+60;GSH 105673 149;Concomitant therapy (4);Valproate, 500mg, po BD
+61;GSH 108230608;Concomitant therapy (1);Ruqere Lactate, ???, IVI 8hurly
+62;GSH 108230608;Concomitant therapy (2);Rifafour, 4 tabs, daily
+63;GSH 108230608;Concomitant therapy (3);Pyridoxine, 25mgs, daily
+64;GSH 26476705;Concomitant therapy (1);Rifafour, 3 tabs, po dilay
+65;GSH 26476705;Concomitant therapy (2);Pyridoxine, 25mg, po daily
+66;GSH 26476705;Concomitant therapy (3);Paracetamol, 1mg, po
+67;GSH 26476705;Concomitant therapy (4);Tramoelol, 50mg, TDS
+68;GSH 26476705;Concomitant therapy (5);Clexane, 40mg, S/C daily
+69;GSH 29651539;Concomitant therapy (1);Rifafour, 4 tabs, po daily
+70;GSH 29651539;Concomitant therapy (2);Pyridoxine, 25mg, po dly
+71;GSH 29651539;Concomitant therapy (3);TLD, , po dly
+72;GSH 29651539;Concomitant therapy (4);Dolutegravir, 50mg
+73;GSH 29651539;Concomitant therapy (5);Bactrim, 2 tabs, po dly
+74;GSH 29651539;Concomitant therapy (6);Folate, 5mg, po dly
+75;GSH 29651539;Concomitant therapy (7);Thiamine, 300mg, dly
+76;GSH 13190244;Concomitant therapy (1);Myastitin, 5ml, 6hutly
+77;GSH 13190244;Concomitant therapy (2);Rifafour, 2 tab, daily
+78;GSH 13190244;Concomitant therapy (3);Pyridoxine, 25mg, daily
+79;GSH 13190244;Concomitant therapy (4);Fluiozomole, 200mg, daily
+80;GSH 13190244;Concomitant therapy (5);Thiamine, 100mg, TDS
+81;GSH  69660355;Concomitant therapy (1);Pyridoxine, 25mg, daily
+82;GSH  69660355;Concomitant therapy (2);Thiamiue? 100mg, daily
+83;GSH  69660355;Concomitant therapy (3);Rivaroxaban, 10mg, daily
+84;GSH  69660355;Concomitant therapy (4);Vit B12, 3ml, daily
+85;GSH  69660355;Concomitant therapy (5);Folate, 5mg, daily
+86;GSH  69660355;Concomitant therapy (6);Clexaue, 50mg, daily
+87;GSH  69660355;Concomitant therapy (7);Rifafour, 3tabs, daily
+88;GSH 27941830;Concomitant therapy (1);Pyridoxine, 25mg, daily1
+89;GSH 27941830;Concomitant therapy (2);Bactria, 2 tabs, daily
+90;GSH 27941830;Concomitant therapy (3);Lan sopvozole?, 30mg, daily
+91;GSH 27941830;Concomitant therapy (4);nyastatin, 2ml, 6hurly
+92;GSH 27941830;Concomitant therapy (5);Clexaue, 40mgs, daily
+93;GSH 27941830;Concomitant therapy (6);Rifafour, 4 tabs, daily
+94;GSH 121812 234;Concomitant therapy (1);Thiamnine, 100mg, po dly
+95;GSH 121812 234;Concomitant therapy (2);RHZE, 3 tabs, po dly
+96;GSH 121812 234;Concomitant therapy (3);Pyridoxine, 25mg, po dly
+97;GSH 121812 234;Concomitant therapy (4);Folate, 5mg, po dly
+98;GSH 121812 234;Concomitant therapy (5);TLD, T, po dly
+99;GSH 121812 234;Concomitant therapy (6);Vit K, 10mg, po dly
+100;GSH 121812 234;Concomitant therapy (7);mist pot chloride, 10ml, po dld
+101;GSH 35628 684;Concomitant therapy (1);Rifafour, 4 tabs, daily
+102;GSH 35628 684;Concomitant therapy (2);Pyridoxine, 25mgs, daily
+103;GSH 35628 684;Concomitant therapy (3);Epilum, 300mg, BD
+104;GSH 35628 684;Concomitant therapy (4);Thiamiue, 100mg, daily
+105;GSH 35628 684;Concomitant therapy (5);RHZE, 3 tabs, daily
+106;GSH 35628 684;Concomitant therapy (6);Bactrim, 2 tabs, daily
+107;GSH 114665235;Concomitant therapy (1);Panado, 1g, po 6hurly
+108;GSH 114665235;Concomitant therapy (2);TLD, 1 tab, po dly
+109;GSH 114665235;Concomitant therapy (3);Rifafour, 2 tab, po dly
+110;GSH 114665235;Concomitant therapy (4);Pyridoxine, 25mg, po dly
+111;GSH 114665235;Concomitant therapy (5);Dolutegravir, 50mg, po dly
+112;GSH 114665235;Concomitant therapy (6);Loseprazole, 30mg, po dly
+113;GSH 114665235;Concomitant therapy (7);Thiamine, 1mg, po dly
+114;GSH 110173549;Concomitant therapy (1);Pyrdozxine, 25mg, daily
+115;GSH 110173549;Concomitant therapy (2);Rasomix?, 10gm, daily
+116;GSH 110173549;Concomitant therapy (3);HRZE, 3 tabs, daily
+117;GSH 110173549;Concomitant therapy (4);Flucokozide?, 400mg, BD
+118;GSH 110173549;Concomitant therapy (5);Paracetamal, 2 tabs, 6hurly
+119;GSH 17325848;Concomitant therapy (1);Pyrodoxine, 25mg, daily
+120;GSH 17325848;Concomitant therapy (2);CaCo3, 2 tabs, TDS
+121;GSH 17325848;Concomitant therapy (3);Enalapil, 2.5mg, BD
+122;GSH 17325848;Concomitant therapy (4);Flunocemide, 80mg, IVI BD
+123;GSH 17325848;Concomitant therapy (5);Heparin, 5000u, BD
+124;GSH 17325848;Concomitant therapy (6);Vid D, 5000u, Weekly
+125;GSH 111103 933;Concomitant therapy (1);Co - amoxyclav, 1mg BD
+126;GSH 25139338;Concomitant therapy (1);Linozolid, 600mg, daily
+127;GSH 25139338;Concomitant therapy (2);Lausoprozole, 30mg, daily
+128;GSH 25139338;Concomitant therapy (3);Vit K, 10mg, daily
+129;GSH 25139338;Concomitant therapy (4);Dapsone, 100mg, daily
+130;GSH 25139338;Concomitant therapy (5);Tuapeline, 10mg, nocte
+131;GSH 25139338;Concomitant therapy (6);Puegabiliu, 75mg, BD
+132;GSH 25139338;Concomitant therapy (7);Puyrodoxine, 10mg, daily
+133;GSH 63104 129;Concomitant therapy (1);Clexaue, 40mg, daily
+134;GSH 63104 129;Concomitant therapy (2);Bactrim, 960mg, daily
+135;GSH 63104 129;Concomitant therapy (3);Budetlam, 2 pufs, BD
+136;GSH 63104 129;Concomitant therapy (4);Saltmtamol, 2 pufs, BD
+137;GSH 63104 129;Concomitant therapy (5);RH2E, 3 tabs, daily
+138;GSH 63104 129;Concomitant therapy (6);Pyrodoxine, 25mg. daily
+139;GSH 63104 129;Concomitant therapy (7);Thiaming, 100g, daily
+140;GSH 46077392;Concomitant therapy (1);Maxalon, 10mg, TDS
+141;GSH 46077392;Concomitant therapy (2);Nyastatin, 2ml, 8hurly
+142;GSH 46077392;Concomitant therapy (3);Clexane, 40mg, daily
+143;GSH 46077392;Concomitant therapy (4);Riugus lactate, 1Leter, IVI 8hurly
+144;GSH 46077392;Concomitant therapy (5);Tramadol, 50mg, 8hurly
