@@ -1042,17 +1042,17 @@ table_mortality1 <- table_mortality %>%
   distinct(`Hospital folder number`, .keep_all = T)
 
 time_to_death <- final_dataset%>%
-  dplyr::select(`Hospital folder number`, `3 followup_patientstatus`,
+  dplyr::select(`Hospital folder number`, `Point of exit from study`, `3 followup_patientstatus`,
                 `6 followup_patientstatus`, `12 followup_patientstatus`
                 ) %>%
   mutate(flag1 = ifelse(`3 followup_patientstatus` == "Deceased --> EXIT form", 3, NA),
          flag2 = ifelse(`6 followup_patientstatus` == "Deceased --> EXIT form", 6, NA),
          flag3 = ifelse(`12 followup_patientstatus` == "Deceased --> EXIT form", 12, NA)) %>%
-  dplyr::select(`Hospital folder number`, flag1:flag3) %>%
+  dplyr::select(`Hospital folder number`, `Point of exit from study`, flag1:flag3) %>%
   pivot_longer(cols = c(flag1:flag3),
                names_to = 'col_num',
                values_to = 'time to death') %>%
-  dplyr::select(`Hospital folder number`, `time to death`) %>%
+  dplyr::select(`Hospital folder number`, `Point of exit from study`, `time to death`) %>%
   group_by(`Hospital folder number`) %>%
   mutate(ttdeath = min(`time to death`, na.rm = T)) %>%
   ungroup() %>%
@@ -1482,6 +1482,106 @@ model2 <- train(mortality ~ .,
   family = binomial(link = "logit")
 )
 summary(model2)
+
+## KM curves
+dt <- table_3 %>% 
+  mutate(strata = ifelse(is.na(AI), 'No AI', AI)) %>% 
+  mutate(strata = ifelse(strata == "", 'No AI', strata))
+
+# Fit the Kaplan-Meier survival model
+km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt)
+
+# Plot the Kaplan-Meier curve
+km_plot1 <- ggsurvplot(
+  km_fit,
+  data = dt,
+  # risk.table = TRUE,           # Add a risk table below the plot
+  pval = TRUE,                 # Show p-value for log-rank test
+  # conf.int = TRUE,             # Add confidence intervals
+  legend.title = "Strata",     # Customize legend title
+  legend.labs = c("No AI", "PAI", "SAI"),  # Customize group labels
+  xlab = "Time",               # Label for x-axis
+  ylab = "Survival Probability", # Label for y-axis
+  ggtheme = theme_minimal()    # Use a minimal theme
+)
+ggsave("Kaplan_Meier_Curve1.png", plot = km_plot1$plot, width = 8, height = 6, dpi = 300)
+
+km_fit <- 
+
+# Plot the Kaplan-Meier curve
+km_plot2 <- ggsurvplot(
+  survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt %>%
+            mutate(strata = ifelse(strata != "No AI", 'AI', strata ))),
+  data = dt,
+  # risk.table = TRUE,           # Add a risk table below the plot
+  pval = TRUE,                 # Show p-value for log-rank test
+  # conf.int = TRUE,             # Add confidence intervals
+  legend.title = "Strata",     # Customize legend title
+  legend.labs = c("AI", "No AI"),  # Customize group labels
+  xlab = "Time",               # Label for x-axis
+  ylab = "Survival Probability", # Label for y-axis
+  ggtheme = theme_minimal()    # Use a minimal theme
+)
+ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
+
+####P-values at diferent timepoints
+# Define specific time points
+time_points <- c(3, 6, 12)
+
+# Initialize a data frame to store p-values
+p_values <- data.frame(
+  Time = time_points,
+  P_Value = NA
+)
+
+km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt)
+
+# Loop through each time point
+for (i in seq_along(time_points)) {
+  # Survival probabilities at the specific time point
+  surv_probs <- summary(km_fit, times = time_points[i])$surv
+  
+  # Perform a pairwise log-rank test for survival differences
+  surv_diff <- survdiff(Surv(time = ttdeath, event = mortality) ~ strata, data = dt, 
+                        subset = (ttdeath >= time_points[i]))
+  
+  # Extract the p-value (if groups > 2, chi-squared p-value)
+  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt$strata)) - 1)
+}
+
+# Display p-values
+print(p_values)
+
+### for strata of two groups AI vs Non_AI
+# Define specific time points
+time_points <- c(3, 6, 12)
+
+# Initialize a data frame to store p-values
+p_values <- data.frame(
+  Time = time_points,
+  P_Value = NA
+)
+
+km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt %>%
+            mutate(strata = ifelse(strata != "No AI", 'AI', strata )))
+
+# Loop through each time point
+for (i in seq_along(time_points)) {
+  # Survival probabilities at the specific time point
+  surv_probs <- summary(km_fit2, times = time_points[i])$surv
+  
+  # Perform a pairwise log-rank test for survival differences
+  surv_diff <- survdiff(Surv(time = ttdeath, event = mortality) ~ strata, 
+                        data = dt %>%
+                          mutate(strata = ifelse(strata != "No AI", 'AI', strata )), 
+                        subset = (ttdeath >= time_points[i]))
+  
+  # Extract the p-value (if groups > 2, chi-squared p-value)
+  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt$strata)) - 1)
+}
+
+# Display p-values
+print(p_values)
 
 ```
 
