@@ -1479,15 +1479,16 @@ completeData_mort <- bind_cols(data_reduced %>%
 completeData_mort <- readRDS('completeData_mort.rds') %>%
   dplyr::select(mortality, selected_models$term)
 
-control <- rfeControl(functions = rfFuncs, # random forest
+control <- rfeControl(functions = lmFuncs, # random forest
                       method = "cv", # repeated cvrepeated
                       # repeats = 3, # number of repeats
                       number = 5) # number of folds
 set.seed(123)
 results <- rfe(completeData_mort[,c(2:length(completeData_mort))] %>%
                  mutate(ACTH_50 = ACTH/50) %>% dplyr::select(-ACTH),
-               completeData_mort[[1]], rfeControl = control#,
-               # sizes = c(5, 10, 15)
+               completeData_mort[[1]], rfeControl = control,
+               metric = "Accuracy",
+                method = "glm"
                )
 var_selected <- predictors(results)
 
@@ -1499,11 +1500,15 @@ tc <- trainControl(method = "cv",
                    )
 
 model2 <- train(mortality ~ .,
-  data = completeData_mort %>% dplyr::select(mortality, var_selected) %>% 
-    mutate(Random_cortisol = Random_cortisol / 50, 
-           BP_systolic = BP_systolic / 10#, 
-           # BP_diastolic = BP_diastolic / 10
-           ),
+  data = completeData_mort %>%
+    mutate(ACTH_50 = ACTH/50) %>%
+    dplyr::select(mortality, var_selected) %>% 
+    mutate(Random_cortisol_50 = Random_cortisol / 50, 
+           BP_systolic_10 = BP_systolic / 10, 
+           BP_diastolic_10 = BP_diastolic / 10,
+           CD4_count_50 = cd4/50
+           ) %>%
+    dplyr::select(-BP_systolic, -BP_diastolic, -Random_cortisol, -cd4),
   method = "glm",
   # metric = 'ROC',
   trControl = tc,
