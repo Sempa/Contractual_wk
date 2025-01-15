@@ -409,12 +409,12 @@ table_12 <- final_dataset %>%
     as.numeric(`Total CD4 count`) >33 & as.numeric(`Total CD4 count` <=66) ~ '34 - 66',
     as.numeric(`Total CD4 count`) > 66 & as.numeric(`Total CD4 count` <= 100) ~ '67 - 100'
   )) %>%
-  dplyr::select(`Age at enrolment, median (IQR) (years)`, `Gender, n(%)`, `Duration of current illness, median (IQR) (days)`,
+  dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, `Gender, n(%)` = `Gender`, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`,
 `Weight loss`, `log10 viral load`, `Tuberculosis`, `Pneumonia`, `Candida`, `Cryptococcus neoformans`,
 `GE/c diff`, HepB, Syphilis, `Kaposis sarcoma`, `UTI / Leptospirosis`, PCP, HSV, `B menigitis`, 
-`White cell count X109`, `Lymphocyte count X109`, Neutrophils, `ART exposure`, `TB medication`,
+`White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `ART exposure`, `TB medication`,
 `Fungal medication`, `Parvo B19`, `COVID-19`, Neurocysticercosis, `Kidney medication`, `Fungal medication`, 
-Rifampicin, Fluconazole, Opiates
+Rifampicin, Fluconazole, Opiates, `CD4 counts`
     ) %>%# ,
 tbl_summary(#table_1,
             missing = "no",
@@ -432,6 +432,19 @@ tbl_summary(#table_1,
   modify_caption('Table 1 (artcile): Patient presentation by CD4 count category')
 
 table_12
+
+table_12_1 <- final_dataset %>%
+  mutate(`Duration of current illness` = as.numeric(`Duration of current illness`),
+         `Total CD4 count` = as.numeric(`Total CD4 count...10`)) %>%
+  mutate(`CD4 counts` = case_when(
+    as.numeric(`Total CD4 count`) <= 33 ~ '0 - 33',
+    as.numeric(`Total CD4 count`) >33 & as.numeric(`Total CD4 count` <=66) ~ '34 - 66',
+    as.numeric(`Total CD4 count`) > 66 & as.numeric(`Total CD4 count` <= 100) ~ '67 - 100'
+  )) %>%
+  dplyr::select(`CD4 counts`, `Duration of current illness`) %>%
+  ggplot(aes(x = `CD4 counts`, y = `Duration of current illness`)) +
+  geom_boxplot(outlier.colour = "red") +
+  labs(title = "Grouped Box Plot", x = "CD4 counts", y = "Value")
 
 ```
 
@@ -1110,7 +1123,7 @@ table_3 <- final_dataset %>%
     AI_recoded = as.factor(ifelse(AI %in% c('PAI', 'SAI') | UIN...1 %in% c(392, 435, 478, 488, 496, 500), 'AI', 'No-AI')),
     mortality = ifelse(`Point of exit from study` == 'Deceased', 1,  0)) %>%
   mutate(mortality = ifelse(is.na(mortality), 0, mortality)) %>%
-  dplyr::select(`Age at enrolment`, Gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath, `Random cortisol result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, `ACTH result`, `BP (systolic)`, `BP (diastolic)`, discharged,
+  dplyr::select(record_id = UIN...1, `Age at enrolment`, Gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath, `Random cortisol result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, `ACTH result`, `BP (systolic)`, `BP (diastolic)`, discharged,
                 `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, #`Presence of an opportunistic infection` = `Opportunistic infection present`,
                 Tuberculosis, PTB, EPTB,  `Cryptococcus neoformans`, Pneumonia, `Staph aureus`, `Kaposis sarcoma`, Cytomegalovirus, HSV, HepB, Candida, `GE/c diff`, `Parvo B19`, `Syphilis`, `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`, `Date of enrolment in study`, `HIV, when diagnosed`, AI_recoded, AI, total_AI, `ART exposure`, `Kidney medication`, incremental_cortisol, Rifampicin, Fluconazole, Opiates) %>%
   mutate(Ethnicity = as.factor(Ethnicity),
@@ -1122,7 +1135,7 @@ table_3 <- final_dataset %>%
          White_cell_count = `White cell count`,
          Lymphocyte_count = `Lymphocyte count`,
          Duration_of_current_illness = `Duration of current illness`) %>%
-  dplyr::select(Age_at_enrolment, Gender, Ethnicity, Duration_of_current_illness, `Viral load (log10 Copies/mL)` = Log10_viralload, `CD4 count` = Total_CD4_count, Sodium, `Potassium mmol/L` = Potassium, Haemoglobin, White_cell_count, Lymphocyte_count, Neutrophils, Addisons_disease, mortality, ttdeath,
+  dplyr::select(record_id, Age_at_enrolment, Gender, Ethnicity, Duration_of_current_illness, `Viral load (log10 Copies/mL)` = Log10_viralload, `CD4 count` = Total_CD4_count, Sodium, `Potassium mmol/L` = Potassium, Haemoglobin, White_cell_count, Lymphocyte_count, Neutrophils, Addisons_disease, mortality, ttdeath,
                 `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, `ACTH` = `ACTH result`, `BP (systolic)`, `BP (diastolic)`, `Addisons disease`, discharged, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, #`Presence of an opportunistic infection`, 
                 Tuberculosis, PTB, EPTB,  `Cryptococcus neoformans`, Pneumonia, `Staph aureus`, `Kaposis sarcoma`, Cytomegalovirus, HSV, HepB, Candida, `GE/c diff`, `Parvo B19`, `Syphilis`, `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`, `Date of enrolment in study`, `HIV, when diagnosed`, AI_recoded, AI, total_AI, `ART exposure`, `Kidney medication`, Rifampicin, Fluconazole, Opiates, incremental_cortisol)
 
@@ -1134,6 +1147,13 @@ table_3 <- final_dataset %>%
 #   # include = -ID
 # )
 interval_deaths_addissons <- interval_deaths %>% filter(!is.na(`time to death`))%>% distinct(`Hospital folder number`, .keep_all = T) %>% filter(`Hospital folder number` %in% c('GSH 167073 154', 'GSH 170759 435', 'GSH 70197 710', 'GSH 79071 908', 'GSH 83628 503'))
+
+table_3_1 <- final_dataset %>%
+  filter(UIN...1 %in% (table_3 %>%
+  filter(AI_recoded == 'AI' & mortality == 1))$record_id) %>%
+  dplyr::select(`If deceased, cause of death`) %>%
+  tbl_summary()
+table_3_1
 ```
 
 
