@@ -686,7 +686,8 @@ table_2 <- final_dataset %>%
   dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, 	
 `Gender, n(%)` = `Gender`, 	
 `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, 	
-`Weight loss`, `Viral load (log10 Copies/mL)` = `log10 viral load`, 	
+`Weight loss`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol,
+`Viral load (log10 Copies/mL)` = `log10 viral load`, 	
 PTB, EPTB, `Cryptococcus neoformans`, Pneumonia, HepB, 	Candida, `Kaposis sarcoma`, 	
 HSV, `GE/c diff`, `Total CD4 count`, `White cell count X109` = `White cell count`, 
 `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, 
@@ -744,7 +745,7 @@ table_2_1 <- final_dataset %>%
     `BP (diastolic)` = as.numeric(`BP (diastolic)`), 
     `Heart rate` = as.numeric(`Heart rate`),
     Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", ifelse(Ethnicity == 'NA', 'Unknown', Ethnicity)),
-    mortality = as.factor(ifelse(`3 followup_patientstatus` == 'Deceased --> EXIT form' | `6 followup_patientstatus` == 'Deceased --> EXIT form' | `12 followup_patientstatus` == 'Deceased --> EXIT form' | `Point of exit from study` = 'Deceased', 'yes', 'no'))
+    mortality = as.factor(ifelse(`3 followup_patientstatus` == 'Deceased --> EXIT form' | `6 followup_patientstatus` == 'Deceased --> EXIT form' | `12 followup_patientstatus` == 'Deceased --> EXIT form' | `Point of exit from study` == "Deceased", 'yes', 'no'))
   ) %>%
 
   filter(AI != '') %>%
@@ -752,7 +753,7 @@ table_2_1 <- final_dataset %>%
     `Age at enrolment, median (IQR) (years)` = `Age at enrolment`, 
 `Gender, n(%)` = `Gender`,  `Ethnicity, n(%)` = Ethnicity, 
 `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, 
-`Weight loss`, `Viral load (log10 Copies/mL)` = `log10 viral load`, 
+`Weight loss`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol, `Viral load (log10 Copies/mL)` = `log10 viral load`, 
 Tuberculosis, `Cryptococcus neoformans`, Pneumonia, `Kaposis sarcoma`, 
 HSV, HepB, Candida, `Total CD4 count`, 
 `White cell count X109` = `White cell count`, 
@@ -780,7 +781,7 @@ PTB, EPTB,  `GE/c diff`, AI
                   all_continuous() ~ c(1, 1))#,
     # label = list(`Total CD4 count...10` ~ "Total CD4 count")
   ) %>%
-  add_p(test = list(all_categorical() ~ "fisher.test.simulate.p.values")) %>%
+  add_p() %>% #test = list(all_categorical() ~ "fisher.test.simulate.p.values")
   # add_n() %>%
   # add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
@@ -1221,6 +1222,39 @@ dt04 <- table_3 %>%
   bold_labels() %>%
   modify_caption('Mortality: Non-AI vs AI')
 dt04
+
+table_5 <- table_3 %>%
+  # filter(mortality == 1) %>%
+  filter(`Addisons disease` == 1) %>%
+  mutate(Ethnicity = as.character(Ethnicity)) %>%
+  mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y'))
+         ) %>%
+  dplyr::select(
+    `Age at enrolment, median (IQR) (years)`, `Female gender, n(%)`, `Duration of current illness, median (IQR) (days)`, 
+`Weight loss`, Weakness, Tiredness, `Poor appetite`, `Increased pigmentation of the skin`, Nausea,
+`Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`,
+`BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, `Any postural drop in blood pressure`, 
+`Presence of anaemia`, `Sodium mmol/L`, `Potassium mmol/L`, `Haemoglobin g/dL`, Syphilis, Candida, HepB,
+HSV, Pneumonia, PCP, EPTB, `Cryptococcus neoformans`, `Total CD4 count`, `Viral load (log10 Copies/mL)`,
+`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, incremental_cortisol, PTB, `White cell count X109`,
+Hypotension, Vomiting, `Liking for salt`, Hypoglycaemia, `ART exposure`, `Kidney medication`, ACTH, 
+Rifampicin, Fluconazole, Opiates, `Addisons disease`, `Ethnicity, n(%)`, Tuberculosis, `Staph aureus`,
+`Kaposis sarcoma`, Cytomegalovirus, `GE/c diff`, `Parvo B19`, `B menigitis`, `UTI / Leptospirosis`, `COVID-19`, 
+Neurocysticercosis, `Lymphocyte count X109`, Neutrophils, mortality) %>%
+  # mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
+tbl_summary(#table_1,
+            missing = "no",
+            by = mortality, #`Addisons disease`,
+            type = list(c("Duration of current illness, median (IQR) (days)", "Viral load (log10 Copies/mL)", "Lymphocyte count X109", "Neutrophils") ~ "continuous"),
+          statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
+            digits = list(all_categorical() ~ c(0, 1)),
+            ) %>%
+  add_p() %>%
+  # add_n() %>%
+  modify_header(label = "Variable") %>%
+  bold_labels() %>%
+  modify_caption('Mortality in AI')
+table_5
 ```
 
 <!-- # Table 3b: Deep dive in mortality between PAI and SAI -->
