@@ -52,7 +52,8 @@ library(rstatix)
 
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
-final_dataset <- read_excel("hypo_alldata_wide_labels - 554.xls") %>%
+final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
+  filter(!(is.na(UIN...1))) %>%
   mutate(addisons_disease = ifelse(as.numeric(`Random cortisol result`) < 500, 1, 0),
          # addisons_status = ifelse(as.numeric(`Random cortisol result`) < 200, "probable", ifelse(as.numeric(`Random cortisol result`) >=200 & as.numeric(`Random cortisol result`) < 500, 'Suspects')),
          # addisons_disease = ifelse(addisons_disease == 1 & as.numeric(``) < 500), 1, 0),
@@ -492,29 +493,63 @@ stat.test <- dt02 %>%
   mutate(p.adj_1 = ifelse(p.adj <0.0001, "<0.0001", '0.768'))
 stat.test
 
+library(ggpubr)
+library(rstatix)
+
+# Assuming dt02 and stat.test already exist as per your code
+
 box_plot_1 <- ggboxplot(
-  dt02 %>%
-    filter(!(as.character(Group) == 'ACTH')), x = 'Group', y = 'result',
-  fill = "AI status", palette = c("#00AFBB", "#E7B800"),
+  dt02 %>% filter(as.character(Group) != 'ACTH'),
+  x = 'Group', y = 'result',
+  fill = "AI status", 
+  palette = c("Adrenal insufficiency" = "gray40", "No Adrenal insufficiency" = "white"),
   ylab = 'Serum cortisol concentration (nmol/L)',
-  xlab = 'Laboratory test'
+  xlab = 'Laboratory test'#,
+  # position = position_dodge(0.8)
 ) +
   stat_pvalue_manual(
-    stat.test,  label = "{p.adj_1}{p.adj.signif}", 
+    stat.test, 
+    label = "{p.adj_1}", #{p.adj.signif}
     tip.length = 0, hide.ns = FALSE
-  )+ 
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  ) +
+  # coord_cartesian(ylim = c(0, 1500)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  theme_minimal(base_size = 18) +
   theme(
-    text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
+    legend.position = "top",
     axis.line = element_line(colour = "black"),
-    axis.text = element_text(size = 18),
-    axis.title = element_text(size = 18),
-    panel.background = element_blank(),
-    panel.border = element_blank(),
-    plot.margin = unit(c(0, 0, 0, 0), "null")#,
-    # axis.text.x = element_text(angle = 60, hjust = 1)
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 0, hjust = 0.5)
   )
+
+box_plot_1
+
+
+# box_plot_1 <- ggboxplot(
+#   dt02 %>%
+#     filter(!(as.character(Group) == 'ACTH')), x = 'Group', y = 'result',
+#   fill = "AI status", palette = c("#00AFBB", "#E7B800"),
+#   ylab = 'Serum cortisol concentration (nmol/L)',
+#   xlab = 'Laboratory test'
+# ) +
+#   stat_pvalue_manual(
+#     stat.test,  label = "{p.adj_1}{p.adj.signif}", 
+#     tip.length = 0, hide.ns = FALSE
+#   )+ 
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+#   theme(
+#     text = element_text(size = 20),
+#     plot.title = element_text(hjust = 0.5),
+#     axis.line = element_line(colour = "black"),
+#     axis.text = element_text(size = 18),
+#     axis.title = element_text(size = 18),
+#     panel.background = element_blank(),
+#     panel.border = element_blank(),
+#     plot.margin = unit(c(0, 0, 0, 0), "null")#,
+#     # axis.text.x = element_text(angle = 60, hjust = 1)
+#   )
 
 jpeg('boxplot_1.png', units = "in", width = 10, height = 9, res = 300)
 
@@ -686,7 +721,7 @@ table_2 <- final_dataset %>%
   dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, 	
 `Gender, n(%)` = `Gender`, 	
 `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, 	
-`Weight loss`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol,
+`Weight loss`, #`Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol,
 `Viral load (log10 Copies/mL)` = `log10 viral load`, 	
 PTB, EPTB, `Cryptococcus neoformans`, Pneumonia, HepB, 	Candida, `Kaposis sarcoma`, 	
 HSV, `GE/c diff`, `Total CD4 count`, `White cell count X109` = `White cell count`, 
@@ -698,10 +733,11 @@ HSV, `GE/c diff`, `Total CD4 count`, `White cell count X109` = `White cell count
 Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, 
 `Loss of axillary and pubic hair, if female`, 
 `Any postural drop in blood pressure`, `Presence of anaemia`, mortality, 
-Rifampicin, Fluconazole, Opiates, `ART exposure`, `Kidney medication`, 
-`Kidney medication`, `Addisons disease`, `Ethnicity, n(%)` = Ethnicity, 
-Tuberculosis, `Staph aureus`, Cytomegalovirus, `Parvo B19`, `Syphilis`, 
-`B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`) %>%
+Rifampicin, Fluconazole, Opiates, `ART exposure`, #`Kidney medication`, 
+`Addisons disease`, #`Ethnicity, n(%)` = Ethnicity, 
+# Tuberculosis, `Staph aureus`, Cytomegalovirus, `Parvo B19`, `Syphilis`, 
+# `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`
+) %>%
   mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
   tbl_summary( # table_1,
     missing = "no",
@@ -718,7 +754,7 @@ Tuberculosis, `Staph aureus`, Cytomegalovirus, `Parvo B19`, `Syphilis`,
   # add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()  %>%
-  modify_caption('Table 2 (article): Should compare Total AI with Non-AI patients')
+  modify_caption('Table 3 (article): Should compare Total AI with Non-AI patients')
   
  table_2
 
@@ -786,7 +822,7 @@ PTB, EPTB,  `GE/c diff`, AI
   # add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()  %>%
-  modify_caption('Table 3 (article): Should compare Total PAI with SAI patients')
+  modify_caption('Table 2 (article): Should compare Total PAI with SAI patients')
   
  table_2_1
 
@@ -1345,6 +1381,7 @@ univariate_mortality <- tbl_uvregression(
   exponentiate = TRUE # ,
   # include = -ID
 )
+univariate_mortality
 ```
 
 # Table 4: Multivariate table mortality
@@ -1358,7 +1395,7 @@ missing_percentage <- sapply(table_3, function(x) mean(is.na(x))) * 100
 # Step 2: Identify columns with 30% or more missing data
 columns_to_impute <- names(missing_percentage[missing_percentage <= 30])
 
-dt <- table_3[, columns_to_impute] %>%
+dt <- table_3 %>% #[, columns_to_impute]
   dplyr::select(
     Age_at_enrolment, Gender, Ethnicity, Duration_of_current_illness, cd4 = `CD4 count`, Sodium, 
     Potassium_mmol_L = `Potassium mmol/L`, Haemoglobin, White_cell_count, mortality, 
@@ -1379,7 +1416,8 @@ dt <- table_3[, columns_to_impute] %>%
     Syphilis, B_menigitis = `B menigitis`, 
     UTI_Leptospirosis = `UTI / Leptospirosis`, PCP, COVID_19 = `COVID-19`, Neurocysticercosis,
     ART_exposure = `ART exposure`, Kidney_medication = `Kidney medication`, Rifampicin, 
-    Fluconazole, Opiates) %>%
+    Fluconazole, Opiates, vl = `Viral load (log10 Copies/mL)`,
+    Basal_cortisol = `Basal cortisol`, Stimulated_cortisol = `Stimulated cortisol`) %>%
   mutate(Gender = as.numeric(Gender),
          Ethnicity = as.numeric(Ethnicity),
          Addisons_disease = as.null(Addisons_disease),
@@ -1426,9 +1464,15 @@ dt <- table_3[, columns_to_impute] %>%
          Opiates = as.numeric(Opiates)
          ) %>%
   mutate(Haemoglobin = ifelse(Haemoglobin ==704, NA, Haemoglobin))
+df_1 <- as.data.frame(df)
+df_clean <- dt[, colSums(is.na(dt)) < nrow(dt)]
 
+# Remove columns with near-zero variance (optional but often helpful)
+library(caret)
+nzv <- nearZeroVar(df_clean)
+if (length(nzv) > 0) df_clean <- df_clean[, -nzv]
 # Calculate the correlation matrix
-cor_matrix <- cor(dt, use = "pairwise.complete.obs")
+cor_matrix <- cor(df_clean, use = "pairwise.complete.obs")
 
 # Find columns with correlation > 0.8 (excluding self-correlations)
 high_cor_pairs <- findCorrelation(cor_matrix, cutoff = 0.7)
@@ -1457,12 +1501,13 @@ selected_models <- results_df %>%
   filter(p.value <= 0.2) %>%
   arrange(p.value)
 
-data_to_impute <- data_reduced %>%
-  dplyr::select(mortality, selected_models$term)
+data_to_impute <- bind_cols(data_reduced, dt %>% dplyr::select(Tiredness, Loss_of_consciousness, Diarrhoea)) #%>%
+  # dplyr::select(mortality, selected_models$term)
 univariate_table <- tbl_uvregression(
           data_to_impute %>% 
             dplyr::select(mortality, selected_models$term) %>% 
-            mutate(Random_cortisol = Random_cortisol/50, 
+            mutate(Random_cortisol = Random_cortisol/50,
+                   Basal_cortisol = Basal_cortisol/50,
                    BP_systolic = BP_systolic/10,
                    BP_diastolic = BP_diastolic/10,
                    ACTH = ACTH/100,
@@ -1478,7 +1523,7 @@ univariate_table
 nr_imputations <- 5
 
 imputedData <- mice::mice(
-  data =data.frame(data_reduced %>% dplyr::select(-mortality)),#data.frame(dt[, columns_to_impute]),
+  data =data.frame(data_to_impute %>% dplyr::select(-mortality)),#data.frame(dt[, columns_to_impute]),
   m = nr_imputations,
   maxit = 20,
   defaultMethod = c("pmm", "logreg", "polyreg", "polr"),
@@ -1506,7 +1551,7 @@ completeData_mort <- bind_cols(data_reduced %>%
          PCP = ifelse(PCP < 0.5, 0, 1)#,
          # Loss_of_axillary_and_pubic_hair = ifelse(Loss_of_axillary_and_pubic_hair <1.5, 1,
                                                   # ifelse(Loss_of_axillary_and_pubic_hair >= 1.5 & Loss_of_axillary_and_pubic_hair <2.5, 2,3))
-         ) %>% dplyr::select(-Group.1)
+         ) %>% dplyr::select(-Group.1, -Tiredness, -Loss_of_consciousness, -Diarrhoea)
 
 # saveRDS(completeData_mort, 'completeData_mort.rds')
 
@@ -1551,17 +1596,17 @@ model2 <- train(mortality ~ .,
 summary(model2)
 
 ## KM curves
-dt <- table_3 %>% 
+dt04 <- table_3 %>% 
   mutate(strata = ifelse(is.na(AI), 'No AI', AI)) %>% 
   mutate(strata = ifelse(strata == "", 'No AI', strata))
 
 # Fit the Kaplan-Meier survival model
-km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt)
+km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04)
 
 # Plot the Kaplan-Meier curve
 km_plot1 <- ggsurvplot(
   km_fit,
-  data = dt,
+  data = dt04,
   # risk.table = TRUE,           # Add a risk table below the plot
   pval = TRUE,                 # Show p-value for log-rank test
   # conf.int = TRUE,             # Add confidence intervals
@@ -1573,13 +1618,10 @@ km_plot1 <- ggsurvplot(
 )
 ggsave("Kaplan_Meier_Curve1.png", plot = km_plot1$plot, width = 8, height = 6, dpi = 300)
 
-km_fit <- 
-
-# Plot the Kaplan-Meier curve
-km_plot2 <- ggsurvplot(
-  survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt %>%
+ggsurvplot(
+  survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04 %>%
             mutate(strata = ifelse(strata != "No AI", 'AI', strata ))),
-  data = dt,
+  data = dt04,
   # risk.table = TRUE,           # Add a risk table below the plot
   pval = TRUE,                 # Show p-value for log-rank test
   # conf.int = TRUE,             # Add confidence intervals
@@ -1589,7 +1631,10 @@ km_plot2 <- ggsurvplot(
   ylab = "Survival Probability", # Label for y-axis
   ggtheme = theme_minimal()    # Use a minimal theme
 )
-ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
+
+dev.off()
+
+# ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
 
 ####P-values at diferent timepoints
 # Define specific time points
@@ -1601,7 +1646,7 @@ p_values <- data.frame(
   P_Value = NA
 )
 
-km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt)
+km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04)
 
 # Loop through each time point
 for (i in seq_along(time_points)) {
@@ -1609,7 +1654,7 @@ for (i in seq_along(time_points)) {
   surv_probs <- summary(km_fit, times = time_points[i])$surv
   
   # Perform a pairwise log-rank test for survival differences
-  surv_diff <- survdiff(Surv(time = ttdeath, event = mortality) ~ strata, data = dt, 
+  surv_diff <- survdiff(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04, 
                         subset = (ttdeath >= time_points[i]))
   
   # Extract the p-value (if groups > 2, chi-squared p-value)
@@ -1629,7 +1674,7 @@ p_values <- data.frame(
   P_Value = NA
 )
 
-km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt %>%
+km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04 %>%
             mutate(strata = ifelse(strata != "No AI", 'AI', strata )))
 
 # Loop through each time point
@@ -1639,12 +1684,12 @@ for (i in seq_along(time_points)) {
   
   # Perform a pairwise log-rank test for survival differences
   surv_diff <- survdiff(Surv(time = ttdeath, event = mortality) ~ strata, 
-                        data = dt %>%
+                        data = dt04 %>%
                           mutate(strata = ifelse(strata != "No AI", 'AI', strata )), 
                         subset = (ttdeath >= time_points[i]))
   
   # Extract the p-value (if groups > 2, chi-squared p-value)
-  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt$strata)) - 1)
+  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt04$strata)) - 1)
 }
 
 # Display p-values
