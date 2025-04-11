@@ -1,11 +1,12 @@
-final_dataset <- read_excel("hypo_alldata_wide_labels - 554.xls") %>%
-  mutate(addisons_disease = ifelse(as.numeric(`Random cortisol result`) < 340, 1, 0),
-         # addisons_status = ifelse(as.numeric(`Random cortisol result`) < 200, "probable", ifelse(as.numeric(`Random cortisol result`) >=200 & as.numeric(`Random cortisol result`) < 340, 'Suspects')),
-         # addisons_disease = ifelse(addisons_disease == 1 & as.numeric(``) < 340), 1, 0),
-         PAI = ifelse(as.numeric(`Random cortisol result`) < 340 & as.numeric(`Synacthen: 30 minute cortisol result`) < 340 & (as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`)), 1, 0),
-         SAI = ifelse(as.numeric(`Random cortisol result`) < 340 & as.numeric(`Synacthen: 30 minute cortisol result`) < 340 & (as.numeric(`ACTH result`) < 64.7), 1, 0),
-         total_AI = ifelse(as.numeric(`Random cortisol result`) < 340 & (PAI == 1 | SAI == 1), 1, 
-                           ifelse(as.numeric(`Random cortisol result`) < 340 & (PAI != 1 & SAI != 1), 0, NA)),
+final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
+  filter(!(is.na(UIN...1))) %>%
+  mutate(addisons_disease = ifelse(as.numeric(`Random cortisol result`) < 500, 1, 0),
+         # addisons_status = ifelse(as.numeric(`Random cortisol result`) < 200, "probable", ifelse(as.numeric(`Random cortisol result`) >=200 & as.numeric(`Random cortisol result`) < 500, 'Suspects')),
+         # addisons_disease = ifelse(addisons_disease == 1 & as.numeric(``) < 500), 1, 0),
+         PAI = ifelse(as.numeric(`Random cortisol result`) < 500 & as.numeric(`Synacthen: 30 minute cortisol result`) < 500 & (as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`)), 1, 0),
+         SAI = ifelse(as.numeric(`Random cortisol result`) < 500 & as.numeric(`Synacthen: 30 minute cortisol result`) < 500 & (as.numeric(`ACTH result`) < 64.7), 1, 0),
+         total_AI = ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1), 1, 
+                           ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1), 0, NA)),
          addisons_disease  = ifelse(is.na(total_AI), 0, total_AI),
          addisons_disease = ifelse(UIN...1 %in% c(392, 435, 478, 488, 496, 500), 1, addisons_disease)
   ) %>%
@@ -76,7 +77,7 @@ table(final_dataset$AI)
 dt = bind_cols(`Cortisol (nmol/L)` = c('< 500', '< 500', '< 500', '< 500', '< 400', '< 400', '< 400', '< 400', '< 340', '< 340', '< 340', '< 340'),
                group = c(1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2),
                strata = c('No AI', 'AI', 'PAI', 'SAI', 'No AI', 'AI', 'PAI', 'SAI', 'No AI', 'AI', 'PAI', 'SAI'),
-               Frequency = c(521, 33, 9, 24, 536, 18, 5, 13, 542, 12, 3, 9)
+               Frequency = c(528, 35, 9, 26, 543, 20, 5, 15, 549, 14, 3, 11)
 ) %>%
   mutate(`Cortisol (nmol/L)` = fct_relevel(as.factor(`Cortisol (nmol/L)`), c("< 500", '< 400')))
 ggsave("plot1 - cortisol.jpeg", width = 4, height = 4)
