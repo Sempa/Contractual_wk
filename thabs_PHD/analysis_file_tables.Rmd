@@ -804,7 +804,7 @@ Nausea, Vomiting, `Liking for salt`, Diarrhoea, Dizziness, Anorexia,
 Rifampicin, Fluconazole, Opiates, `Kidney medication`, `Kidney medication`, 
 `Addisons disease`, `Staph aureus`, Cytomegalovirus, `Parvo B19`, `Syphilis`, 
 `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`, 
-PTB, EPTB,  `GE/c diff`, AI
+PTB, EPTB,  `GE/c diff`, EPTB, PTB, AI
                 ) %>%
   mutate(`AI` = forcats::fct_rev(`AI`)) %>%
         tbl_summary( # table_1,
