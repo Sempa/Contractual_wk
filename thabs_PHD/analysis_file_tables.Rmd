@@ -486,7 +486,8 @@ write.csv(dt02_1, 'Cortisol_measurements.csv')
 
 stat.test <- dt02 %>%
   filter(!(as.character(Group) == 'ACTH')) %>%
-  mutate(AI_status = as.factor(`AI status`)) %>%
+  mutate(AI_status = as.factor(`AI status`),
+         AI_status = forcats::fct_rev(AI_status)) %>%
   group_by(Group) %>%
   t_test(result ~ AI_status) %>%
   adjust_pvalue(method = "bonferroni") %>%
@@ -501,7 +502,8 @@ library(rstatix)
 # Assuming dt02 and stat.test already exist as per your code
 
 box_plot_1 <- ggboxplot(
-  dt02 %>% filter(as.character(Group) != 'ACTH'),
+  dt02 %>% filter(as.character(Group) != 'ACTH') %>%
+    mutate(`AI status` = forcats::fct_rev(`AI status`)),
   x = 'Group', y = 'result',
   fill = "AI status", 
   palette = c("Adrenal insufficiency" = "gray40", "No Adrenal insufficiency" = "white"),
@@ -734,7 +736,7 @@ HSV, `GE/c diff`, `Total CD4 count`, `White cell count X109` = `White cell count
 `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, 
 Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, 
 `Loss of axillary and pubic hair, if female`, 
-`Any postural drop in blood pressure`, `Presence of anaemia`, mortality, 
+`Any postural drop in blood pressure`, `Presence of anaemia`, mortality, incremental_cortisol_percent_increase,
 Rifampicin, Fluconazole, Opiates, `ART exposure`, #`Kidney medication`, 
 `Addisons disease`, #`Ethnicity, n(%)` = Ethnicity, 
 # Tuberculosis, `Staph aureus`, Cytomegalovirus, `Parvo B19`, `Syphilis`, 
