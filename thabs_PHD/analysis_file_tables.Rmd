@@ -1686,7 +1686,7 @@ for (i in seq_along(time_points)) {
                         subset = (ttdeath >= time_points[i]))
   
   # Extract the p-value (if groups > 2, chi-squared p-value)
-  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt$strata)) - 1)
+  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt04$strata)) - 1)
 }
 
 # Display p-values
