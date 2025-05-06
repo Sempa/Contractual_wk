@@ -62,7 +62,12 @@ final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
          total_AI = ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1), 1, 
                            ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1), 0, NA)),
          addisons_disease  = ifelse(is.na(total_AI), 0, total_AI),
-         addisons_disease = ifelse(UIN...1 %in% c(392, 435, 478, 488, 496, 500), 1, addisons_disease)
+         addisons_disease = ifelse(UIN...1 %in% c(392, 435, 478, 488, 496, 500), 1, addisons_disease),
+         addisons_disease = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)), 1, ifelse(UIN...1 == 500, 0, addisons_disease)),
+         PAI = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) & (as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`)) & PAI %in% c(0, NA), 1, PAI),
+         SAI = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) & (as.numeric(`ACTH result`) < 64.7) & SAI %in% c(0, NA), 1, SAI),
+         total_AI = ifelse((PAI == 1 | SAI == 1), 1, 
+                           ifelse((PAI != 1 & SAI != 1), 0, NA))
            ) %>%
   mutate(AI = ifelse(PAI == 1, 'PAI', 
                      ifelse(SAI == 1, 'SAI', ''))) %>%
