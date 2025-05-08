@@ -62,9 +62,9 @@ final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
          total_AI = ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1), 1, 
                            ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1), 0, NA)),
          addisons_disease  = ifelse(is.na(total_AI), 0, total_AI),
-         addisons_disease = ifelse(UIN...1 %in% c(392, 435, 478, 488, 496, 500), 1, addisons_disease),
+         addisons_disease = ifelse(UIN...1 %in% c(392, 435, 478, 488, 496), 1, addisons_disease), #500 removed
          addisons_disease = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)), 1, ifelse(UIN...1 == 500, 0, addisons_disease)),
-         PAI = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) & (as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`)) & PAI %in% c(0, NA), 1, PAI),
+         PAI = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) & (as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`)) & PAI %in% c(0, NA), 1, ifelse(UIN...1 == 392, 1, PAI)),
          SAI = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) & (as.numeric(`ACTH result`) < 64.7) & SAI %in% c(0, NA), 1, SAI),
          total_AI = ifelse((PAI == 1 | SAI == 1), 1, 
                            ifelse((PAI != 1 & SAI != 1), 0, NA))
@@ -72,7 +72,7 @@ final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
   mutate(AI = ifelse(PAI == 1, 'PAI', 
                      ifelse(SAI == 1, 'SAI', ''))) %>%
   mutate(AI = ifelse(UIN...1 %in% c(435, 478, 488, 496), 'SAI',
-                                   ifelse(UIN...1 %in% c(392, 500), 'PAI', AI)),
+                                   ifelse(UIN...1 %in% c(392), 'PAI', AI)),
          # AI = ifelse(addisons_disease == 0, 'No AI', AI),
          `Adrenal insufficiency` = ifelse(!is.na(addisons_disease), addisons_disease, 0)#,
          # `Loss of axillary and pubic hair, if female` = ifelse(`Loss of axillary and pubic hair, if female` == 'Not applicable', '', `Loss of axillary and pubic hair, if female`)
@@ -437,7 +437,8 @@ tbl_summary(#table_1,
   add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()  %>%
-  modify_caption('Table 1 (artcile): Patient presentation by CD4 count category')
+  as_gt() %>%
+  gt::tab_header('Table 1 (artcile): Patient presentation by CD4 count category')
 
 table_12
 
@@ -763,7 +764,8 @@ Rifampicin, Fluconazole, Opiates, `ART exposure`, #`Kidney medication`,
   # add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()  %>%
-  modify_caption('Table 3 (article): Should compare Total AI with Non-AI patients')
+  as_gt() %>%
+  gt::tab_header('Table 3 (article): Should compare Total AI with Non-AI patients')
   
  table_2
 
@@ -832,7 +834,8 @@ PTB, EPTB,  `GE/c diff`, EPTB, PTB, AI
   # add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()  %>%
-  modify_caption('Table 2 (article): Should compare Total PAI with SAI patients')
+  as_gt() %>%
+  gt::tab_header('Table 2 (article): Should compare Total PAI with SAI patients')
   
  table_2_1
 
@@ -1242,7 +1245,8 @@ tbl_summary(#table_1,
   # add_n() %>%
   modify_header(label = "Variable") %>%
   bold_labels() %>%
-  modify_caption('Table 4 (article): Mortality: Non-AI vs AI')
+  as_gt() %>%
+  gt::tab_header('Table 4 (article): Mortality: Non-AI vs AI')
 table_4
 dt04 <- table_3 %>%
   mutate(flag = ifelse(Addisons_disease == 2 & mortality == 1, 'AI deaths', 
@@ -1665,9 +1669,7 @@ ggsurvplot(
   ggtheme = theme_minimal()    # Use a minimal theme
 )
 
-dev.off()
-
-# ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
+# dev.off()
 
 ####P-values at diferent timepoints
 # Define specific time points
@@ -1709,7 +1711,21 @@ p_values <- data.frame(
 
 km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04 %>%
             mutate(strata = ifelse(strata != "No AI", 'AI', strata )))
-
+# Plot the Kaplan-Meier curve
+km_plot2 <- ggsurvplot(
+  km_fit2,
+  data = dt04 %>%
+            mutate(strata = ifelse(strata != "No AI", 'AI', strata )),
+  # risk.table = TRUE,           # Add a risk table below the plot
+  pval = TRUE,                 # Show p-value for log-rank test
+  # conf.int = TRUE,             # Add confidence intervals
+  legend.title = "Strata",     # Customize legend title
+  legend.labs = c("AI", "No AI"),  # Customize group labels
+  xlab = "Time",               # Label for x-axis
+  ylab = "Survival Probability", # Label for y-axis
+  ggtheme = theme_minimal()    # Use a minimal theme
+)
+ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
 # Loop through each time point
 for (i in seq_along(time_points)) {
   # Survival probabilities at the specific time point
