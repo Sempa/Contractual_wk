@@ -229,6 +229,8 @@ final_dataset <- final_dataset %>%
     ))
   ) # %>%
   # mutate(`CD4 count` = as.numeric(`CD4 count`))
+x=final_dataset %>% filter(is.na(addisons_disease)) %>% dplyr::select(UIN...1, `Random cortisol result`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`)
+x=final_dataset %>% filter(`Random cortisol result`<500 & (!is.na(`Synacthen: 0 minute cortisol result`) | !is.na(`Synacthen: 30 minute cortisol result`))) %>% dplyr::select(UIN...1, `Random cortisol result`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`)
 ```
 
 # Baseline table
