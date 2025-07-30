@@ -1727,6 +1727,43 @@ km_plot2 <- ggsurvplot(
   ylab = "Survival Probability", # Label for y-axis
   ggtheme = theme_minimal()    # Use a minimal theme
 )
+
+# Step 1: Recode strata
+dt04_adj <- dt04 %>%
+  mutate(strata = ifelse(strata != "No AI", "AI", strata))
+
+# Step 2: Fit KM curve
+km_fit2 <- survfit(Surv(ttdeath, mortality) ~ strata, data = dt04_adj)
+
+# Step 3: Generate initial plot to extract curve data
+km_plot2 <- ggsurvplot(km_fit2, data = dt04_adj)
+
+# Step 4: Extract and jitter data
+plot_data <- km_plot2$plot$data %>%
+  mutate(time_jittered = ifelse(strata == "AI", time + 0.2, time))
+
+# Step 5: Plot with adjusted axes
+km_fit3 <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
+  geom_step(size = 1.2) +
+  geom_point(size = 1.5) +
+  labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
+  scale_color_manual(values = c("red", "darkgreen")) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25)) +
+  scale_x_continuous(limits = c(0, 13), breaks = 0:13) +
+  theme(
+      text = element_text(size = 20),
+      plot.title = element_text(hjust = 0.5),
+      axis.line = element_line(colour = "black"),
+      axis.text = element_text(size = 18),
+      axis.title = element_text(size = 18),
+      panel.background = element_blank(),
+      panel.border = element_blank(),
+      plot.margin = unit(c(0, 0, 0, 0), "null"),
+      legend.position = "top"
+    ) 
+
+ggsave("KM_jittered_plot.png", km_fit3, width = 8, height = 6, dpi = 300)
+
 ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
 # Loop through each time point
 for (i in seq_along(time_points)) {
