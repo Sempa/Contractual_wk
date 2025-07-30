@@ -1634,6 +1634,32 @@ model2 <- train(mortality ~ .,
 )
 summary(model2)
 
+##Correlation
+
+# Create adjusted variables
+adjusted_data <- completeData_mort %>%
+  mutate(
+    ACTH_50 = ACTH / 50,
+    Random_cortisol_50 = Random_cortisol / 50,
+    BP_systolic_10 = BP_systolic / 10,
+    BP_diastolic_10 = BP_diastolic / 10,
+    CD4_count_50 = cd4 / 50
+  ) %>%
+  dplyr::select(mortality, Haemoglobin, ACTH_50, Random_cortisol_50, BP_systolic_10, BP_diastolic_10, CD4_count_50)
+
+# Compute point-biserial (Pearson) correlation between each variable and mortality
+cor_results <- sapply(adjusted_data[,-1], function(x) cor(x, adjusted_data$mortality, method = "pearson"))
+
+# Format as a data frame
+cor_df <- data.frame(
+  Variable = names(cor_results),
+  Correlation_with_Mortality = cor_results
+)
+
+# Display
+print(cor_df)
+
+
 ## KM curves
 dt04 <- table_3 %>% 
   mutate(strata = ifelse(is.na(AI), 'No AI', AI)) %>% 
@@ -1714,43 +1740,48 @@ p_values <- data.frame(
 km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04 %>%
             mutate(strata = ifelse(strata != "No AI", 'AI', strata )))
 # Plot the Kaplan-Meier curve
-km_plot2 <- ggsurvplot(
-  km_fit2,
-  data = dt04 %>%
-            mutate(strata = ifelse(strata != "No AI", 'AI', strata )),
-  # risk.table = TRUE,           # Add a risk table below the plot
-  pval = TRUE,                 # Show p-value for log-rank test
-  # conf.int = TRUE,             # Add confidence intervals
-  legend.title = "Strata",     # Customize legend title
-  legend.labs = c("AI", "No AI"),  # Customize group labels
-  xlab = "Time",               # Label for x-axis
-  ylab = "Survival Probability", # Label for y-axis
-  ggtheme = theme_minimal()    # Use a minimal theme
-)
 
-# Step 1: Recode strata
+# km_plot2 <- ggsurvplot(
+#   km_fit2,
+#   data = dt04 %>%
+#             mutate(strata = ifelse(strata != "No AI", 'AI', strata )),
+#   # risk.table = TRUE,           # Add a risk table below the plot
+#   pval = TRUE,                 # Show p-value for log-rank test
+#   # conf.int = TRUE,             # Add confidence intervals
+#   legend.title = "Strata",     # Customize legend title
+#   legend.labs = c("AI", "No AI"),  # Customize group labels
+#   xlab = "Time",               # Label for x-axis
+#   ylab = "Survival Probability", # Label for y-axis
+#   ggtheme = theme_minimal()    # Use a minimal theme
+# )
+
+# Extract and relabel strata
 dt04_adj <- dt04 %>%
-  mutate(strata = ifelse(strata != "No AI", "AI", strata))
+    mutate(strata = ifelse(strata != "No AI", "AI", strata))
 
-# Step 2: Fit KM curve
+# Fit KM curve
 km_fit2 <- survfit(Surv(ttdeath, mortality) ~ strata, data = dt04_adj)
 
-# Step 3: Generate initial plot to extract curve data
+# Generate initial ggsurvplot to access curve data
 km_plot2 <- ggsurvplot(km_fit2, data = dt04_adj)
 
-# Step 4: Extract and jitter data
-plot_data <- km_plot2$plot$data %>%
-  mutate(time_jittered = ifelse(strata == "AI", time + 0.2, time))
+# Extract plotted data
+plot_data <- km_plot2$plot$data
 
-# Step 5: Plot with adjusted axes
-km_fit3 <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
-  geom_step(size = 1.2) +
-  geom_point(size = 1.5) +
-  labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
-  scale_color_manual(values = c("red", "darkgreen")) +
+# Apply small horizontal jitter to one group (e.g., AI)
+plot_data <- plot_data %>%
+    mutate(time_jittered = ifelse(strata == "AI", time + 0.2, time))
+
+# Plot manually using ggplot2
+km_plot_manual <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
+    geom_step(size = 1.2) +
+    geom_point(size = 1.5) +
+    labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
+    scale_color_manual(values = c("red", "darkgreen")) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25)) +
   scale_x_continuous(limits = c(0, 13), breaks = 0:13) +
-  theme(
+    # theme_minimal() +
+    theme(
       text = element_text(size = 20),
       plot.title = element_text(hjust = 0.5),
       axis.line = element_line(colour = "black"),
@@ -1759,12 +1790,11 @@ km_fit3 <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
       panel.background = element_blank(),
       panel.border = element_blank(),
       plot.margin = unit(c(0, 0, 0, 0), "null"),
-      legend.position = "top"
-    ) 
+      legend.position = "top")
 
-ggsave("KM_jittered_plot.png", km_fit3, width = 8, height = 6, dpi = 300)
+ggsave("KM_curve_jittered.png", km_plot_manual, width = 8, height = 6, dpi = 300)
+# ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
 
-ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
 # Loop through each time point
 for (i in seq_along(time_points)) {
   # Survival probabilities at the specific time point
