@@ -53,52 +53,103 @@ library(rstatix)
 
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
-  filter(!(is.na(UIN...1))) %>%
-  mutate(addisons_disease = ifelse(as.numeric(`Random cortisol result`) < 500, 1, 0),
-         # addisons_status = ifelse(as.numeric(`Random cortisol result`) < 200, "probable", ifelse(as.numeric(`Random cortisol result`) >=200 & as.numeric(`Random cortisol result`) < 500, 'Suspects')),
-         # addisons_disease = ifelse(addisons_disease == 1 & as.numeric(``) < 500), 1, 0),
-         PAI = ifelse(as.numeric(`Random cortisol result`) < 500 & as.numeric(`Synacthen: 30 minute cortisol result`) < 500 & (as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`)), 1, 0),
-         SAI = ifelse(as.numeric(`Random cortisol result`) < 500 & as.numeric(`Synacthen: 30 minute cortisol result`) < 500 & (as.numeric(`ACTH result`) < 64.7), 1, 0),
-         total_AI = ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1), 1, 
-                           ifelse(as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1), 0, NA)),
-         addisons_disease  = ifelse(is.na(total_AI), 0, total_AI),
-         addisons_disease = ifelse(UIN...1 %in% c(392, 435, 478, 488, 496), 1, addisons_disease), #500 removed
-         addisons_disease = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)), 1, ifelse(UIN...1 == 500, 0, addisons_disease)),
-         PAI = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) & (as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`)) & PAI %in% c(0, NA), 1, ifelse(UIN...1 == 392, 1, PAI)),
-         SAI = ifelse(`Random cortisol result`<=274 & (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) & (as.numeric(`ACTH result`) < 64.7) & SAI %in% c(0, NA), 1, SAI),
-         total_AI = ifelse((PAI == 1 | SAI == 1), 1, 
-                           ifelse((PAI != 1 & SAI != 1), 0, NA))
-           ) %>%
-  mutate(AI = ifelse(PAI == 1, 'PAI', 
-                     ifelse(SAI == 1, 'SAI', ''))) %>%
-  mutate(AI = ifelse(UIN...1 %in% c(435, 478, 488, 496), 'SAI',
-                                   ifelse(UIN...1 %in% c(392), 'PAI', AI)),
-         # AI = ifelse(addisons_disease == 0, 'No AI', AI),
-         `Adrenal insufficiency` = ifelse(!is.na(addisons_disease), addisons_disease, 0)#,
-         # `Loss of axillary and pubic hair, if female` = ifelse(`Loss of axillary and pubic hair, if female` == 'Not applicable', '', `Loss of axillary and pubic hair, if female`)
-         ) %>%
-  mutate(`Increased pigmentation of the skin` = as.logical(ifelse(`Increased pigmentation of the skin` == 'Yes', 1, 0)),
-         `Loss of consciousness` = as.logical(ifelse(`Loss of consciousness` == 'Yes', 1, 0)),
-         `Hypoglycaemia` = as.logical(ifelse(`Hypoglycaemia` == 'Yes', 1, 0)),
-         Dizziness = as.logical(ifelse(Dizziness == 'Yes', 1, 0)),
-         Shock = as.logical(ifelse(Shock == 'Yes', 1, 0)),
-         `Presence of anaemia` = as.logical(ifelse(`Presence of anaemia` == 'Yes', 1, 0)),
-         Hypotension = as.logical(ifelse(Hypotension == 'Yes', 1, 0)),
-         Weakness = as.logical(ifelse(Weakness == 'Yes', 1, 0)),
-         Tiredness = as.logical(ifelse(Tiredness == 'Yes', 1, 0)),
-         `Poor appetite` = as.logical(ifelse(`Poor appetite` == 'Yes', 1, 0)),
-         `Weight loss` = as.logical(ifelse(`Weight loss` == 'Yes', 1, 0)),
-         Nausea = as.logical(ifelse(Nausea == 'Yes', 1, 0)),
-         Vomiting = as.logical(ifelse(Vomiting == 'Yes', 1, 0)),
-         `Liking for salt` = as.logical(ifelse(`Liking for salt` == 'Yes', 1, 0)),
-         Diarrhoea = as.logical(ifelse(Diarrhoea == 'Yes', 1, 0)),
-         Anorexia = as.logical(ifelse(Anorexia == 'Yes', 1, 0)),
-         `Loss of axillary and pubic hair, if female` = ifelse(`Loss of axillary and pubic hair, if female` == 'NA', 'No', `Loss of axillary and pubic hair, if female`),
-         `Any postural drop in blood pressure` = as.logical(ifelse(`Any postural drop in blood pressure` == 'Yes', 1, 0)),
-         incremental_cortisol = (abs(`Synacthen: 30 minute cortisol result` - `Synacthen: 0 minute cortisol result`)),
-         incremental_cortisol_percent_increase = (abs(incremental_cortisol)/`Synacthen: 0 minute cortisol result`)*100
-         ) %>%
-  mutate(incremental_cortisol = ifelse(incremental_cortisol<0, NA, incremental_cortisol)) #%>%
+  filter(!is.na(UIN...1)) %>%
+  mutate(
+    # --- Primary AI classifications ---
+    addisons_disease = if_else(as.numeric(`Random cortisol result`) < 500, 1, 0),
+
+    PAI = case_when(
+      as.numeric(`Random cortisol result`) < 500 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
+        as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`) ~ 1,
+      TRUE ~ 0
+    ),
+
+    SAI = case_when(
+      as.numeric(`Random cortisol result`) < 500 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
+        as.numeric(`ACTH result`) < 64.7 ~ 1,
+      TRUE ~ 0
+    ),
+
+    total_AI = case_when(
+      as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1) ~ 1,
+      as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1) ~ 0,
+      TRUE ~ NA_real_
+    ),
+
+    addisons_disease = if_else(is.na(total_AI), 0, total_AI),
+
+    # Override Addisons classification for specified UINs
+    addisons_disease = case_when(
+      UIN...1 %in% c(392, 435, 478, 488, 496) ~ 1,
+      `Random cortisol result` <= 274 &
+        (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) ~ 1,
+      UIN...1 == 500 ~ 0,
+      TRUE ~ addisons_disease
+    ),
+
+    # Update PAI and SAI based on clinical logic
+    PAI = case_when(
+      `Random cortisol result` <= 274 &
+        (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) &
+        as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`) &
+        PAI %in% c(0, NA) ~ 1,
+      UIN...1 == 392 ~ 1,
+      TRUE ~ PAI
+    ),
+
+    SAI = case_when(
+      `Random cortisol result` <= 274 &
+        (is.na(`Synacthen: 0 minute cortisol result`) | is.na(`Synacthen: 30 minute cortisol result`)) &
+        as.numeric(`ACTH result`) < 64.7 &
+        SAI %in% c(0, NA) ~ 1,
+      TRUE ~ SAI
+    ),
+
+    total_AI = case_when(
+      PAI == 1 | SAI == 1 ~ 1,
+      PAI != 1 & SAI != 1 ~ 0,
+      TRUE ~ NA_real_
+    ),
+
+    # --- AI classification label ---
+    AI = case_when(
+      PAI == 1 ~ "PAI",
+      SAI == 1 ~ "SAI",
+      TRUE ~ ""
+    ),
+    AI = case_when(
+      UIN...1 %in% c(435, 478, 488, 496) ~ "SAI",
+      UIN...1 %in% c(392) ~ "PAI",
+      TRUE ~ AI
+    ),
+
+    `Adrenal insufficiency` = if_else(!is.na(addisons_disease), addisons_disease, 0),
+
+    # --- Binary symptom conversions ---
+    across(
+      c(`Increased pigmentation of the skin`, `Loss of consciousness`, `Hypoglycaemia`,
+        Dizziness, Shock, `Presence of anaemia`, Hypotension, Weakness, Tiredness,
+        `Poor appetite`, `Weight loss`, Nausea, Vomiting, `Liking for salt`,
+        Diarrhoea, Anorexia, `Any postural drop in blood pressure`),
+      ~ .x == "Yes",
+      .names = "{.col}"
+    ),
+
+    # Handle missing hair-loss variable
+    `Loss of axillary and pubic hair, if female` =
+      if_else(`Loss of axillary and pubic hair, if female` == "NA", "No",
+              `Loss of axillary and pubic hair, if female`),
+
+    # --- Cortisol increment calculations ---
+    incremental_cortisol = abs(`Synacthen: 30 minute cortisol result` -
+                                 `Synacthen: 0 minute cortisol result`),
+    incremental_cortisol_percent_increase =
+      abs(incremental_cortisol) / `Synacthen: 0 minute cortisol result` * 100,
+    incremental_cortisol = if_else(incremental_cortisol < 0, NA_real_, incremental_cortisol)
+  )
+#%>%
 #   dplyr::select(id = UIN...1, `Hospital folder number`, `Primary medical conditions (1)`, `Primary medical conditions (2)`, `Primary medical conditions (3)`, `Primary medical conditions (4)`, `Co-existing medical conditions (2)`, `Other, specify...67`,
 #                 `Opportunistic infection  (choice=Tuberculosis)`, `Opportunistic infection  (choice=Cryptococcus neoformans)`,
 # `Opportunistic infection  (choice=Toxoplasmosis)`, `Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`, `Opportunistic infection  (choice=Kaposis sarcoma)`, `Opportunistic infection  (choice=Cytomegalovirus)`,`Opportunistic infection  (choice=Other)`) 
@@ -712,7 +763,10 @@ table_2 <- final_dataset %>%
          `Total CD4 count` = as.numeric(`Total CD4 count...10`),
          HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
          `Gender` = (ifelse(Gender == 'NA', 'Unknown', Gender)),
-         `Addisons disease`  = as.factor(ifelse(addisons_disease ==1, 'AI', 'no-AI')),#ifelse(addisons_disease ==0, 
+         `Addisons disease` = as.factor(case_when(
+  addisons_disease == 1 ~ "AI",
+  TRUE ~ "no-AI"
+)),#ifelse(addisons_disease ==0, 
          Sodium = as.numeric(Sodium),
          Potassium = as.numeric(Potassium),
          Haemoglobin = as.numeric(Haemoglobin), 
@@ -736,7 +790,7 @@ table_2 <- final_dataset %>%
 `Weight loss`, #`Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol,
 `Viral load (log10 Copies/mL)` = `log10 viral load`, 	
 PTB, EPTB, `Cryptococcus neoformans`, Pneumonia, HepB, 	Candida, `Kaposis sarcoma`, 	
-HSV, `GE/c diff`, `Total CD4 count`, `White cell count X109` = `White cell count`, 
+HSV, `GE/c diff`, PCP, `Total CD4 count`, `White cell count X109` = `White cell count`, 
 `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, 
 `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, 
 `Haemoglobin g/dL` = Haemoglobin, `BP (systolic)`, `BP (diastolic)`, 
@@ -802,7 +856,8 @@ table_2_1 <- final_dataset %>%
     `Age at enrolment, median (IQR) (years)` = `Age at enrolment`, 
 `Gender, n(%)` = `Gender`,  `Ethnicity, n(%)` = Ethnicity, 
 `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, 
-`Weight loss`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol, incremental_cortisol_percent_increase, 
+`Weight loss`, `Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol,
+`ACTH result`, incremental_cortisol_percent_increase, 
 `Viral load (log10 Copies/mL)` = `log10 viral load`, 
 Tuberculosis, `Cryptococcus neoformans`, Pneumonia, `Kaposis sarcoma`, 
 HSV, HepB, Candida, `Total CD4 count`, 
