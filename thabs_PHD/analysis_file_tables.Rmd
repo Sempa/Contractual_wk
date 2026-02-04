@@ -1869,7 +1869,139 @@ for (i in seq_along(time_points)) {
 print(p_values)
 
 ```
+```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# Step 1: Calculate the percentage of missing values in each column
+missing_percentage <- sapply(table_3, function(x) mean(is.na(x))) * 100
 
+# Step 2: Identify columns with 30% or more missing data
+columns_to_impute <- names(missing_percentage[missing_percentage <= 30])
+
+dt <- table_3 %>% #[, columns_to_impute]
+  dplyr::select(
+    Age_at_enrolment, Gender, Ethnicity, Duration_of_current_illness, cd4 = `CD4 count`, Sodium, 
+    Potassium_mmol_L = `Potassium mmol/L`, Haemoglobin, White_cell_count, mortality, 
+    Random_cortisol = `Random cortisol`, ACTH, BP_systolic = `BP (systolic)`, 
+    BP_diastolic = `BP (diastolic)`, 
+    Addisons_disease = `Addisons disease`, Heart_rate = `Heart rate`, Hypotension, 
+    Weakness, Tiredness, Poor_appetite = `Poor appetite`, Weight_loss = `Weight loss`, 
+    Increased_pigmentation_skin = `Increased pigmentation of the skin`, Nausea, Vomiting, 
+    Liking_for_salt = `Liking for salt`, Hypoglycaemia, 
+    Loss_of_consciousness = `Loss of consciousness`, 
+    Diarrhoea, Dizziness, Shock, Anorexia, 
+    Any_postural_drop_in_blood_pressure = `Any postural drop in blood pressure`, 
+    Presence_of_anaemia = `Presence of anaemia`, PTB, EPTB, 
+    Cryptococcus_neoformans = `Cryptococcus neoformans`, 
+    Pneumonia, Staph_aureus = `Staph aureus`, Kaposis_sarcoma = `Kaposis sarcoma`, 
+    Cytomegalovirus, HSV, HepB, 
+    Candida, GE_c_diff = `GE/c diff`, Parvo_B19 = `Parvo B19`, 
+    Syphilis, B_menigitis = `B menigitis`, 
+    UTI_Leptospirosis = `UTI / Leptospirosis`, PCP, COVID_19 = `COVID-19`, Neurocysticercosis,
+    ART_exposure = `ART exposure`, Kidney_medication = `Kidney medication`, Rifampicin, 
+    Fluconazole, Opiates, vl = `Viral load (log10 Copies/mL)`,
+    Basal_cortisol = `Basal cortisol`, Stimulated_cortisol = `Stimulated cortisol`) %>%
+  mutate(Gender = as.numeric(Gender),
+         Ethnicity = as.numeric(Ethnicity),
+         Addisons_disease = as.null(Addisons_disease),
+         # discharged = as.numeric(as.factor(discharged)),
+         Hypotension = as.numeric(Hypotension),
+         Weakness = as.numeric(Weakness),
+         Tiredness  = as.numeric(Tiredness),
+         Poor_appetite = as.numeric(Poor_appetite),
+         Weight_loss = as.numeric(Weight_loss),
+         Increased_pigmentation_skin = as.numeric(Increased_pigmentation_skin),
+         Nausea = as.numeric(Nausea),
+         Vomiting = as.numeric(Vomiting),
+         Liking_for_salt = as.numeric(Liking_for_salt),
+         Hypoglycaemia = as.numeric(Hypoglycaemia),
+         Loss_of_consciousness = as.numeric(Loss_of_consciousness),
+         Diarrhoea = as.numeric(Diarrhoea),
+         Dizziness = as.numeric(Dizziness),
+         Shock = as.numeric(Shock),
+         Anorexia = as.numeric(Anorexia),
+         Any_postural_drop_in_blood_pressure = as.numeric(Any_postural_drop_in_blood_pressure),
+         Presence_of_anaemia = as.numeric(Presence_of_anaemia),
+         PTB = as.numeric(PTB),
+         EPTB = as.numeric(EPTB),
+         Cryptococcus_neoformans = as.numeric(Cryptococcus_neoformans),
+         Pneumonia = as.numeric(Pneumonia),
+         Staph_aureus = as.numeric(Staph_aureus),
+         Kaposis_sarcoma = as.numeric(Kaposis_sarcoma),
+         Cytomegalovirus = as.numeric(Cytomegalovirus),
+         HSV = as.numeric(HSV),
+         HepB = as.numeric(HepB),
+         Candida = as.numeric(Candida),
+         GE_c_diff = as.numeric(GE_c_diff),
+         Parvo_B19 = as.numeric(Parvo_B19),
+         Syphilis = as.numeric(Syphilis),
+         B_menigitis = as.numeric(B_menigitis),
+         UTI_Leptospirosis = as.numeric(UTI_Leptospirosis),
+         PCP = as.numeric(PCP),
+         COVID_19 = as.numeric(COVID_19),
+         Neurocysticercosis = as.numeric(Neurocysticercosis),
+         ART_exposure = as.numeric(ART_exposure),
+         Kidney_medication = as.numeric(Kidney_medication),
+         Rifampicin = as.numeric(Rifampicin),
+         Fluconazole = as.numeric(Fluconazole),
+         Opiates = as.numeric(Opiates)
+         ) %>%
+  mutate(Haemoglobin = ifelse(Haemoglobin ==704, NA, Haemoglobin))
+df_1 <- as.data.frame(df)
+df_clean <- dt[, colSums(is.na(dt)) < nrow(dt)]
+
+# Remove columns with near-zero variance (optional but often helpful)
+library(caret)
+nzv <- nearZeroVar(df_clean)
+if (length(nzv) > 0) df_clean <- df_clean[, -nzv]
+# Calculate the correlation matrix
+cor_matrix <- cor(df_clean, use = "pairwise.complete.obs")
+
+# Find columns with correlation > 0.8 (excluding self-correlations)
+high_cor_pairs <- findCorrelation(cor_matrix, cutoff = 0.7)
+
+# Drop highly correlated variables
+data_reduced <- dt[, -high_cor_pairs]
+
+# selecting variables to analysis  for bivariate analysis
+covariates <- names(data_reduced)[sapply(data_reduced, is.numeric)][-which(names(data_reduced) == "mortality")]
+
+# Perform univariate regression
+univariate_models <- lapply(covariates, function(x) {
+  formula <- as.formula(paste("mortality ~ ", x))
+  glm(formula, data = data_reduced, family = binomial)
+})
+
+# Extract coefficients and p-values
+univariate_results <- lapply(univariate_models, tidy)
+
+# Bind results into a single data frame
+results_df <- do.call(rbind, univariate_results)
+
+# Filter models with P < 0.2
+selected_models <- results_df %>%
+  filter(term != '(Intercept)')%>%
+  filter(p.value <= 0.2) %>%
+  arrange(p.value)
+
+data_to_impute <- bind_cols(data_reduced, dt %>% dplyr::select(Tiredness, Loss_of_consciousness, Diarrhoea)) #%>%
+  # dplyr::select(mortality, selected_models$term)
+univariate_table <- tbl_uvregression(
+          data_to_impute %>% 
+            dplyr::select(mortality, selected_models$term) %>% 
+            mutate(Random_cortisol = Random_cortisol/50,
+                   Basal_cortisol = Basal_cortisol/50,
+                   BP_systolic = BP_systolic/10,
+                   BP_diastolic = BP_diastolic/10,
+                   ACTH = ACTH/100,
+                   cd4 = cd4/50),
+          method = glm,
+          y = mortality,
+          method.args = list(family = binomial),
+          exponentiate = TRUE#,
+          # include = -ID
+        )
+univariate_table
+
+```
 
 # Table 5 univariate analysis for addisson's disease
 
