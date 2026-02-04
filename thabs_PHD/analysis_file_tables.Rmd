@@ -1869,6 +1869,7 @@ for (i in seq_along(time_points)) {
 print(p_values)
 
 ```
+
 ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
 # Step 1: Calculate the percentage of missing values in each column
 missing_percentage <- sapply(table_3, function(x) mean(is.na(x))) * 100
@@ -1877,9 +1878,9 @@ missing_percentage <- sapply(table_3, function(x) mean(is.na(x))) * 100
 columns_to_impute <- names(missing_percentage[missing_percentage <= 30])
 
 dt <- table_3 %>% #[, columns_to_impute]
-  dplyr::select(
+  dplyr::select(record_id, mortality, ttdeath, 
     Age_at_enrolment, Gender, Ethnicity, Duration_of_current_illness, cd4 = `CD4 count`, Sodium, 
-    Potassium_mmol_L = `Potassium mmol/L`, Haemoglobin, White_cell_count, mortality, 
+    Potassium_mmol_L = `Potassium mmol/L`, Haemoglobin, White_cell_count, 
     Random_cortisol = `Random cortisol`, ACTH, BP_systolic = `BP (systolic)`, 
     BP_diastolic = `BP (diastolic)`, 
     Addisons_disease = `Addisons disease`, Heart_rate = `Heart rate`, Hypotension, 
@@ -1901,7 +1902,7 @@ dt <- table_3 %>% #[, columns_to_impute]
     Basal_cortisol = `Basal cortisol`, Stimulated_cortisol = `Stimulated cortisol`) %>%
   mutate(Gender = as.numeric(Gender),
          Ethnicity = as.numeric(Ethnicity),
-         Addisons_disease = as.null(Addisons_disease),
+         Addisons_disease = as.numeric(Addisons_disease),
          # discharged = as.numeric(as.factor(discharged)),
          Hypotension = as.numeric(Hypotension),
          Weakness = as.numeric(Weakness),
@@ -1982,11 +1983,11 @@ selected_models <- results_df %>%
   filter(p.value <= 0.2) %>%
   arrange(p.value)
 
-data_to_impute <- bind_cols(data_reduced, dt %>% dplyr::select(Tiredness, Loss_of_consciousness, Diarrhoea)) #%>%
+data_to_impute <- bind_cols(data_reduced, dt %>% dplyr::select(Tiredness, Loss_of_consciousness, Diarrhoea, )) #%>%
   # dplyr::select(mortality, selected_models$term)
 univariate_table <- tbl_uvregression(
           data_to_impute %>% 
-            dplyr::select(mortality, selected_models$term) %>% 
+            dplyr::select(mortality, selected_models$term, -record_id) %>% 
             mutate(Random_cortisol = Random_cortisol/50,
                    Basal_cortisol = Basal_cortisol/50,
                    BP_systolic = BP_systolic/10,
@@ -2000,6 +2001,100 @@ univariate_table <- tbl_uvregression(
           # include = -ID
         )
 univariate_table
+
+imp_data <- data_to_impute %>%
+  select(record_id, mortality, ttdeath, everything())
+
+# Initialise mice to get defaults
+ini <- mice(
+  imp_data,
+  maxit = 0,
+  print = FALSE
+)
+
+# Extract method and predictor matrix
+meth <- ini$method
+pred <- ini$predictorMatrix
+
+# --- Do NOT impute ID or outcome ---
+meth[c("record_id", "mortality", "ttdeath")] <- ""
+
+# --- Do NOT use ID or outcome as predictors ---
+pred[, c("record_id", "mortality", "ttdeath")] <- 0
+
+# (Optional) also prevent ID predicting itself (extra safety)
+pred["record_id", ] <- 0
+
+# Run mice
+nr_imputations <- 30
+imputedData <- mice(
+  data = imp_data,
+  m = nr_imputations,
+  maxit = 20,
+  method = meth,
+  predictorMatrix = pred,
+  seed = 33
+)
+
+imp_list <- complete(imputedData, action = "all")
+
+lasso_results <- lapply(imp_list, function(dat) {
+
+  x <- model.matrix(
+    Surv(ttdeath, mortality) ~ .,
+    dat
+  )[ , -1]  # remove intercept
+
+  y <- Surv(dat$ttdeath, dat$mortality)
+
+  glmnet::cv.glmnet(
+    x = x,
+    y = y,
+    family = "cox",
+    alpha = 0.5,          # Elastic Net
+    nfolds = 10
+  )
+})
+
+selected_vars <- lapply(lasso_results, function(fit) {
+
+  beta <- coef(fit, s = "lambda.min")
+
+  tibble::tibble(
+    var  = rownames(beta),
+    coef = as.numeric(beta)
+  ) %>%
+    dplyr::filter(abs(coef) > 0) %>%
+    dplyr::pull(var)
+})
+
+
+stable_vars <- selected_vars |>
+  unlist() |>
+  table() |>
+  as.data.frame() |>
+  rename(variable = Var1, freq = Freq) |>
+  filter(freq >= 0.6 * length(imp_list)) |>
+  pull(variable)
+
+final_formula <- as.formula(
+  paste("Surv(ttdeath, mortality) ~", paste(stable_vars, collapse = " + "))
+)
+
+cox_fit <- with(
+  imputedData,
+  survival::coxph(
+    survival::Surv(ttdeath, mortality) ~ ACTH + Opiates + Random_cortisol + Addisons_disease
+  )
+)
+
+pooled_cox <- pool(cox_fit)
+
+summary(
+  pooled_cox,
+  conf.int = TRUE,
+  exponentiate = TRUE
+)
 
 ```
 
