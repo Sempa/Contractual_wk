@@ -784,23 +784,19 @@ table_2 <- final_dataset %>%
     mortality = as.factor(ifelse(`3 followup_patientstatus` == 'Deceased --> EXIT form' | `6 followup_patientstatus` == 'Deceased --> EXIT form' | `12 followup_patientstatus` == 'Deceased --> EXIT form' | `Point of exit from study` == "Deceased", 'yes', 'no'))
   ) %>%
   # filter(AI != "") %>%
-  dplyr::select(`Age at enrolment, median (IQR) (years)` = `Age at enrolment`, 	
-`Gender, n(%)` = `Gender`, 	
-`Duration of current illness, median (IQR) (days)` = `Duration of current illness`, 	
-`Weight loss`, #`Random cortisol` = `Random cortisol result`, `Basal cortisol` = `Synacthen: 0 minute cortisol result`, `Stimulated cortisol` = `Synacthen: 30 minute cortisol result`, incremental_cortisol,
-`Viral load (log10 Copies/mL)` = `log10 viral load`, 	
-PTB, EPTB, `Cryptococcus neoformans`, Pneumonia, HepB, 	Candida, `Kaposis sarcoma`, 	
-HSV, `GE/c diff`, PCP, `Total CD4 count`, `White cell count X109` = `White cell count`, 
-`Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, 
-`Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, 
-`Haemoglobin g/dL` = Haemoglobin, `BP (systolic)`, `BP (diastolic)`, 
-`Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, 	
-`Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, 
-Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, 
-`Loss of axillary and pubic hair, if female`, 
-`Any postural drop in blood pressure`, `Presence of anaemia`, mortality, incremental_cortisol_percent_increase,
-Rifampicin, Fluconazole, Opiates, `ART exposure`, #`Kidney medication`, 
-`Addisons disease`, #`Ethnicity, n(%)` = Ethnicity, 
+  dplyr::select(`Addisons disease`, `Age at enrolment, median (IQR) (years)` = `Age at enrolment`,
+`Gender, n(%)` = `Gender`,
+`Duration of current illness, median (IQR) (days)` = `Duration of current illness`,
+`Weight loss`, Weakness, Tiredness, `Poor appetite`, `Increased pigmentation of the skin`,
+Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea,
+Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `BP (diastolic)`,
+`Heart rate`, Hypotension, `Any postural drop in blood pressure`, `Presence of anaemia`, 
+`Viral load (log10 Copies/mL)` = `log10 viral load`, PTB, EPTB, `Cryptococcus neoformans`,
+Pneumonia, HepB, Candida, `Kaposis sarcoma`, PCP, HSV, `GE/c diff`, `Total CD4 count`,
+`White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`,
+Neutrophils, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, 
+`Haemoglobin g/dL` = Haemoglobin, mortality, Fluconazole, Opiates, `ART exposure`
+, #`Ethnicity, n(%)` = Ethnicity, 
 # Tuberculosis, `Staph aureus`, Cytomegalovirus, `Parvo B19`, `Syphilis`, 
 # `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`
 ) %>%
@@ -809,7 +805,8 @@ Rifampicin, Fluconazole, Opiates, `ART exposure`, #`Kidney medication`,
     missing = "no",
     by = `Addisons disease`,
     type = list(c("Duration of current illness, median (IQR) (days)", #"Random cortisol", "Basal cortisol", "Stimulated cortisol", "ACTH",
-                  "BP (systolic)", "BP (diastolic)", "Potassium mmol/L", "Age at enrolment, median (IQR) (years)", "Viral load (log10 Copies/mL)", "Total CD4 count", "White cell count X109", "Haemoglobin g/dL", "Sodium mmol/L", "Heart rate", "Lymphocyte count X109", "Neutrophils") ~ "continuous"),#
+                  # "BP (systolic)", 
+                  "BP (diastolic)", "Potassium mmol/L", "Age at enrolment, median (IQR) (years)", "Viral load (log10 Copies/mL)", "Total CD4 count", "White cell count X109", "Haemoglobin g/dL", "Sodium mmol/L", "Heart rate", "Lymphocyte count X109", "Neutrophils") ~ "continuous"),#
           statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
     digits = list(all_categorical() ~ c(0, 1),
                   all_continuous() ~ c(1, 1))#,
@@ -1273,25 +1270,20 @@ table_4 <- table_3 %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
   mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y'))
          ) %>%
-  dplyr::select(
-    `Age at enrolment, median (IQR) (years)` = Age_at_enrolment, 
-`Gender, n(%)` = `Gender`, 
-`Duration of current illness, median (IQR) (days)` = Duration_of_current_illness, 
-`Random cortisol`, `Basal cortisol`, `Stimulated cortisol`, incremental_cortisol, incremental_cortisol_percent_increase, 
-`Weight loss`, `Viral load (log10 Copies/mL)`, PTB, EPTB,  `Cryptococcus neoformans`, 
-Pneumonia, HSV, HepB, Candida, `Syphilis`, PCP, `Total CD4 count` = `CD4 count`, 
-`White cell count X109` = White_cell_count, `Sodium mmol/L` = Sodium, 
-`Potassium mmol/L`, `Haemoglobin g/dL` = Haemoglobin, `Presence of anaemia`, 
-`BP (systolic)`, `BP (diastolic)`, `Heart rate`, Hypotension, Weakness, 
-Tiredness, `Poor appetite`, `Increased pigmentation of the skin`, Nausea, 
-Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, 
-Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, 
-`Any postural drop in blood pressure`, `ART exposure`, `Kidney medication`, 
-`ACTH`, Rifampicin, Fluconazole, Opiates, `Addisons disease` = Addisons_disease,
-`Ethnicity, n(%)` = Ethnicity, Tuberculosis, `Staph aureus`, `Kaposis sarcoma`, 
-Cytomegalovirus, `GE/c diff`, `Parvo B19`, `B menigitis`, `UTI / Leptospirosis`, 
-`COVID-19`, `Neurocysticercosis`, `Lymphocyte count X109` = Lymphocyte_count, 
-Neutrophils) %>%
+  dplyr::select(`Addisons disease`,
+                `Age at enrolment, median (IQR) (years)` = Age_at_enrolment,
+`Gender, n(%)` = `Gender`,
+`Duration of current illness, median (IQR) (days)` = Duration_of_current_illness,
+`Weight loss`, Weakness, Tiredness, `Poor appetite`, `Increased pigmentation of the skin`,
+Nausea, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, 
+`Loss of axillary and pubic hair, if female`, `BP (systolic)`, `BP (diastolic)`,
+`Heart rate`, Hypotension, `Any postural drop in blood pressure`, `Presence of anaemia`,
+`Sodium mmol/L` = Sodium, `Potassium mmol/L`, `Haemoglobin g/dL` = Haemoglobin,
+`Syphilis`, Candida, HepB, HSV, Pneumonia, PCP, PTB, EPTB, `Cryptococcus neoformans`,
+`Total CD4 count` = `CD4 count`, `Viral load (log10 Copies/mL)`, `Random cortisol`,
+`Basal cortisol`, `Stimulated cortisol`, incremental_cortisol, 
+incremental_cortisol_percent_increase
+    ) %>%
   # mutate(`Addisons disease` = forcats::fct_rev(`Addisons disease`)) %>%
 tbl_summary(#table_1,
             missing = "no",
