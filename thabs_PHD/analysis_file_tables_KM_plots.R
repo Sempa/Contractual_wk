@@ -507,8 +507,8 @@ km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04
 # Extract and relabel strata
 dt04_adj <- dt04 %>%
   mutate(strata = ifelse(strata != "No AI", "AI", strata),
-         AI_strata = ifelse(record_id %in% (readxl::read_excel("only_AI_participants.xlsx"))$UIN...1, "Stimulated",
-                            ifelse(!record_id %in% (readxl::read_excel("only_AI_participants.xlsx"))$UIN...1 & strata != "No AI", "non-Stimulated", "")
+         AI_strata = ifelse(record_id %in% (readr::read_csv("only_AI_participants_240.csv"))[[2]], "Stimulated",
+                            ifelse(!(record_id %in% (readr::read_csv("only_AI_participants_240.csv"))[[2]]) & strata != "No AI", "non-Stimulated", "")
                             )
   )
 
@@ -609,12 +609,12 @@ km_plot_manual2 <- ggplot(plot_data3, aes(x = time_jittered, y = surv, color = A
     panel.border = element_blank(),
     plot.margin = unit(c(0, 0, 0, 0), "null"),
     legend.position = "null")
-combine_plot_240 <- cowplot::plot_grid(km_plot_manual, km_plot_manual2, ncol = 2)
+combined_plot_240 <- cowplot::plot_grid(km_plot_manual, km_plot_manual2, ncol = 2)
 
 final_stacked_plot <- cowplot::plot_grid(
-  combine_plot_500,
-  combine_plot_400,
-  combine_plot_240,
+  combined_plot_500,
+  combined_plot_400,
+  combined_plot_240,
   ncol = 1
 )
 
