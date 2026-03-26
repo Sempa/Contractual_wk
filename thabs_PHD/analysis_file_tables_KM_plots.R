@@ -54,25 +54,25 @@ final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
   filter(!is.na(UIN...1)) %>%
   mutate(
     # --- Primary AI classifications ---
-    addisons_disease = if_else(as.numeric(`Random cortisol result`) < 240, 1, 0),
+    addisons_disease = if_else(as.numeric(`Random cortisol result`) < 500, 1, 0),
     
     PAI = case_when(
-      as.numeric(`Random cortisol result`) < 240 &
-        as.numeric(`Synacthen: 30 minute cortisol result`) < 240 &
+      as.numeric(`Random cortisol result`) < 500 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
         as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`) ~ 1,
       TRUE ~ 0
     ),
     
     SAI = case_when(
-      as.numeric(`Random cortisol result`) < 240 &
-        as.numeric(`Synacthen: 30 minute cortisol result`) < 240 &
+      as.numeric(`Random cortisol result`) < 500 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
         as.numeric(`ACTH result`) < 64.7 ~ 1,
       TRUE ~ 0
     ),
     
     total_AI = case_when(
-      as.numeric(`Random cortisol result`) < 240 & (PAI == 1 | SAI == 1) ~ 1,
-      as.numeric(`Random cortisol result`) < 240 & (PAI != 1 & SAI != 1) ~ 0,
+      as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1) ~ 1,
+      as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1) ~ 0,
       TRUE ~ NA_real_
     ),
     
@@ -507,8 +507,8 @@ km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04
 # Extract and relabel strata
 dt04_adj <- dt04 %>%
   mutate(strata = ifelse(strata != "No AI", "AI", strata),
-         AI_strata = ifelse(record_id %in% (readr::read_csv("only_AI_participants_240.csv"))[[2]], "Stimulated",
-                            ifelse(!(record_id %in% (readr::read_csv("only_AI_participants_240.csv"))[[2]]) & strata != "No AI", "non-Stimulated", "")
+         AI_strata = ifelse(record_id %in% (readr::read_csv("only_AI_participants_500.csv"))[[2]], "Stimulated",
+                            ifelse(!(record_id %in% (readr::read_csv("only_AI_participants_500.csv"))[[2]]) & strata != "No AI", "non-Stimulated", "")
                             )
   )
 
@@ -542,7 +542,8 @@ plot_data <- plot_data %>%
 km_plot_manual <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
   geom_step(size = 1.2) +
   geom_point(size = 1.5) +
-  labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
+  labs(x = "Time (months)", y = "Survival Probability", color = "Strata",
+       title = "< 500 nmol/L") +
   scale_color_manual(values = c("red", "darkgreen")) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25)) +
   scale_x_continuous(limits = c(0, 13), breaks = 0:13) +
@@ -558,6 +559,21 @@ km_plot_manual <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = str
     plot.margin = unit(c(0, 0, 0, 0), "null"),
     legend.position = "null"
     )
+km_plot_manual_500 <- km_plot_manual
+
+final_stacked_plot <- cowplot::plot_grid(
+  km_plot_manual_500,
+  km_plot_manual_400,
+  km_plot_manual_240,
+  ncol = 1
+)
+
+ggsave("KM_stacked_3x1.png",
+       final_stacked_plot,
+       width = 9,
+       height = 9,
+       dpi = 300)
+# ggsave("KM_curve_jittered2.png", plot = combine_plot, width = 12, height = 6, dpi = 300)
 
 # ggsave("KM_curve_jittered.png", km_plot_manual, width = 8, height = 6, dpi = 300)
 km_fit3 <- survfit(Surv(ttdeath, mortality) ~ AI_strata, 
