@@ -24,59 +24,34 @@ library(ggpubr)
 library(rstatix)
 
 ##############################################################################################
-library(tidyverse)
-library(magrittr)
-library(knitr)
-# library(kableExtra)
-library(tinytex)
-library(gmodels)
-library(readxl)
-# library(MASS)
-library(gtsummary)
-library(caret)
-library(leaps)
-library(MASS)
-library(predtools)
-library(randomForest)
-library(mice)
-# library(psfmi)
-library(survival)
-library(ranger)
-library(ggplot2)
-library(dplyr)
-library(ggfortify)
-library(survminer)
-library(ggpubr)
-library(rstatix)
-
-##############################################################################################
 final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
   filter(!is.na(UIN...1)) %>%
   mutate(
     # --- Primary AI classifications ---
-    addisons_disease = if_else(as.numeric(`Random cortisol result`) < 240, 1, 0),
+    addisons_disease = if_else(as.numeric(`Random cortisol result`) < 500, 1, 0),
     
     PAI = case_when(
-      as.numeric(`Random cortisol result`) < 240 &
-        as.numeric(`Synacthen: 30 minute cortisol result`) < 240 &
+      as.numeric(`Random cortisol result`) < 500 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
         as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`) ~ 1,
       TRUE ~ 0
     ),
     
     SAI = case_when(
-      as.numeric(`Random cortisol result`) < 240 &
-        as.numeric(`Synacthen: 30 minute cortisol result`) < 240 &
+      as.numeric(`Random cortisol result`) < 500 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
         as.numeric(`ACTH result`) < 64.7 ~ 1,
       TRUE ~ 0
     ),
     
     total_AI = case_when(
-      as.numeric(`Random cortisol result`) < 240 & (PAI == 1 | SAI == 1) ~ 1,
-      as.numeric(`Random cortisol result`) < 240 & (PAI != 1 & SAI != 1) ~ 0,
+      as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1) ~ 1,
+      as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1) ~ 0,
       TRUE ~ NA_real_
     ),
     
     addisons_disease = if_else(is.na(total_AI), 0, total_AI),
+    flag = ifelse(addisons_disease == 1, 1, 0),
     
     # Override Addisons classification for specified UINs
     addisons_disease = case_when(
@@ -507,8 +482,9 @@ km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04
 # Extract and relabel strata
 dt04_adj <- dt04 %>%
   mutate(strata = ifelse(strata != "No AI", "AI", strata),
-         AI_strata = ifelse(record_id %in% (readr::read_csv("only_AI_participants_240.csv"))[[2]], "Stimulated",
-                            ifelse(!(record_id %in% (readr::read_csv("only_AI_participants_240.csv"))[[2]]) & strata != "No AI", "non-Stimulated", "")
+         strata = ifelse(record_id %in% read_csv("AI_patient_list.csv")[[1]], "No AI", strata),
+         AI_strata = ifelse(record_id %in% (readr::read_csv("only_AI_participants_500.csv"))[[2]], "Stimulated", "non-Stimulated"
+                            # ifelse(!(record_id %in% (readr::read_csv("only_AI_participants_500.csv"))[[2]]) & strata != "No AI", "non-Stimulated", "")
                             )
   )
 
@@ -538,26 +514,100 @@ plot_data <- km_plot2$plot$data
 plot_data <- plot_data %>%
   mutate(time_jittered = ifelse(strata == "AI", time + 0.2, time))
 
+##################################################
 # Plot manually using ggplot2
+get_p_at_time <- function(data, time_point) {
+  data_sub <- data %>%
+    mutate(
+      ttdeath_trunc = pmin(ttdeath, time_point),
+      event_trunc = ifelse(ttdeath <= time_point & mortality == 1, 1, 0)
+    )
+  
+  surv_diff <- survdiff(Surv(ttdeath_trunc, event_trunc) ~ strata, data = data_sub)
+  p_val <- 1 - pchisq(surv_diff$chisq, df = 1)
+  
+  return(p_val)
+}
+
+time_points <- c(3, 6, 12)
+
+p_vals <- sapply(time_points, function(t) get_p_at_time(dt_km2, t))
+
+
+format_p <- function(p) {
+  if (p >= 0.05) {
+    "italic('NS')"
+  } else {
+    paste0("italic('p = ", format.pval(p, digits = 2, eps = .001), "')")
+  }
+}
+
+p_labels_time <- sapply(p_vals, format_p)
+
+# Log-rank label (also italic)
+p_label3 <- #if (p_value3 >= 0.05) {
+#   "italic('Log-rank: NS')"
+# } else {
+  paste0("italic('Log-rank p = ", format.pval(p_value3, digits = 3, eps = .001), "')")
+# }
+
+
+annot_df <- data.frame(
+  x = time_points,
+  y = c(0.80, 0.78, 0.76),  # tweak visually
+  label = p_labels_time
+)
+
+
 km_plot_manual <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
   geom_step(size = 1.2) +
   geom_point(size = 1.5) +
-  labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
+  labs(x = "Time Since Enrolment (months)", y = "Survival Probability", color = "Strata", title = 'A') +
   scale_color_manual(values = c("red", "darkgreen")) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25)) +
   scale_x_continuous(limits = c(0, 13), breaks = 0:13) +
-  annotate("text", x = 9, y = 0.2, label = p_label3,  size = 6, hjust = 0) +
+  
+  # 🔸 Add log-rank p-value (italic)
+  annotate("text", x = 8, y = 0.2, label = p_label3, parse = TRUE, size = 6, hjust = 0) +
+  
+  # 🔸 Add time-specific p-values
+  geom_text(data = annot_df,
+            aes(x = x, y = y, label = label),
+            parse = TRUE,
+            size = 5,
+            inherit.aes = FALSE) +
+  
   theme(
     text = element_text(size = 20),
-    plot.title = element_text(hjust = 0.5),
+    # plot.title = element_text(hjust = 0.5),
     axis.line = element_line(colour = "black"),
     axis.text = element_text(size = 18),
     axis.title = element_text(size = 18),
     panel.background = element_blank(),
     panel.border = element_blank(),
     plot.margin = unit(c(0, 0, 0, 0), "null"),
-    legend.position = "null"
+    legend.position = "none",
+    plot.title = element_text(
+      hjust = 0,   # 🔹 left align
+      face = "bold",
+      size = 22
     )
+  )
+
+km_plot_manual_500 <- km_plot_manual
+
+final_stacked_plot <- cowplot::plot_grid(
+  km_plot_manual_500,
+  km_plot_manual_400,
+  km_plot_manual_240,
+  ncol = 1
+)
+
+ggsave("KM_stacked_3x1.png",
+       final_stacked_plot,
+       width = 8,
+       height = 8,
+       dpi = 300)
 
 # ggsave("KM_curve_jittered.png", km_plot_manual, width = 8, height = 6, dpi = 300)
 km_fit3 <- survfit(Surv(ttdeath, mortality) ~ AI_strata, 
@@ -609,7 +659,7 @@ km_plot_manual2 <- ggplot(plot_data3, aes(x = time_jittered, y = surv, color = A
     panel.border = element_blank(),
     plot.margin = unit(c(0, 0, 0, 0), "null"),
     legend.position = "null")
-combined_plot_240 <- cowplot::plot_grid(km_plot_manual, km_plot_manual2, ncol = 2)
+combined_plot_500 <- cowplot::plot_grid(km_plot_manual, km_plot_manual2, ncol = 2)
 
 final_stacked_plot <- cowplot::plot_grid(
   combined_plot_500,
