@@ -15,7 +15,7 @@ library(janitor)
 ############################################################
 
 # Clean variable names
-df <- x %>%
+df <- read_csv("final_dataset_08062025.csv")[,-c(1, 3:6,73)] %>%
   clean_names()
 
 # Convert outcome to factor (0 = No AI, 1 = AI)
