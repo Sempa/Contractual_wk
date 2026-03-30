@@ -15,7 +15,7 @@ library(janitor)
 ############################################################
 
 # Clean variable names
-df <- read_csv("final_dataset_08062025.csv")[,-c(1, 3:6,73)] %>%
+df <- read_csv("final_dataset_08062025.csv") %>%
   clean_names()
 
 # Convert outcome to factor (0 = No AI, 1 = AI)
@@ -24,15 +24,38 @@ df <- df %>%
 
 # Remove problematic columns (dates, free text, near-empty)
 df <- df %>%
-  select(-matches("date|comment|specify"))
+  dplyr::select(-matches("date|comment|specify"), -total_cd4_count_91, -total_ai,
+                -uin_3,-uin_179,
+                -hospital_folder_number, -x1, - event_name, -cd4_100) %>%
+  mutate(across(where(is.logical), ~ factor(.x, levels = c(FALSE, TRUE))))
 
+yes_no_vars <- names(df)[
+  sapply(df, function(x)
+    is.character(x) &&
+      all(na.omit(x) %in% c("Yes", "No", "Checked", "Unchecked"))
+  )
+]
+
+df_imp <- df %>%
+  mutate(across(
+    all_of(yes_no_vars),
+    ~ factor(.x,
+             levels = c("No", "Yes", "Unchecked", "Checked"))
+  )) %>%
+  mutate(across(where(is.character), as.factor),
+         hiv_when_diagnosed = as.numeric(hiv_when_diagnosed))
+constant_vars <- sapply(df_imp, function(x) {
+  length(unique(x[!is.na(x)])) <= 1
+})
+
+df_imp1 <- df_imp[, !constant_vars, drop = FALSE]
 ############################################################
 # 🔷 2. TRAIN-TEST SPLIT (STRATIFIED)
 ############################################################
 
 set.seed(123)
 
-split <- initial_split(df, prop = 0.8, strata = outcome)
+split <- initial_split(df_imp1, prop = 0.8, strata = outcome)
 
 train_data <- training(split)
 test_data  <- testing(split)
