@@ -16,7 +16,8 @@ library(janitor)
 
 # Clean variable names
 df <- read_csv("final_dataset_08062025.csv") %>%
-  clean_names()
+  clean_names() %>%
+  dplyr::select(-initials)
 
 # Convert outcome to factor (0 = No AI, 1 = AI)
 df <- df %>%
@@ -49,8 +50,31 @@ constant_vars <- sapply(df_imp, function(x) {
 })
 
 df_imp1 <- df_imp[, !constant_vars, drop = FALSE]
+
+
 ############################################################
-# 🔷 2. TRAIN-TEST SPLIT (STRATIFIED)
+# 🔷 2. MICE IMPUTATION (TRAINING DATA ONLY)
+############################################################
+
+# Perform multiple imputation using predictive mean matching
+# mice_data <- mice(df_imp1, m = 5, method = "pmm", seed = 123)
+nr_imputations <- 5
+imputedData <- mice::mice(
+  data =data.frame(df_imp1 %>% dplyr::select(-outcome)),#data.frame(dt[, columns_to_impute]),
+  m = nr_imputations,
+  maxit = 20,
+  defaultMethod = c("pmm", "logreg", "polyreg", "polr"),
+  seed = 33#,
+)
+# Extract ONE completed dataset (for ML workflow)
+mice_complete <- complete(imputedData, 1)
+
+# NOTE:
+# For publication-grade work, you can repeat the entire pipeline
+# across all 5 imputations and pool results.
+
+############################################################
+# 🔷 3. TRAIN-TEST SPLIT (STRATIFIED)
 ############################################################
 
 set.seed(123)
@@ -59,20 +83,6 @@ split <- initial_split(df_imp1, prop = 0.8, strata = outcome)
 
 train_data <- training(split)
 test_data  <- testing(split)
-
-############################################################
-# 🔷 3. MICE IMPUTATION (TRAINING DATA ONLY)
-############################################################
-
-# Perform multiple imputation using predictive mean matching
-mice_train <- mice(train_data, m = 5, method = "pmm", seed = 123)
-
-# Extract ONE completed dataset (for ML workflow)
-train_complete <- complete(mice_train, 1)
-
-# NOTE:
-# For publication-grade work, you can repeat the entire pipeline
-# across all 5 imputations and pool results.
 
 ############################################################
 # 🔷 4. SIMPLE IMPUTATION FOR TEST DATA (NO LEAKAGE)
