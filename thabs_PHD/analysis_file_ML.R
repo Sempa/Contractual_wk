@@ -56,16 +56,28 @@ df_imp1 <- df_imp[, !constant_vars, drop = FALSE]
 # 🔷 2. MICE IMPUTATION (TRAINING DATA ONLY)
 ############################################################
 
+predM <- make.predictorMatrix(df_imp1 %>% dplyr::select(-outcome))
+
+quick_pred <- quickpred(
+  df_imp1 %>% dplyr::select(-outcome),
+  mincor = 0.1,
+  minpuc = 0.25
+)
+
 # Perform multiple imputation using predictive mean matching
 # mice_data <- mice(df_imp1, m = 5, method = "pmm", seed = 123)
 nr_imputations <- 5
-imputedData <- mice::mice(
-  data =data.frame(df_imp1 %>% dplyr::select(-outcome)),#data.frame(dt[, columns_to_impute]),
+
+imputedData <- mice(
+  data = data.frame(df_imp1 %>% dplyr::select(-outcome)),
   m = nr_imputations,
-  maxit = 20,
+  maxit = 10,
+  predictorMatrix = quick_pred,
   defaultMethod = c("pmm", "logreg", "polyreg", "polr"),
-  seed = 33#,
+  seed = 33,
+  printFlag = TRUE
 )
+
 # Extract ONE completed dataset (for ML workflow)
 mice_complete <- complete(imputedData, 1)
 
