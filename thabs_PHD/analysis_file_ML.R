@@ -1,5 +1,5 @@
 ############################################################
-# 🔷 0. LOAD LIBRARIES
+# ? 0. LOAD LIBRARIES
 ############################################################
 library(tidyverse)
 library(tidymodels)
@@ -9,26 +9,39 @@ library(keras)
 library(yardstick)
 library(vip)
 library(janitor)
+library(parallel)
 
 ############################################################
-# 🔷 1. DATA PREPARATION
+# ? 1. DATA PREPARATION
 ############################################################
 
 # Clean variable names
-df <- read_csv("final_dataset_08062025.csv") %>%
+df <- read_csv("final_dataset_02052026.csv") %>%
   clean_names() %>%
-  dplyr::select(-initials)
+  mutate(
+    across(
+      where(~ is.character(.) || is.logical(.)),
+      ~ case_when(
+        is.na(.)                                   ~ NA_real_,
+        str_to_lower(as.character(.)) %in% c("Checked", "True", "Yes", "1")  ~ 1,
+        str_to_lower(as.character(.)) %in% c("Unchecked", "False", "No", "0") ~ 0,
+        TRUE ~ NA_real_
+      )
+    )
+  ) %>%
+  mutate(across(where(is.logical), ~ factor(.x, levels = c(FALSE, TRUE))))
 
 # Convert outcome to factor (0 = No AI, 1 = AI)
 df <- df %>%
   mutate(outcome = factor(outcome, levels = c(0, 1)))
 
 # Remove problematic columns (dates, free text, near-empty)
-df <- df %>%
-  dplyr::select(-matches("date|comment|specify"), -total_cd4_count_91, -total_ai,
-                -uin_3,-uin_179,
-                -hospital_folder_number, -x1, - event_name, -cd4_100) %>%
-  mutate(across(where(is.logical), ~ factor(.x, levels = c(FALSE, TRUE))))
+# df <- df %>%
+#   dplyr::select(-matches("date|comment|specify"), -total_cd4_count_91, -total_ai,
+#                 -uin_3,-uin_179,
+#                 -hospital_folder_number, -x1, - event_name, -cd4_100, -ward, 
+#                 -did_the_patient_consent_to_dna_substudy, -baseline_samples_taken_time,
+#                 -informed_consent_before_enrolment, -hiv_when_diagnosed)
 
 yes_no_vars <- names(df)[
   sapply(df, function(x)
@@ -44,19 +57,72 @@ df_imp <- df %>%
              levels = c("No", "Yes", "Unchecked", "Checked"))
   )) %>%
   mutate(across(where(is.character), as.factor),
-         hiv_when_diagnosed = as.numeric(hiv_when_diagnosed))
-constant_vars <- sapply(df_imp, function(x) {
+         # hiv_when_diagnosed = as.numeric(hiv_when_diagnosed)
+  ) %>%
+  mutate(
+    oi_num = rowSums(
+      across(
+        starts_with("primary_medical_conditions_"),
+        ~ !is.na(.) & str_trim(.) != ""
+      )
+    ),
+    ois = oi_num > 0
+  ) %>%
+  dplyr::select(-starts_with("primary_medical_conditions_")) %>%
+  mutate(
+    coi_num = rowSums(
+      across(
+        starts_with("co_existing_medical_conditions_"),
+        ~ !is.na(.) & str_trim(.) != ""
+      )
+    ),
+    cois = oi_num > 0
+  ) %>%
+  dplyr::select(-starts_with("co_existing_medical_conditions_")) %>%
+  mutate(
+    conc_med_num = rowSums(
+      across(
+        starts_with("concomitant_therapy_"),
+        ~ !is.na(.) & str_trim(.) != ""
+      )
+    ),
+    conc_med = oi_num > 0
+  ) %>%
+  dplyr::select(-starts_with("concomitant_therapy_"))
+
+source('cols_to_drop_vars.R')
+df_imp1 <- df_imp %>%
+  dplyr::select(-all_of(cols_to_drop))
+
+constant_vars <- sapply(df_imp1, function(x) {
   length(unique(x[!is.na(x)])) <= 1
 })
 
-df_imp1 <- df_imp[, !constant_vars, drop = FALSE]
+df_imp1 <- df_imp1[, !constant_vars, drop = FALSE]
 
+nzv <- caret::nearZeroVar(df_imp1, saveMetrics = TRUE)
+
+df_imp1 <- df_imp1[, !nzv$nzv, drop = FALSE] 
 
 ############################################################
-# 🔷 2. MICE IMPUTATION (TRAINING DATA ONLY)
+# ? 2. MICE IMPUTATION (TRAINING DATA ONLY)
 ############################################################
 
-predM <- make.predictorMatrix(df_imp1 %>% dplyr::select(-outcome))
+## -----------------------------
+## 2.1. Get number of cores from HPC scheduler
+## -----------------------------
+## Works on SLURM; safe fallback otherwise
+n_cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
+if (is.na(n_cores) || n_cores < 1) {
+  n_cores <- 1
+}
+
+## -----------------------------
+## 2.2. Predictor matrix
+## -----------------------------
+predM <- make.predictorMatrix(
+  df_imp1 %>% dplyr::select(-outcome)
+)
 
 quick_pred <- quickpred(
   df_imp1 %>% dplyr::select(-outcome),
@@ -64,52 +130,82 @@ quick_pred <- quickpred(
   minpuc = 0.25
 )
 
-# Perform multiple imputation using predictive mean matching
-# mice_data <- mice(df_imp1, m = 5, method = "pmm", seed = 123)
+## -----------------------------
+## 2.3. Reproducibility (CRITICAL on HPC)
+## -----------------------------
+RNGkind(kind = "Mersenne-Twister", sample.kind = "Rounding")
+set.seed(33)
+
+## -----------------------------
+## 2.4. Multiple imputation (parallelised across imputations)
+## -----------------------------
 nr_imputations <- 5
 
 imputedData <- mice(
-  data = data.frame(df_imp1 %>% dplyr::select(-outcome)),
+  data = df_imp1 %>%
+    dplyr::select(-outcome) %>%
+    mutate(across(where(is.character), as.factor)) %>%
+    as.data.frame(),
+  
   m = nr_imputations,
   maxit = 10,
   predictorMatrix = quick_pred,
+  ridge = 1e-05,
   defaultMethod = c("pmm", "logreg", "polyreg", "polr"),
-  seed = 33,
-  printFlag = TRUE
+  printFlag = TRUE,
+  
+  ## HPC SAFE PARALLELISATION
+  parallel = "snow",
+  ncpus = n_cores
 )
 
-# Extract ONE completed dataset (for ML workflow)
+## -----------------------------
+## 2.5. Extract one completed dataset
+## -----------------------------
 mice_complete <- complete(imputedData, 1)
+
+
+y_outcome <- df_imp1$outcome
+
+mice_complete <- complete(imputedData, 1)
+
+analysis_data <- cbind(
+  outcome = y_outcome,
+  mice_complete
+) %>%
+  dplyr::select(-adrenal_insufficiency, -random_cortisol_result, 
+                -synacthen_0_minute_cortisol_result, -synacthen_30_minute_cortisol_result)
 
 # NOTE:
 # For publication-grade work, you can repeat the entire pipeline
 # across all 5 imputations and pool results.
 
 ############################################################
-# 🔷 3. TRAIN-TEST SPLIT (STRATIFIED)
+# ? 3. TRAIN-TEST SPLIT (STRATIFIED)
 ############################################################
 
+RNGkind(kind = "Mersenne-Twister", sample.kind = "Rounding")
 set.seed(123)
 
-split <- initial_split(df_imp1, prop = 0.8, strata = outcome)
+split <- initial_split(analysis_data, prop = 0.8, strata = outcome)
 
 train_data <- training(split)
 test_data  <- testing(split)
 
 ############################################################
-# 🔷 4. SIMPLE IMPUTATION FOR TEST DATA (NO LEAKAGE)
+# ? 4. SIMPLE IMPUTATION FOR TEST DATA (NO LEAKAGE)
 ############################################################
 
 # Use median/mode for test data to avoid leakage
-test_complete <- test_data %>%
-  mutate(across(where(is.numeric), ~ ifelse(is.na(.), median(., na.rm = TRUE), .))) %>%
-  mutate(across(where(is.character), ~ replace_na(., "Missing")))
+# test_data <- test_data %>%
+#   mutate(across(where(is.numeric), ~ ifelse(is.na(.), median(., na.rm = TRUE), .))) %>%
+#   mutate(across(where(is.character), ~ replace_na(., "Missing")))
 
 ############################################################
-# 🔷 5. PREPROCESSING (ENCODING + SCALING)
+# ? 5. PREPROCESSING (ENCODING + SCALING)
 ############################################################
 
-rec <- recipe(outcome ~ ., data = train_complete) %>%
+rec <- recipe(outcome ~ ., data = train_data) %>%
   step_dummy(all_nominal_predictors()) %>%
   step_zv(all_predictors()) %>%
   step_normalize(all_numeric_predictors())
@@ -118,11 +214,11 @@ rec <- recipe(outcome ~ ., data = train_complete) %>%
 prep_rec <- prep(rec)
 
 # Apply transformations
-train_processed <- bake(prep_rec, new_data = train_complete)
-test_processed  <- bake(prep_rec, new_data = test_complete)
+train_processed <- bake(prep_rec, new_data = train_data)
+test_processed  <- bake(prep_rec, new_data = test_data)
 
 ############################################################
-# 🔷 6. LASSO FEATURE SELECTION
+# ? 6. LASSO FEATURE SELECTION
 ############################################################
 
 lasso_model <- logistic_reg(penalty = tune(), mixture = 1) %>%
@@ -141,7 +237,7 @@ lasso_fit <- tune_grid(
 )
 
 # Select best penalty
-best_lambda <- select_best(lasso_fit, "roc_auc")
+best_lambda <- select_best(lasso_fit, metric = "roc_auc")
 
 # Fit final LASSO
 final_lasso <- finalize_workflow(lasso_workflow, best_lambda) %>%
@@ -151,10 +247,10 @@ final_lasso <- finalize_workflow(lasso_workflow, best_lambda) %>%
 lasso_coefs <- tidy(final_lasso) %>%
   filter(estimate != 0)
 
-selected_features <- lasso_coefs$term
+selected_features <- lasso_coefs$term[-1]
 
 ############################################################
-# 🔷 7. PREPARE MATRICES FOR NEURAL NETWORK
+# ? 7. PREPARE MATRICES FOR NEURAL NETWORK
 ############################################################
 
 # Keep only selected features
@@ -172,14 +268,14 @@ x_test <- test_nn %>% select(-outcome) %>% as.matrix()
 y_test <- as.numeric(test_nn$outcome) - 1
 
 ############################################################
-# 🔷 8. HANDLE CLASS IMBALANCE (WEIGHTS)
+# ? 8. HANDLE CLASS IMBALANCE (WEIGHTS)
 ############################################################
 
 class_weights <- table(y_train)
 class_weights <- sum(class_weights) / (2 * class_weights)
 
 ############################################################
-# 🔷 9. BUILD FEEDFORWARD NEURAL NETWORK (FNN)
+# ? 9. BUILD FEEDFORWARD NEURAL NETWORK (FNN)
 ############################################################
 
 build_model <- function(input_dim) {
@@ -197,11 +293,11 @@ build_model <- function(input_dim) {
 }
 
 ############################################################
-# 🔷 10. TRAIN MODEL (REPEATED 10 TIMES)
+# ? 10. TRAIN MODEL (REPEATED 10 TIMES)
 ############################################################
 
 ############################################################
-# 🔷 IMPROVED NEURAL NETWORK (TUNED)
+# ? IMPROVED NEURAL NETWORK (TUNED)
 ############################################################
 
 build_model <- function(input_dim) {
@@ -219,7 +315,7 @@ build_model <- function(input_dim) {
 }
 
 ############################################################
-# 🔷 TRAIN WITH EARLY STOPPING
+# ? TRAIN WITH EARLY STOPPING
 ############################################################
 
 callback <- callback_early_stopping(
@@ -263,7 +359,7 @@ mean_auc <- mean(auc_values)
 print(mean_auc)
 
 ############################################################
-# 🔷 11. MODEL EVALUATION
+# ? 11. MODEL EVALUATION
 ############################################################
 
 # AUC across all runs
@@ -290,7 +386,7 @@ roc_curve(results[[best_idx]], truth = truth, pred) %>%
   autoplot()
 
 ############################################################
-# 🔷 12. FEATURE IMPORTANCE (AGGREGATED)
+# ? 12. FEATURE IMPORTANCE (AGGREGATED)
 ############################################################
 
 vip_list <- map(models, vip::vi)
