@@ -51,7 +51,7 @@ library(rstatix)
 ```
 
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
   filter(!is.na(UIN...1)) %>%
   mutate(
@@ -295,7 +295,7 @@ final_dataset %>%
 ```
 
 # Baseline table
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 # `Primary medical conditions (1)`, `Primary medical conditions (2)`, `Primary medical conditions (3)`, `Primary medical conditions (4)`, Co-existing medical conditions (2), Other, specify...67,
 table_1 <- final_dataset %>%
   mutate(`log10 viral load` = log(as.numeric(`HIV viral load`, 10)),
@@ -326,7 +326,7 @@ table_1
 ```
 
 # Table 1
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 # table_1 <- final_dataset %>%
 #   mutate(`log10 viral load` = log(as.numeric(`HIV viral load`, 10)),
 #          `Age at enrolment` = as.numeric(`Age at enrolment`),
@@ -449,7 +449,7 @@ dt02 <- final_dataset %>%
 ```
 
 # Table 1.2
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 table_12 <- final_dataset %>%
   mutate(`log10 viral load` = log(as.numeric(`HIV viral load`, 10)),
          `Age at enrolment` = as.numeric(`Age at enrolment`),
@@ -520,7 +520,7 @@ table_12_1 <- final_dataset %>%
 
 ```
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 
 dt02 <- bind_rows(final_dataset %>%
   mutate(`AI status` = ifelse(addisons_disease==1, 'Adrenal insufficiency', 'No Adrenal insufficiency'),
@@ -757,7 +757,7 @@ dt09
 ```
 
 # Table 2: comparing Addisons status with other variables
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 fisher.test.simulate.p.values <- function(data, variable, by, ...) {
   result <- list()
   test_results <- stats::fisher.test(data[[variable]], data[[by]], simulate.p.value = TRUE)
@@ -908,7 +908,7 @@ PTB, EPTB,  `GE/c diff`, EPTB, PTB, AI
 ```
 
 # Table 2.2: Cause of moratlity
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 # table_2_2  <- cod_oi %>%
 #   right_join(final_dataset %>%
 #               dplyr::select(`Hospital folder number`, `Point of exit from study`, `Outcome of hospitalization`, addisons_disease, PAI, SAI, total_AI), 
@@ -917,7 +917,7 @@ PTB, EPTB,  `GE/c diff`, EPTB, PTB, AI
 # ```
 # 
 # ## cross-tabulation
-# ```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+# ```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 # table_2_1 <- final_dataset %>%
 #   mutate(Ethnicity = as.character(Ethnicity)) %>%
 #   mutate(
@@ -1016,7 +1016,7 @@ PTB, EPTB,  `GE/c diff`, EPTB, PTB, AI
 
 
 # Dotplot
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 dt02_2 <- final_dataset %>%
   filter(!is.na(as.numeric(`Synacthen: 30 minute cortisol result`))) %>%
   mutate(`Random cortisol result` = as.numeric(`Random cortisol result`)) %>%
@@ -1148,7 +1148,7 @@ dev.off()
 
 # Table 3: Bivariate table
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 table_mortality <- final_dataset %>%
   dplyr::select(`Hospital folder number`, `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`) %>%
   pivot_longer(cols = c(`3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`),
@@ -1274,7 +1274,7 @@ table_3_1
 
 # Table 3a: Deep dive on Addison's disease patients
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 table_4 <- table_3 %>%
   filter(mortality == 1) %>%
   mutate(Ethnicity = as.character(Ethnicity)) %>%
@@ -1370,7 +1370,7 @@ table_5
 ```
 
 <!-- # Table 3b: Deep dive in mortality between PAI and SAI -->
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 table_4_1 <- table_3 %>%
   filter(mortality == 1) %>%
   filter(`Addisons disease` == 1) %>%
@@ -1455,7 +1455,7 @@ tbl_merge(tbls = list(table_4, table_4_2),
 
 
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 univariate_mortality <- tbl_uvregression(
   table_3 %>%
     mutate(
@@ -1484,7 +1484,7 @@ univariate_mortality
 
 <!-- The rule of thumb for MV models such as this on you need at least 10 people per outcome. We have 53 people with the outcome, yet we have 6 variables adjusted for in the model (using stepwise regression). I suggest we remove one variable from the list that you think may not be biologically contributing in the relationship. (see accompanying file) -->
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 # Step 1: Calculate the percentage of missing values in each column
 missing_percentage <- sapply(table_3, function(x) mean(is.na(x))) * 100
 
@@ -1872,7 +1872,7 @@ print(p_values)
 
 ```
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 # Step 1: Calculate the percentage of missing values in each column
 missing_percentage <- sapply(table_3, function(x) mean(is.na(x))) * 100
 
@@ -2102,7 +2102,7 @@ summary(
 
 # Table 5 univariate analysis for addisson's disease
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 
 table_5 <- final_dataset %>%
   left_join(table_mortality1, by = 'Hospital folder number') %>%
@@ -2192,7 +2192,7 @@ tbl_uvregression(
 
 
 
-```{r, message = FALSE, cache = TRUE, warning=FALSE, echo = FALSE, results='asis'}
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 table_6 <- table_5 %>%
   mutate(Duration_of_current_illness = `Duration of current illness, median (IQR) (days)`/10) %>%
   # mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
