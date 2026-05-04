@@ -27,7 +27,9 @@ df <- df %>%
 df <- df %>%
   dplyr::select(-matches("date|comment|specify"), -total_cd4_count_91, -total_ai,
                 -uin_3,-uin_179,
-                -hospital_folder_number, -x1, - event_name, -cd4_100) %>%
+                -hospital_folder_number, -x1, - event_name, -cd4_100, -ward, 
+                -did_the_patient_consent_to_dna_substudy, -baseline_samples_taken_time,
+                -informed_consent_before_enrolment, -hiv_when_diagnosed) %>%
   mutate(across(where(is.logical), ~ factor(.x, levels = c(FALSE, TRUE))))
 
 yes_no_vars <- names(df)[
@@ -44,7 +46,8 @@ df_imp <- df %>%
              levels = c("No", "Yes", "Unchecked", "Checked"))
   )) %>%
   mutate(across(where(is.character), as.factor),
-         hiv_when_diagnosed = as.numeric(hiv_when_diagnosed))
+         # hiv_when_diagnosed = as.numeric(hiv_when_diagnosed)
+         )
 constant_vars <- sapply(df_imp, function(x) {
   length(unique(x[!is.na(x)])) <= 1
 })
@@ -56,7 +59,21 @@ df_imp1 <- df_imp[, !constant_vars, drop = FALSE]
 # 🔷 2. MICE IMPUTATION (TRAINING DATA ONLY)
 ############################################################
 
-predM <- make.predictorMatrix(df_imp1 %>% dplyr::select(-outcome))
+## -----------------------------
+## 2.1. Get number of cores from HPC scheduler
+## -----------------------------
+## Works on SLURM; safe fallback otherwise
+n_cores <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
+if (is.na(n_cores) || n_cores < 1) {
+  n_cores <- 1
+}
+
+## -----------------------------
+## 2.2. Predictor matrix
+## -----------------------------
+predM <- make.predictorMatrix(
+  df_imp1 %>% dplyr::select(-outcome)
+)
 
 quick_pred <- quickpred(
   df_imp1 %>% dplyr::select(-outcome),
@@ -64,21 +81,37 @@ quick_pred <- quickpred(
   minpuc = 0.25
 )
 
-# Perform multiple imputation using predictive mean matching
-# mice_data <- mice(df_imp1, m = 5, method = "pmm", seed = 123)
+## -----------------------------
+## 2.3. Reproducibility (CRITICAL on HPC)
+## -----------------------------
+RNGkind(kind = "Mersenne-Twister", sample.kind = "Rounding")
+set.seed(33)
+
+## -----------------------------
+## 2.4. Multiple imputation (parallelised across imputations)
+## -----------------------------
 nr_imputations <- 5
 
 imputedData <- mice(
-  data = data.frame(df_imp1 %>% dplyr::select(-outcome)),
+  data = df_imp1 %>%
+    dplyr::select(-outcome) %>%
+    mutate(across(where(is.character), as.factor)) %>%
+    as.data.frame(),
+  
   m = nr_imputations,
   maxit = 10,
   predictorMatrix = quick_pred,
   defaultMethod = c("pmm", "logreg", "polyreg", "polr"),
-  seed = 33,
-  printFlag = TRUE
+  printFlag = TRUE,
+  
+  ## HPC SAFE PARALLELISATION
+  parallel = "snow",
+  ncpus = n_cores
 )
 
-# Extract ONE completed dataset (for ML workflow)
+## -----------------------------
+## 2.5. Extract one completed dataset
+## -----------------------------
 mice_complete <- complete(imputedData, 1)
 
 # NOTE:
