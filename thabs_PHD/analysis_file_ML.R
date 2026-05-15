@@ -5,11 +5,14 @@ library(tidyverse)
 library(tidymodels)
 library(mice)
 library(glmnet)
-library(keras)
+library(keras3)
 library(yardstick)
 library(vip)
 library(janitor)
 library(parallel)
+library(reticulate)
+# py_require(c("tensorflow", "keras"))
+
 
 ############################################################
 # ? 1. DATA PREPARATION
@@ -152,7 +155,7 @@ imputedData <- mice(
   predictorMatrix = quick_pred,
   ridge = 1e-05,
   defaultMethod = c("pmm", "logreg", "polyreg", "polr"),
-  printFlag = TRUE,
+  printFlag = FALSE,
   
   ## HPC SAFE PARALLELISATION
   parallel = "snow",
@@ -279,124 +282,363 @@ class_weights <- sum(class_weights) / (2 * class_weights)
 ############################################################
 
 build_model <- function(input_dim) {
-  keras_model_sequential() %>%
-    layer_dense(units = 64, activation = "relu", input_shape = input_dim) %>%
-    layer_dropout(rate = 0.3) %>%
-    layer_dense(units = 32, activation = "relu") %>%
-    layer_dropout(rate = 0.2) %>%
-    layer_dense(units = 1, activation = "sigmoid") %>%
-    compile(
-      loss = "binary_crossentropy",
-      optimizer = optimizer_adam(learning_rate = 0.001),
-      metrics = metric_auc()
+  
+  model <- keras_model_sequential()
+  
+  model$add(
+    layer_dense(
+      units = 128,
+      activation = "relu",
+      input_shape = c(input_dim)
     )
-}
-
-############################################################
-# ? 10. TRAIN MODEL (REPEATED 10 TIMES)
-############################################################
-
-############################################################
-# ? IMPROVED NEURAL NETWORK (TUNED)
-############################################################
-
-build_model <- function(input_dim) {
-  keras_model_sequential() %>%
-    layer_dense(units = 128, activation = "relu", input_shape = input_dim) %>%
-    layer_dropout(rate = 0.4) %>%
-    layer_dense(units = 64, activation = "relu") %>%
-    layer_dropout(rate = 0.3) %>%
-    layer_dense(units = 1, activation = "sigmoid") %>%
-    compile(
-      loss = "binary_crossentropy",
-      optimizer = optimizer_adam(learning_rate = 0.0005),
-      metrics = metric_auc()
+  )
+  
+  model$add(
+    layer_dropout(rate = 0.4)
+  )
+  
+  model$add(
+    layer_dense(
+      units = 64,
+      activation = "relu"
     )
+  )
+  
+  model$add(
+    layer_dropout(rate = 0.3)
+  )
+  
+  model$add(
+    layer_dense(
+      units = 1,
+      activation = "sigmoid"
+    )
+  )
+  
+  model$compile(
+    optimizer = optimizer_adam(learning_rate = 0.0005),
+    loss = "binary_crossentropy",
+    metrics = list("accuracy")
+  )
+  
+  return(model)
 }
 
 ############################################################
 # ? TRAIN WITH EARLY STOPPING
 ############################################################
+# Ensure no missing values
+# ------------------------------
+# ✅ Libraries
+# ------------------------------
+library(tidyverse)
+library(keras3)
+library(yardstick)
 
-callback <- callback_early_stopping(
-  monitor = "val_loss",
-  patience = 10,
+# ------------------------------
+# ✅ Preprocessing
+# ------------------------------
+
+# Convert to numeric matrix
+x_train <- as.matrix(x_train)
+x_test  <- as.matrix(x_test)
+
+storage.mode(x_train) <- "double"
+storage.mode(x_test)  <- "double"
+
+y_train <- as.numeric(y_train)
+y_test  <- as.numeric(y_test)
+
+# ------------------------------
+# ✅ Train / Validation split
+# ------------------------------
+set.seed(123)
+
+n <- nrow(x_train)
+val_idx <- sample(seq_len(n), size = floor(0.2 * n))
+
+x_val <- x_train[val_idx, ]
+y_val <- y_train[val_idx]
+
+x_tr  <- x_train[-val_idx, ]
+y_tr  <- y_train[-val_idx]
+
+# ------------------------------
+# ✅ Convert to arrays (keras3 safe)
+# ------------------------------
+x_tr  <- array(as.numeric(x_tr), dim = dim(x_tr))
+x_val <- array(as.numeric(x_val), dim = dim(x_val))
+x_test <- array(as.numeric(x_test), dim = dim(x_test))
+
+y_tr  <- as.numeric(y_tr)
+y_val <- as.numeric(y_val)
+y_test <- as.numeric(y_test)
+
+# ============================================================
+# IMPORTANT: Restart R session, then run from the top.
+# Only load keras3 — never load library(keras) or library(tensorflow)
+# ============================================================
+
+# -- Environment vars FIRST (before any library call) -------
+Sys.setenv(TF_CPP_MIN_LOG_LEVEL   = "2")
+Sys.setenv(OMP_NUM_THREADS        = "4")
+
+# -- Libraries -----------------------------------------------
+library(keras3)
+library(tidyverse)
+library(yardstick)
+
+# ============================================================
+# FIX 1: Convert R matrices to proper Python float32 arrays
+# ============================================================
+x_tr   <- reticulate::np_array(x_tr,   dtype = "float32")
+x_val  <- reticulate::np_array(x_val,  dtype = "float32")
+x_test <- reticulate::np_array(x_test, dtype = "float32")
+
+y_tr   <- reticulate::np_array(as.numeric(y_tr),   dtype = "float32")
+y_val  <- reticulate::np_array(as.numeric(y_val),  dtype = "float32")
+# keep y_test as R vector for yardstick later
+y_test_r <- as.numeric(y_test)
+
+# ============================================================
+# FIX 2: build_model using $compile() not pipe-compile
+# ============================================================
+# build_model <- function(input_dim) {
+#   
+#   inputs  <- layer_input(shape = c(input_dim))
+#   
+#   outputs <- inputs |>
+#     layer_dense(units = 64L, activation = "relu") |>
+#     layer_batch_normalization() |>
+#     layer_dropout(rate = 0.3) |>
+#     layer_dense(units = 32L, activation = "relu") |>
+#     layer_dropout(rate = 0.2) |>
+#     layer_dense(units = 1L,  activation = "sigmoid")
+#   
+#   model <- keras_model(inputs = inputs, outputs = outputs)
+#   
+#   model$compile(
+#     optimizer = optimizer_adam(learning_rate = 0.001),
+#     loss      = "binary_crossentropy",
+#     metrics   = list("AUC")
+#   )
+#   
+#   model
+# }
+
+build_model <- function(input_dim) {
+  inputs <- layer_input(shape = c(input_dim))
+  
+  outputs <- inputs |>
+    layer_dense(units = 128L, activation = "relu") |>
+    layer_batch_normalization() |>
+    layer_dropout(rate = 0.4) |>
+    layer_dense(units = 64L, activation = "relu") |>
+    layer_batch_normalization() |>
+    layer_dropout(rate = 0.3) |>
+    layer_dense(units = 32L, activation = "relu") |>
+    layer_dropout(rate = 0.2) |>
+    layer_dense(units = 16L, activation = "relu") |>
+    layer_dropout(rate = 0.1) |>
+    layer_dense(units = 1L, activation = "sigmoid")
+  
+  model <- keras_model(inputs = inputs, outputs = outputs)
+  
+  model$compile(
+    optimizer = optimizer_adam(learning_rate = 0.0005, clipnorm = 1.0),  # Gradient clipping
+    loss = "binary_crossentropy",
+    metrics = list("AUC")
+  )
+  
+  model
+}
+
+
+# ============================================================
+# FIX 3: class_weight must be a plain named list, not a vector
+# ============================================================
+class_weights_list <- list("0" = 1.0, "1" = 3.0)
+
+# ============================================================
+# Training callback
+# ============================================================
+es_callback <- callback_early_stopping(
+  monitor              = "val_loss",
+  patience             = 10L,
   restore_best_weights = TRUE
 )
 
-results <- list()
-models <- list()
+# ============================================================
+# Training loop (sequential — TF/Keras is NOT fork-safe)
+# ============================================================
+results    <- vector("list", 5)
+auc_values <- numeric(5)
 
-for (i in 1:10) {
+for (i in seq_len(5)) {
+  
+  cat("\n--- Model", i, "of 5 ---\n")
+  
+  # Reproducible seed per run
+  tensorflow::tf$random$set_seed(100L + i)
   set.seed(100 + i)
   
-  model <- build_model(ncol(x_train))
+  model <- build_model(ncol(x_tr))
   
-  model %>% fit(
-    x_train, y_train,
-    epochs = 100,
-    batch_size = 32,
-    validation_split = 0.2,
-    class_weight = class_weights,
-    callbacks = list(callback),
-    verbose = 0
+  # model$fit(
+  #   x               = x_tr,
+  #   y               = y_tr,
+  #   epochs          = 100L,
+  #   batch_size      = 32L,
+  #   validation_data = list(x_val, y_val),
+  #   class_weight    = class_weights_list,
+  #   callbacks       = list(es_callback),
+  #   verbose         = 0L
+  # )
+  
+  # In your fit() call:
+  model$fit(
+    x = x_tr, y = y_tr,
+    epochs = 200L,                # More epochs
+    batch_size = 16L,             # Smaller batches for imbalance
+    validation_data = list(x_val, y_val),
+    class_weight = list("0" = 1.0, "1" = 6.0),  # Tune based on imbalance ratio
+    callbacks = list(
+      callback_early_stopping(monitor = "val_auc", mode = "max", patience = 15L, restore_best_weights = TRUE),
+      callback_reduce_lr_on_plateau(monitor = "val_loss", factor = 0.5, patience = 7L)
+    ),
+    verbose = 1L  # Watch training progress
   )
   
-  preds <- model %>% predict(x_test)
+  
+  # Predict — returns a numpy matrix; flatten to R vector
+  preds <- as.numeric(model$predict(x_test, verbose = 0L))
+  
+  # yardstick needs factor truth
+  y_test_factor <- factor(y_test_r, levels = c(0, 1))
+  
+  auc_values[i] <- roc_auc_vec(
+    truth    = y_test_factor,
+    estimate = preds,
+    event_level = "second"   # 1 = positive class
+  )
   
   results[[i]] <- tibble(
-    truth = y_test,
-    pred  = as.numeric(preds)
+    model_id = i,
+    truth    = y_test_factor,
+    pred     = preds
   )
   
-  models[[i]] <- model
+  cat("  AUC =", round(auc_values[i], 4), "\n")
 }
 
-# AUC
-auc_values <- map_dbl(results, ~ roc_auc_vec(.x$truth, .x$pred))
-mean_auc <- mean(auc_values)
-
-print(mean_auc)
+cat("\nMean AUC across 10 runs:", round(mean(auc_values), 4), "\n")
 
 ############################################################
 # ? 11. MODEL EVALUATION
 ############################################################
 
-# AUC across all runs
-auc_values <- map_dbl(results, ~ roc_auc_vec(.x$truth, .x$pred))
-mean_auc <- mean(auc_values)
+# 1. Compute AUCs (your code is fine)
+# Recompute AUCs CORRECTLY — specify event_level
+auc_values_fixed <- map_dbl(results, function(res) {
+  roc_auc_vec(
+    truth = res$truth,
+    estimate = res$pred,
+    event_level = "second"  # "1" is positive class
+  )
+})
+mean_auc_fixed <- mean(auc_values_fixed)
+cat("Fixed Mean AUC:", round(mean_auc_fixed, 4), "\n")
 
-print(mean_auc)
+# Check if inverted: if <0.5, flip preds
+if (mean_auc_fixed < 0.5) {
+  cat("FLIPPING PREDS (inverted sigmoid?)\n")
+  for (i in seq_along(results)) {
+    results[[i]]$pred <- 1 - results[[i]]$pred
+  }
+  auc_values_fixed <- map_dbl(results, ~ roc_auc_vec(.x$truth, .x$pred, event_level = "second"))
+  mean_auc_fixed <- mean(auc_values_fixed)
+  cat("Corrected Mean AUC:", round(mean_auc_fixed, 4), "\n")
+}
 
-# Select best model
-best_idx <- which.max(auc_values)
+# Verify distributions
+bind_rows(results, .id = "model") %>%
+  ggplot(aes(x = pred, fill = truth)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~model)
 
-best_preds <- results[[best_idx]] %>%
-  mutate(class = ifelse(pred > 0.5, 1, 0))
+# Pool ALL models for ensemble (better than single best)
+all_preds <- bind_rows(results) %>%
+  group_by(truth) %>%
+  summarise(pred = mean(pred), .groups = "drop")  # Average probs
 
-# Confusion matrix
-conf_mat(
-  data = best_preds,
-  truth = factor(truth),
-  estimate = factor(class)
-)
+# Find optimal threshold
+roc_data <- all_preds %>% roc_curve(truth, pred)
+optimal_thresh <- roc_data %>%
+  mutate(youden_j = .sensitivity + .specificity - 1) %>%
+  slice_max(youden_j, n = 1) %>%
+  pull(.threshold)
 
-# ROC curve
-roc_curve(results[[best_idx]], truth = truth, pred) %>%
-  autoplot()
+cat("Optimal Threshold:", round(optimal_thresh, 3), "\n")
 
-############################################################
-# ? 12. FEATURE IMPORTANCE (AGGREGATED)
-############################################################
+# Re-classify
+all_preds_opt <- all_preds %>%
+  mutate(
+    class_opt = factor(ifelse(pred > optimal_thresh, "1", "0"), levels = c("0", "1"))
+  )
 
-vip_list <- map(models, vip::vi)
+# New conf_mat + metrics
+all_preds_opt %>%
+  conf_mat(truth, class_opt) %>%
+  summary()
 
-vip_combined <- bind_rows(vip_list, .id = "model") %>%
-  group_by(Variable) %>%
+# Ensemble probs
+ensemble_preds <- bind_rows(results) %>%
+  group_by(truth) %>%
   summarise(
-    mean_importance = mean(Importance),
-    sd_importance = sd(Importance)
-  ) %>%
-  arrange(desc(mean_importance))
+    pred_ensemble = mean(pred),
+    n_models = n(),
+    .groups = "drop"
+  )
 
-print(vip_combined)
+# Metrics
+roc_auc_vec(ensemble_preds$truth, ensemble_preds$pred_ensemble)
+
+
+# LASSO VIP (already have lasso_coefs)
+lasso_vip <- lasso_coefs %>%
+  mutate(
+    importance = abs(estimate),
+    term = str_remove(term, "^`+|`+$")  # Clean dummy vars
+  ) %>%
+  arrange(desc(importance)) %>%
+  slice_head(n = 20)
+
+lasso_vip %>%
+  ggplot(aes(y = reorder(term, importance), x = importance)) +
+  geom_col() +
+  labs(y = "Features", title = "LASSO Variable Importance")
+
+# NN VIP (Permutation Importance — on ensemble)
+library(vip)  # Already loaded
+
+# Retrain 1 model on full train for VIP (use best config)
+final_model <- build_model(ncol(x_tr))
+final_model$fit(x_tr, y_tr, epochs = 50, verbose = 0, class_weight = class_weights_list)
+vip(final_model, train = as.data.frame(x_tr), target = "outcome", method = "permute", nsim = 10)
+
+
+# Save data/models
+saveRDS(results, "nn_ensemble_results.rds")
+saveRDS(lasso_coefs, "lasso_features.rds")
+saveRDS(ensemble_preds, "final_predictions.rds")
+
+# Full metrics table
+final_metrics <- all_preds_opt %>%
+  conf_mat(truth, class_opt) %>%
+  summary() %>%
+  mutate(model = "NN Ensemble (Opt Threshold)")
+
+print(final_metrics)
+
+# Export to CSV
+final_metrics %>% write_csv("model_metrics.csv")
