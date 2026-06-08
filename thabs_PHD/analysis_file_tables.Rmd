@@ -56,25 +56,25 @@ final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
   filter(!is.na(UIN...1)) %>%
   mutate(
     # --- Primary AI classifications ---
-    addisons_disease = if_else(as.numeric(`Random cortisol result`) < 500, 1, 0),
+    addisons_disease = if_else(as.numeric(`Random cortisol result`) < 400, 1, 0),
 
     PAI = case_when(
-      as.numeric(`Random cortisol result`) < 500 &
-        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
+      as.numeric(`Random cortisol result`) < 400 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 400 &
         as.numeric(`ACTH result`) >= 64.7 & !is.na(`ACTH result`) ~ 1,
       TRUE ~ 0
     ),
 
     SAI = case_when(
-      as.numeric(`Random cortisol result`) < 500 &
-        as.numeric(`Synacthen: 30 minute cortisol result`) < 500 &
+      as.numeric(`Random cortisol result`) < 400 &
+        as.numeric(`Synacthen: 30 minute cortisol result`) < 400 &
         as.numeric(`ACTH result`) < 64.7 ~ 1,
       TRUE ~ 0
     ),
 
     total_AI = case_when(
-      as.numeric(`Random cortisol result`) < 500 & (PAI == 1 | SAI == 1) ~ 1,
-      as.numeric(`Random cortisol result`) < 500 & (PAI != 1 & SAI != 1) ~ 0,
+      as.numeric(`Random cortisol result`) < 400 & (PAI == 1 | SAI == 1) ~ 1,
+      as.numeric(`Random cortisol result`) < 400 & (PAI != 1 & SAI != 1) ~ 0,
       TRUE ~ NA_real_
     ),
 
@@ -281,13 +281,13 @@ final_dataset <- final_dataset %>%
   ) # %>%
   # mutate(`CD4 count` = as.numeric(`CD4 count`))
 x=final_dataset %>% filter(is.na(addisons_disease)) %>% dplyr::select(UIN...1, `Random cortisol result`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`)
-x=final_dataset %>% filter(`Random cortisol result`<500 & (!is.na(`Synacthen: 0 minute cortisol result`) | !is.na(`Synacthen: 30 minute cortisol result`))) %>% dplyr::select(UIN...1, `Random cortisol result`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`)
+x=final_dataset %>% filter(`Random cortisol result`<400 & (!is.na(`Synacthen: 0 minute cortisol result`) | !is.na(`Synacthen: 30 minute cortisol result`))) %>% dplyr::select(UIN...1, `Random cortisol result`, `ACTH result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`)
 
 source('ml_var_list.r')
 write.csv(
 final_dataset %>%
   janitor::clean_names() %>%
-  dplyr::select(all_of(desired_vars)) %>%
+  dplyr::select(uin_1, all_of(desired_vars)) %>%
   rename(outcome = addisons_disease,
          total_cd4_count_12 = total_cd4_count_10),
 "final_dataset_02052026.csv"
@@ -497,11 +497,22 @@ tbl_summary(#table_1,
             ) %>%
   add_p() %>%
   # add_n() %>%
-  add_overall() %>%
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()  %>%
+  add_overall() #%>%
+
+# ✅ STEP 2: APPLY BH CORRECTION
+table_12 <- table_12 %>%
+  modify_table_body(
+    ~ .x %>%
+      mutate(
+        p.value = p.adjust(p.value, method = "BH")
+      )
+  ) %>%
+  modify_header(label = "Variable") %>%
+  bold_labels() %>%
   as_gt() %>%
-  gt::tab_header('Table 1 (artcile): Patient presentation by CD4 count category')
+  gt::tab_header(
+    title = 'Table 1 (article): Patient presentation by CD4 count category'
+  )
 
 table_12
 
@@ -822,14 +833,24 @@ Neutrophils, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium,
                   all_continuous() ~ c(1, 1))#,
     # label = list(`Total CD4 count...10` ~ "Total CD4 count")
   ) %>%
-  add_p() %>%
-  # add_n() %>%
-  # add_overall() %>%
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()  %>%
+  add_p() #%>%
+
+
+# ✅ STEP 2: APPLY BH CORRECTION
+table_2 <- table_2 %>%
+  modify_table_body(
+    ~ .x %>%
+      mutate(
+        p.value = p.adjust(p.value, method = "BH")
+      )
+  ) %>%
+  modify_header(label = "Variable") %>%
+  bold_labels() %>%
   as_gt() %>%
-  gt::tab_header('Table 3 (article): Should compare Total AI with Non-AI patients')
-  
+  gt::tab_header(
+    title = 'Table 3 (article): Should compare Total AI with Non-AI patients'
+  )
+
  table_2
 
 table_2_1 <- final_dataset %>%
@@ -893,14 +914,23 @@ PTB, EPTB,  `GE/c diff`, EPTB, PTB, AI
                   all_continuous() ~ c(1, 1))#,
     # label = list(`Total CD4 count...10` ~ "Total CD4 count")
   ) %>%
-  add_p() %>% #test = list(all_categorical() ~ "fisher.test.simulate.p.values")
-  # add_n() %>%
-  # add_overall() %>%
-  modify_header(label = "Variable") %>% # update the column header
-  bold_labels()  %>%
+  add_p() #%>% #test = list(all_categorical() ~ "fisher.test.simulate.p.values")
+
+# ✅ STEP 2: APPLY BH CORRECTION
+table_2_1 <- table_2_1 %>%
+  modify_table_body(
+    ~ .x %>%
+      mutate(
+        p.value = p.adjust(p.value, method = "BH")
+      )
+  ) %>%
+  modify_header(label = "Variable") %>%
+  bold_labels() %>%
   as_gt() %>%
-  gt::tab_header('Table 2 (article): Should compare Total PAI with SAI patients')
-  
+  gt::tab_header(
+    title = 'Table 2 (article): Should compare Total PAI with SAI patients'
+  )
+
  table_2_1
 
 # tbl_merge(tbls = list(table_2, table_2_1),
@@ -1300,13 +1330,25 @@ tbl_summary(#table_1,
             by = `Addisons disease`,
             digits = list(all_categorical() ~ c(0, 1)),
             ) %>%
-  add_p() %>%
-  # add_n() %>%
+  add_p() #%>%
+
+# ✅ STEP 2: APPLY BH CORRECTION
+table_4 <- table_4 %>%
+  modify_table_body(
+    ~ .x %>%
+      mutate(
+        p.value = p.adjust(p.value, method = "BH")
+      )
+  ) %>%
   modify_header(label = "Variable") %>%
   bold_labels() %>%
   as_gt() %>%
-  gt::tab_header('Table 4 (article): Mortality: Non-AI vs AI')
+  gt::tab_header(
+    title = 'Table 4 (article): Mortality: Non-AI vs AI'
+  )
+
 table_4
+
 dt04 <- table_3 %>%
   mutate(flag = ifelse(Addisons_disease == 2 & mortality == 1, 'AI deaths', 
                        ifelse(Addisons_disease == 1 & mortality == 0, 'Alive without AI', ''))) %>%
