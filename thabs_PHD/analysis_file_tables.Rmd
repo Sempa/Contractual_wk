@@ -831,7 +831,7 @@ table_2 <- tbl_stack(
     # Sub-table 1: Demographics (No heading)
     cleaned_dataset %>% 
       dplyr::select(`Addisons disease`, `Age at enrolment, median (IQR) (years)` = `Age at enrolment`, `Female gender, n(%)` = `Gender`, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`) %>%
-      tbl_summary(by = `Addisons disease`, missing = "no", type = all_continuous() ~ "continuous", statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"), digits = list(all_categorical() ~ c(0, 1), all_continuous() ~ c(1, 1))),
+      tbl_summary(by = `Addisons disease`, missing = "no", type = all_continuous() ~ "continuous", statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"), digits = list(all_categorical() ~ c(0, 1), all_continuous() ~ c(1, 1))) %>% add_p(),
     
     # Sub-table 2: History (Includes the fixed branching variable)
     cleaned_dataset %>% 
@@ -1367,7 +1367,7 @@ table_4 <- tbl_stack(
         type = all_continuous() ~ "continuous",
         statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
         digits = list(all_categorical() ~ c(0, 1), all_continuous() ~ c(1, 1))
-      ),
+      ) %>% add_p(),
     
     # Sub-table B: History Subheading Variables (Includes your fixed branching variable)
     cleaned_mortality_dataset %>%
@@ -1970,9 +1970,11 @@ cor_df <- data.frame(
 )
 
 # Display
-print(cor_df)
+# print(cor_df)
 
+```
 
+```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
 ## KM curves
 dt04 <- table_3 %>% 
   mutate(strata = ifelse(is.na(AI), 'No AI', AI)) %>% 
@@ -2223,30 +2225,38 @@ data_reduced <- dt[, -high_cor_pairs]
 # selecting variables to analysis  for bivariate analysis
 covariates <- names(data_reduced)[sapply(data_reduced, is.numeric)][-which(names(data_reduced) == "mortality")]
 
-# Perform univariate regression
+# 1. Perform univariate regression
 univariate_models <- lapply(covariates, function(x) {
   formula <- as.formula(paste("mortality ~ ", x))
   glm(formula, data = data_reduced, family = binomial)
 })
 
-# Extract coefficients and p-values
-univariate_results <- lapply(univariate_models, tidy)
+# 2. Extract coefficients and p-values
+univariate_results <- lapply(univariate_models, broom::tidy)
 
-# Bind results into a single data frame
+# 3. Bind results into a single data frame
 results_df <- do.call(rbind, univariate_results)
 
-# Filter models with P < 0.2
+# 4. Filter models with P < 0.2
 selected_models <- results_df %>%
-  filter(term != '(Intercept)')%>%
+  filter(term != '(Intercept)') %>%
   filter(p.value <= 0.2) %>%
   arrange(p.value)
 
-data_to_impute <- bind_cols(data_reduced, dt %>% dplyr::select(Tiredness, Loss_of_consciousness, Diarrhoea, )) #%>%
-  # dplyr::select(mortality, selected_models$term)
-matched_terms <- univariate_table$table_body$variable %>% unique()
-# 1. Subset the data first so we know exactly what variables are going into the regression
+# 5. Bind your extra clinical tracking columns
+data_to_impute <- bind_cols(
+  data_reduced, 
+  dt %>% dplyr::select(Tiredness, Loss_of_consciousness, Diarrhoea) # Fixed dangling comma here
+)
+
+# =====================================================================
+# THE FIX: Define matched_terms from your ACTUAL univariate data frame!
+# =====================================================================
+matched_terms <- selected_models$term %>% unique()
+
+# 6. Prepare regression data (Will now execute perfectly)
 regression_data <- data_to_impute %>% 
-  dplyr::select(mortality, any_of(matched_terms)) %>% 
+  dplyr::select(mortality, ttdeath, any_of(matched_terms)) %>% 
   dplyr::select(-any_of("record_id")) %>% 
   mutate(
     Random_cortisol = Random_cortisol / 50,
@@ -2275,6 +2285,53 @@ master_labels <- list(
 safe_labels <- master_labels[unname(sapply(master_labels, function(x) {
   as.character(all.vars(x[[2]]))[1] %in% names(regression_data)
 }))]
+
+safe_labels <- list(
+  Increased_pigmentation_skin ~ "Increased skin pigmentation",
+  Poor_appetite               ~ "Poor appetite",
+  Liking_for_salt             ~ "Liking for salt",
+  Nausea                      ~ "Nausea",
+  BP_systolic                 ~ "Systolic Blood Pressure",
+  BP_diastolic                ~ "Diastolic Blood Pressure",
+  Haemoglobin                 ~ "Haemoglobin (Drop)",
+  GE_c_diff                   ~ "Clostridium difficile",
+  Random_cortisol             ~ "Increased Random cortisol",
+  Basal_cortisol              ~ "Basal_cortisol",
+  ACTH                        ~ "Increased ACTH",
+  Cryptococcus_neoformans     ~ "Cryptococcus neoformans",
+  Pneumonia                   ~ "Pneumonia",
+  cd4                         ~ "CD4 count",
+  vl                          ~ "Viral load",
+  Opiates                     ~ "Opiate use",
+  Fluconazole                 ~ "Fluconazole"
+)
+
+# 2. STRIDED VARIABLE VECTORS (Strictly ordered to match your layout)
+history_vars <- c(
+  "Increased_pigmentation_skin", 
+  "Poor_appetite", 
+  "Liking_for_salt", 
+  "Nausea", 
+  "BP_systolic", 
+  "BP_diastolic"
+)
+
+investigation_vars <- c(
+  "Haemoglobin", 
+  "GE_c_diff", 
+  "Random_cortisol", 
+  "Basal_cortisol", 
+  "ACTH", 
+  "Cryptococcus_neoformans", 
+  "Pneumonia", 
+  "cd4", 
+  "vl"
+)
+
+medication_vars <- c(
+  "Opiates", 
+  "Fluconazole"
+)
 
 # 4. Run the regression using standard unadjusted logistic regression p-values
 univariate_table <- tbl_uvregression(
@@ -2381,6 +2438,11 @@ imputedData <- mice(
 
 # 1. Regenerate your clean list of dataframes from the mice workspace
 imp_list <- complete(imputedData, action = "all")
+
+saveRDS(imp_list, file = "imputed_datasets_list.rds")
+
+# --- Reload the list later ---
+imp_list <- readRDS("imputed_datasets_list.rds")
 
 # 2. Extract BOTH true target vectors directly from regression_data
 true_time_vector  <- regression_data$ttdeath
@@ -2521,14 +2583,15 @@ merged_cox_report <- tbl_merge(
       variable == "Random_cortisol" ~ "Random Cortisol",
       TRUE ~ label # Keep all other univariable rows as they are
     )
-  ))
+  )) %>%
+  # 4. Add the table title
+  modify_caption("**Table 3: Cox Proportional Hazards Regression for Mortality**")
 
 merged_cox_report
 # =====================================================================
-# 1. CROSS-VALIDATED ELASTIC NET FOR LOGISTIC REGRESSION
+# 1. VARIABLE SELECTION VIA ELASTIC NET ON IMPUTED DATASETS
 # =====================================================================
 lasso_results <- lapply(imp_list, function(dat) {
-  
   # Build design matrix based on the binary target
   x <- model.matrix(
     mortality ~ .,  # Explicitly tracking binary outcome 
@@ -2550,9 +2613,6 @@ lasso_results <- lapply(imp_list, function(dat) {
   )
 })
 
-# =====================================================================
-# 2. VARIABLE SELECTION STABILITY STAGE
-# =====================================================================
 selected_vars <- lapply(lasso_results, function(fit) {
   beta <- coef(fit, s = "lambda.min")
   tibble::tibble(
@@ -2572,206 +2632,155 @@ stable_vars <- selected_vars |>
   filter(freq >= 0.6 * length(imp_list)) |>
   pull(variable)
 
-# Create the logistic formula string allocation
-final_formula <- as.formula(
+# Ensure 'date_diff' or other crucial tracking elements remain isolated if targeted
+# stable_vars <- unique(c(stable_vars, "date_diff")) 
+
+# =====================================================================
+# 2. FIT MULTIVARIABLE MODELS ACROSS IMPUTED DATASETS (POOLED MICE)
+# =====================================================================
+
+# Dynamically construct the formula string using the stable variables
+dynamic_mv_formula <- as.formula(
   paste("mortality ~", paste(stable_vars, collapse = " + "))
 )
 
-# This loops through your clean list of dataframes where 'mortality' actually exists
 logistic_fit_list <- lapply(imp_list, function(dat) {
   stats::glm(
-    mortality ~ ACTH + Opiates + Random_cortisol,
+    formula = dynamic_mv_formula,
     data = dat,
-    family = binomial # Specifying logistic regression
+    family = binomial
   )
 })
 
-# =====================================================================
-# 2. CONVERT TO MIRA OBJECT FOR GTSUMMARY COMPATIBILITY
-# =====================================================================
 # Convert the list of fits into a mice-compatible 'mira' object
 mira_logistic_fits <- mice::as.mira(logistic_fit_list)
 
-# =====================================================================
-# 3. BUILD AND RENDER THE POOLED LOGISTIC TABLE
-# =====================================================================
+# Generate baseline pooled multivariable table matching raw formatting requirements
 pooled_logistic_table <- tbl_regression(
   mira_logistic_fits,                           
-  exponentiate = TRUE,                 # Exponentiate coefficients to get Odds Ratios (OR)
-  label = list(
-    ACTH            ~ "ACTH Level",
-    Opiates         ~ "Opiate Exposure",
-    Random_cortisol ~ "Random Cortisol"
-  )
-) %>%
-  modify_header(
-    label    = "**Clinical Feature**",
-    estimate = "**Pooled OR**",       # Relabeled from HR to OR for Logistic
-    ci       = "**95% CI**",
-    p.value  = "**p-value**"
-  ) %>%
-  bold_labels()
-
-# # 4. Print safely to the console bypassing the HTML viewer engine
-# pooled_logistic_table
+  exponentiate = TRUE,
+  pvalue_fun = function(x) style_pvalue(x, digits = 3)
+)
 
 # =====================================================================
-# 1. PURGE INVALID UTF-8 BYTES FROM UNDERLYING TABLE BODIES
+# 3. STRIDED BLOCK ORDERING AND MERGING PIPELINE
 # =====================================================================
 
-# Clean the univariate table internal data
+# Explicitly define presentation vector groups to match your desired layout
+history_vars <- c(
+  "Increased_pigmentation_skin", 
+  "Poor_appetite", 
+  "Liking_for_salt", 
+  "Nausea", 
+  "BP_systolic", 
+  "BP_diastolic"
+)
+
+investigation_vars <- c(
+  "Haemoglobin", 
+  "GE_c_diff", 
+  "Random_cortisol", 
+  "Basal_cortisol", 
+  "ACTH", 
+  "Cryptococcus_neoformans", 
+  "Pneumonia", 
+  "cd4", 
+  "vl"
+)
+
+medication_vars <- c(
+  "Opiates", 
+  "Fluconazole"
+)
+
+# Purge any invalid UTF-8 bytes from intermediate baseline tables prior to merging
 univariate_table$table_body <- univariate_table$table_body %>%
   mutate(across(where(is.character), ~ iconv(.x, to = "UTF-8", sub = "")))
 
-# Clean the multivariable table internal data
-pooled_table_logistic$table_body <- pooled_table_logistic$table_body %>%
+pooled_logistic_table$table_body <- pooled_logistic_table$table_body %>%
   mutate(across(where(is.character), ~ iconv(.x, to = "UTF-8", sub = "")))
 
+# Order-Preserving Block Engine
 # =====================================================================
-# 2. MERGE THE SANITIZED TABLES
+# REVISED ORDER-PRESERVING BLOCK ENGINE (NATIVE FILTERING)
 # =====================================================================
-merged_logistic_report <- tbl_merge(
-  tbls        = list(univariate_table, pooled_table_logistic),
-  tab_spanner = c("**Univariable Analysis**", "**Multivariable (Pooled) Model**")
+build_ordered_section <- function(vars) {
+  
+  # Copy the base tables so we don't overwrite the global objects
+  bi_sub <- univariate_table
+  mv_sub <- pooled_logistic_table
+  
+  # Native tidyverse filtering and factor ordering on the underlying data frames
+  bi_sub$table_body <- bi_sub$table_body %>% 
+    dplyr::filter(variable %in% vars) %>%
+    dplyr::mutate(variable = factor(variable, levels = vars)) %>% 
+    dplyr::arrange(variable)
+    
+  mv_sub$table_body <- mv_sub$table_body %>% 
+    dplyr::filter(variable %in% vars) %>%
+    dplyr::mutate(variable = factor(variable, levels = vars)) %>% 
+    dplyr::arrange(variable)
+
+  # Merge the isolated and ordered slices side-by-side
+  tbl_merge(
+    tbls = list(bi_sub, mv_sub),
+    tab_spanner = c("**Bivariate**", "**Multivariable (Pooled)**")
+  )
+}
+
+# Generate sectioned blocks matching your required diagnostic classification
+history_block        <- build_ordered_section(history_vars)
+investigation_block  <- build_ordered_section(investigation_vars)
+medication_block     <- build_ordered_section(medication_vars)
+
+# =====================================================================
+# 4. FINAL STACKING, LABEL SANITIZATION, AND COSMETIC OUTPUT
+# =====================================================================
+
+merged_logistic_report <- tbl_stack(
+  list(history_block, investigation_block, medication_block),
+  group_header = c("History", "Investigations", "Medications")
 ) %>%
-  # Safely recode the clean strings now
+  # Apply clean text presentation mappings to the final unified table body
   modify_table_body(~ .x %>% dplyr::mutate(
     label = dplyr::case_when(
-      variable == "ACTH" ~ "ACTH Level",
-      variable == "Opiates" ~ "Opiate Exposure",
-      variable == "Random_cortisol" ~ "Random Cortisol",
-      TRUE ~ label
+      variable == "Increased_pigmentation_skin" ~ "Increased skin pigmentation",
+      variable == "Poor_appetite"               ~ "Poor appetite",
+      variable == "Liking_for_salt"             ~ "Liking for salt",
+      variable == "Nausea"                      ~ "Nausea",
+      variable == "BP_systolic"                 ~ "Systolic Blood Pressure",
+      variable == "BP_diastolic"                ~ "Diastolic Blood Pressure",
+      variable == "Haemoglobin"                 ~ "Haemoglobin (Drop)",
+      variable == "GE_c_diff"                   ~ "Clostridium difficile",
+      variable == "Random_cortisol"             ~ "Increased Random cortisol",
+      variable == "Basal_cortisol"              ~ "Basal_cortisol",
+      variable == "ACTH"                        ~ "Increased ACTH",
+      variable == "Cryptococcus_neoformans"     ~ "Cryptococcus neoformans",
+      variable == "Pneumonia"                   ~ "Pneumonia",
+      variable == "cd4"                         ~ "CD4 count",
+      variable == "vl"                          ~ "Viral load",
+      variable == "Opiates"                     ~ "Opiate use",
+      variable == "Fluconazole"                 ~ "Fluconazole",
+      TRUE                                      ~ label
     )
-  ))
+  )) %>%
+  modify_header(
+    label      = "**Characteristic**",
+    n          = "**N**",
+    estimate_1 = "**OR**",
+    ci_1       = "**95% CI**",
+    p.value_1  = "**p-value**",
+    estimate_2 = "**Adj. OR (95% CI)**", # Formatted to present cleanly side-by-side
+    p.value_2  = "**p-value**"
+  ) %>%
+  modify_caption("**Table 3: Logistic regression for factors associated with Mortality**") %>%
+  bold_labels() %>%
+  as_gt() %>%
+  gt::tab_options(
+    row_group.font.weight = "bold",
+    row_group.background.color = "#FAFAFA",
+    table.font.size = "px(13)"
+  )
 
 merged_logistic_report
 ```
-
-<!-- # Table 5 univariate analysis for addisson's disease -->
-
-<!-- ```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'} -->
-
-<!-- table_5 <- final_dataset %>% -->
-<!--   left_join(table_mortality1, by = 'Hospital folder number') %>% -->
-<!--   mutate(Ethnicity = as.character(Ethnicity)) %>% -->
-<!--   mutate( -->
-<!--     `log10 viral load` = log(as.numeric(`HIV viral load`, 10)), -->
-<!--          `Age at enrolment` = as.numeric(`Age at enrolment`), -->
-<!--          `Duration of current illness` = as.numeric(`Duration of current illness`), -->
-<!--          `Total CD4 count` = as.numeric(`Total CD4 count...10`), -->
-<!--     discharged = ifelse(!is.na(`Date of discharge`), 'Yes', 'No'), -->
-<!--          HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')), -->
-<!--          `Gender` = (ifelse(Gender == 'NA', 'Unknown', Gender)), -->
-<!--          `Addisons disease`  = as.factor(ifelse(total_AI ==1, 'yes', ifelse(total_AI ==0, 'no', ''))), -->
-<!--          Sodium = as.numeric(Sodium), -->
-<!--          Potassium = as.numeric(Potassium), -->
-<!--          Haemoglobin = as.numeric(Haemoglobin),  -->
-<!--          `White cell count` = as.numeric(`White cell count`),  -->
-<!--          `Lymphocyte count` = as.numeric(`Lymphocyte count`),  -->
-<!--          Neutrophils = as.numeric(Neutrophils), -->
-<!--     Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", ifelse(Ethnicity == 'NA', 'Unknown', Ethnicity)), -->
-<!--     `Toxoplasmosis` = as.factor(`Opportunistic infection  (choice=Toxoplasmosis)`), -->
-<!--     `Random cortisol result` = as.numeric(`Random cortisol result`),  -->
-<!--     `Synacthen: 0 minute cortisol result` = as.numeric(`Synacthen: 0 minute cortisol result`), -->
-<!--     `Synacthen: 30 minute cortisol result` = as.numeric(`Synacthen: 30 minute cortisol result`),  -->
-<!--     `ACTH result` = as.numeric(`ACTH result`),  -->
-<!--     `BP (systolic)` = as.numeric(`BP (systolic)`),  -->
-<!--     `BP (diastolic)` = as.numeric(`BP (diastolic)`),  -->
-<!--     `Heart rate` = as.numeric(`Heart rate`), -->
-<!--     `Toxoplasmosis` = as.factor(`Opportunistic infection  (choice=Toxoplasmosis)`), -->
-<!--     mortality = as.factor(ifelse(`3 followup_patientstatus` == 'Deceased --> EXIT form' | `6 followup_patientstatus` == 'Deceased --> EXIT form' | `12 followup_patientstatus` == 'Deceased --> EXIT form', 'yes', 'no')) -->
-<!--     # `Mycobacterium avium-intracellulare` = as.factor(`Opportunistic infection  (choice=Mycobacterium avium-intracellulare)`), -->
-<!--     # `Kaposis sarcoma` = as.factor(`Opportunistic infection  (choice=Kaposis sarcoma)`), -->
-<!--     # `Cytomegalovirus` = as.factor(`Opportunistic infection  (choice=Cytomegalovirus)`), -->
-<!--     # `Other` = as.factor(`Opportunistic infection  (choice=Other)`), -->
-<!--     # `Loss of axillary and pubic hair, if female` != "Not applicable" -->
-<!--   ) %>% -->
-<!--   dplyr::select(`Age at enrolment`, Gender, Ethnicity, `Duration of current illness`, `log10 viral load`, `Total CD4 count`, Sodium, Potassium, Haemoglobin, `White cell count`, `Lymphocyte count`, Neutrophils, `Addisons disease`, mortality, ttdeath, `Random cortisol result`, `Synacthen: 0 minute cortisol result`, `Synacthen: 30 minute cortisol result`, `ACTH result`, incremental_cortisol, incremental_cortisol_percent_increase, `BP (systolic)`, `BP (diastolic)`, discharged, -->
-<!--                 `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Weight loss`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, `Loss of axillary and pubic hair, if female`, `Any postural drop in blood pressure`, `Presence of anaemia`, #`Presence of an opportunistic infection` = `Opportunistic infection present`, -->
-<!--                 Tuberculosis, PTB, EPTB,  `Cryptococcus neoformans`, Pneumonia, `Staph aureus`, `Kaposis sarcoma`, Cytomegalovirus, HSV, HepB, Candida, `GE/c diff`, `Parvo B19`, `Syphilis`, `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`, `Date of enrolment in study`, `HIV, when diagnosed`, AI, `ART exposure`, `Kidney medication`, mortality) %>% -->
-<!--   mutate(Ethnicity = as.numeric(as.factor(Ethnicity)), -->
-<!--          Gender = as.factor(Gender), -->
-<!--          Addisons_disease = as.numeric(as.factor(`Addisons disease`)), -->
-<!--          Log10_viralload = `log10 viral load`, -->
-<!--          Age_at_enrolment = `Age at enrolment`, -->
-<!--          Total_CD4_count = `Total CD4 count`, -->
-<!--          White_cell_count = `White cell count`, -->
-<!--          Lymphocyte_count = `Lymphocyte count`, -->
-<!--          Duration_of_current_illness = `Duration of current illness`, -->
-<!--          AI_recoded = as.factor(ifelse(AI %in% c('PAI', 'SAI'), 'AI', 'No-AI')), -->
-<!--          # Tuberculosis = as.factor(ifelse(`Tuberculosis`== 'Checked', 'Yes', 'No')), -->
-<!--          # Other = as.factor(ifelse(Other== 'Checked', 'Yes', 'No')), -->
-<!--          `Random cortisol result` = `Random cortisol result`/10,  -->
-<!--          `Synacthen: 0 minute cortisol result` = `Synacthen: 0 minute cortisol result`/10,  -->
-<!--          `Synacthen: 30 minute cortisol result` = `Synacthen: 30 minute cortisol result`/10,  -->
-<!--          `ACTH result` = `ACTH result`/10, -->
-<!--          Total_CD4_count = Total_CD4_count/5,  -->
-<!--          Sodium = Sodium/5,  -->
-<!--          Potassium = Potassium /5,  -->
-<!--          White_cell_count = White_cell_count/5,  -->
-<!--          Lymphocyte_count = Lymphocyte_count /5,  -->
-<!--          Neutrophils = ifelse(Neutrophils==953, NA, Neutrophils)/5, -->
-<!--          # `3 followup_patientstatus` = ifelse(`3 followup_patientstatus` == 'NA', 'Alive', `3 followup_patientstatus`), -->
-<!--          # `6 followup_patientstatus` = ifelse((`3 followup_patientstatus` == 'Alive' & `6 followup_patientstatus` == 'NA'), 'Alive', `6 followup_patientstatus` ), -->
-<!--          # `12 followup_patientstatus` = ifelse((`3 followup_patientstatus` == 'Alive' & `6 followup_patientstatus` == 'Alive' & `12 followup_patientstatus` == 'NA'), 'Alive', `12 followup_patientstatus`), -->
-<!--          Duration_of_current_illness = Duration_of_current_illness/10 -->
-<!--          ) %>% -->
-<!--   dplyr::select( -->
-<!--     `Age at enrolment`, `Gender, n(%)` = `Gender`, `Ethnicity, n(%)` = Ethnicity, `Duration of current illness, median (IQR) (days)` = `Duration of current illness`, `Weight loss`, `log10 viral load`, Tuberculosis, PTB, EPTB,  `Cryptococcus neoformans`, Pneumonia, `Staph aureus`, `Kaposis sarcoma`, Cytomegalovirus, HSV, HepB, Candida, `GE/c diff`, `Parvo B19`, `Syphilis`, `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`, `Total CD4 count`, `White cell count X109` = `White cell count`, `Lymphocyte count X109` = `Lymphocyte count`, Neutrophils, `Sodium mmol/L` = Sodium, `Potassium mmol/L` = Potassium, `Haemoglobin g/dL` = Haemoglobin,  -->
-
-<!--     `BP (systolic)`, `BP (diastolic)`, `Any postural drop in blood pressure`, `Heart rate`, Hypotension, Weakness, Tiredness, `Poor appetite`, `Increased pigmentation of the skin`, Nausea, Vomiting, `Liking for salt`, Hypoglycaemia, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, #`Loss of axillary and pubic hair, if female`,  -->
-<!--     `Presence of anaemia`, `ART exposure`, `Kidney medication`, mortality, #`Presence of an opportunistic infection`,  -->
-<!--                 # `White cell count X109` = White_cell_count, `Lymphocyte count X109` = Lymphocyte_count, Neutrophils, `3 followup_patientstatus`, `6 followup_patientstatus`, `12 followup_patientstatus`, #mortality, ttdeath, -->
-<!--                 # Tuberculosis, PTB, EPTB,  `Cryptococcus neoformans`, Pneumonia, `Staph aureus`, `Kaposis sarcoma`, Cytomegalovirus, HSV, HepB, Candida, `GE/c diff`, `Parvo B19`, `Syphilis`, `B menigitis`, `UTI / Leptospirosis`, PCP, `COVID-19`, `Neurocysticercosis`, -->
-<!--                 AI_recoded) #%>% -->
-
-<!-- tbl_uvregression( -->
-<!--   table_5 %>% -->
-<!--     mutate(AI_recoded = ifelse(as.character(AI_recoded)== 'AI',1,0)), -->
-<!--     # trial[c("Addisons_disease", "gender", "Age_at_enrolment")], -->
-<!--     method = glm, -->
-<!--     y = AI_recoded, -->
-<!--     method.args = list(family = binomial), -->
-<!--     exponentiate = TRUE -->
-<!--   ) -->
-
-<!-- ``` -->
-
-
-
-<!-- ```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'} -->
-<!-- table_6 <- table_5 %>% -->
-<!--   mutate(Duration_of_current_illness = `Duration of current illness, median (IQR) (days)`/10) %>% -->
-<!--   # mutate(HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')), -->
-<!--   #   `mortality with Addisons disease` = ifelse(mortality == 1, 'yes', 'no'), -->
-<!--   #   gender = factor(gender, labels = c("Females", "Males")), -->
-<!--   #   Ethnicity = ifelse(Ethnicity == "Asian" | Ethnicity == "Coloured" | Ethnicity == "White", "Other", Ethnicity) -->
-<!--   # ) %>% -->
-<!--   dplyr::select(#Random_cortisol = `Random_cortisol`, Basal_cortisol = `Basal cortisol`, Stimulated_cortisol = `Stimulated cortisol`, `ACTH`,  -->
-<!--     BP_diastolic = `BP (diastolic)`, Weakness, Diarrhoea, `Tuberculosis`, Sodium = `Sodium mmol/L`,  Lymphocyte_count = `Lymphocyte count X109`, AI_recoded, Weight_loss=`Weight loss`, Anorexia, Neutrophils, `Total CD4 count`, Potassium = `Potassium mmol/L`, Duration_of_current_illness, Age_at_enrolment = `Age at enrolment`, Gender = `Gender, n(%)`#`Other`,  -->
-<!-- ) %>% -->
-<!--   filter(!is.na(AI_recoded)) -->
-<!-- nr_imputations <- 5 -->
-<!-- imputedData <- mice::mice( -->
-<!--   data = data.frame(table_6), -->
-<!--   m = nr_imputations, -->
-<!--   maxit = 20, -->
-<!--   defaultMethod = c("pmm", "logreg", "polyreg", "polr"), seed = 33 -->
-<!-- ) -->
-
-<!-- completeData_AI <- bind_cols(table_3 %>%  -->
-<!--                             dplyr::select(mortality, ttdeath, AI_recoded,  -->
-<!--                                           Gender, Ethnicity, ART_exposure = `ART exposure`, Kidney_medication = `Kidney medication`),  -->
-<!--                           aggregate(complete(imputedData, 'long')[,3:15],  -->
-<!--                                         by = list(complete(imputedData, 'long')$.id), -->
-<!--                                         FUN= mean)) %>% -->
-<!--                 mutate(AI = ifelse(AI_recoded...3 =='AI', 1, 0)) %>% -->
-<!--   mutate(CD4_count = `Total.CD4.count`) -->
-<!-- model4 <- glm(AI ~ Potassium + Neutrophils + CD4_count,#CD4_count,#ACTH + Random_cortisol + Lymphocyte_count,#ACTH + Stimulated_cortisol + BP_diastolic, -->
-<!--                                                  family = binomial(link = "logit"), -->
-<!--               data = completeData_AI) %>% -->
-<!--   tbl_regression(exponentiate = TRUE) -->
-<!-- model4 -->
-
-<!-- ``` -->
-

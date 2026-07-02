@@ -384,11 +384,11 @@ if (is.na(n_cores) || n_cores < 1) {
 ## 2.2. Predictor matrix
 ## -----------------------------
 predM <- make.predictorMatrix(
-  df_imp1 %>% dplyr::select(-outcome)
+  df_imp1 #%>% dplyr::select(-outcome)
 )
 
 quick_pred <- quickpred(
-  df_imp1 %>% dplyr::select(-outcome),
+  df_imp1, #%>% dplyr::select(-outcome),
   mincor = 0.1,
   minpuc = 0.25
 )
@@ -406,7 +406,7 @@ nr_imputations <- 5
 
 imputedData <- mice(
   data = df_imp1 %>%
-    dplyr::select(-outcome) %>%
+    # dplyr::select(-outcome) %>%
     mutate(across(where(is.character), as.factor)) %>%
     as.data.frame(),
   
@@ -421,7 +421,21 @@ imputedData <- mice(
   parallel = "snow",
   ncpus = n_cores
 )
+imputed_list <- mice::complete(imputedData, action = "all")
 
+saveRDS(imputed_list, "imputed_list_ML.rds")
+
+imputedData <- readRDS("imputed_list_ML.rds")
+# 2. Map across the list to add the outcome column to each dataframe
+merged_imputed_list <- lapply(imputed_list, function(dat) {
+  dat %>%
+    dplyr::mutate(outcome = df_imp$outcome) %>%
+    # Optional: clean out any unwanted columns in the same step
+    dplyr::select(-any_of(c(
+      "adrenal_insufficiency", "random_cortisol_result",
+      "synacthen_0_minute_cortisol_result", "synacthen_30_minute_cortisol_result"
+    )))
+})
 ############################################################
 # 3. CLASS WEIGHT TUNING (on first imputation only - fast)
 ############################################################
@@ -431,11 +445,19 @@ best_auc <- 0
 best_weight <- 5
 
 # Use only first imputation for tuning
-mice_complete <- complete(imputedData, 1)
-analysis_data <- cbind(outcome = df_imp1$outcome, mice_complete) %>%
-  select(-any_of(c("adrenal_insufficiency", "random_cortisol_result",
-                   "synacthen_0_minute_cortisol_result", "synacthen_30_minute_cortisol_result")))
+mice_complete <- merged_imputed_list[[1]]
+analysis_data <- mice_complete %>%
+  # If 'outcome' isn't in mice_complete, uncomment the line below to pull it from your original data:
+  # mutate(outcome = final_dataset$outcome) %>% 
+  dplyr::select(-any_of(c(
+    "adrenal_insufficiency", 
+    "random_cortisol_result",
+    "synacthen_0_minute_cortisol_result", 
+    "synacthen_30_minute_cortisol_result"
+  )))
 
+# Quick safety check to ensure it worked
+# print(dim(analysis_data))
 RNGkind(kind = "Mersenne-Twister", sample.kind = "Rounding")
 set.seed(123)
 split <- initial_split(analysis_data, prop = 0.8, strata = outcome)
@@ -557,18 +579,29 @@ for (w in weight_grid) {
 cat("\nBest class weight found:", best_weight, "with AUC =", round(best_auc, 4), "\n")
 
 # ===================== MAIN LOOP =====================
+# Ensure this is loaded as your plain list from RDS
+imputedData <- readRDS("imputed_list_ML.rds")
+
 all_imputation_results <- vector("list", nr_imputations)
 
 for (i in 1:nr_imputations) {
   cat("\n=== Processing Imputation", i, "of", nr_imputations, "===\n")
   
-  mice_complete <- complete(imputedData, i)
-  analysis_data_i <- cbind(outcome = df_imp1$outcome, mice_complete) %>%
-    select(-any_of(c("adrenal_insufficiency", "random_cortisol_result",
-                     "synacthen_0_minute_cortisol_result", "synacthen_30_minute_cortisol_result")))
+  # THE FIX 1: Extract directly from the list instead of calling complete()
+  mice_complete <- imputedData[[i]]
   
-  set.seed(123)
-  split_i <- initial_split(analysis_data_i, prop = 0.8, strata = outcome)
+  # THE FIX 2: Safely append the outcome from df_imp
+  analysis_data_i <- mice_complete %>%
+    dplyr::mutate(outcome = df_imp$outcome) %>%
+    dplyr::select(-any_of(c(
+      "adrenal_insufficiency", "random_cortisol_result",
+      "synacthen_0_minute_cortisol_result", "synacthen_30_minute_cortisol_result"
+    )))
+  
+  # THE FIX 3: Environment-robust seed for cross-environment reproducibility
+  set.seed(123, kind = "Mersenne-Twister", normal.kind = "Inversion")
+  
+  split_i   <- initial_split(analysis_data_i, prop = 0.8, strata = outcome)
   train_data_i <- training(split_i)
   test_data_i  <- testing(split_i)
   
@@ -578,16 +611,16 @@ for (i in 1:nr_imputations) {
     step_zv(all_predictors()) %>%
     step_normalize(all_numeric_predictors())
   
-  prep_rec <- prep(rec)
+  prep_rec        <- prep(rec)
   train_processed <- bake(prep_rec, train_data_i)
   test_processed  <- bake(prep_rec, test_data_i)
   
-  # LASSO
+  # LASSO Tuning
   lasso_wf <- workflow() %>%
     add_model(logistic_reg(penalty = tune(), mixture = 1) %>% set_engine("glmnet")) %>%
     add_formula(outcome ~ .)
   
-  lasso_fit <- tune_grid(lasso_wf, vfold_cv(train_processed, v=5), grid=20, metrics=metric_set(roc_auc))
+  lasso_fit   <- tune_grid(lasso_wf, vfold_cv(train_processed, v=5), grid=20, metrics=metric_set(roc_auc))
   best_lambda <- select_best(lasso_fit, metric = "roc_auc")
   final_lasso <- finalize_workflow(lasso_wf, best_lambda) %>% fit(train_processed)
   
@@ -596,10 +629,10 @@ for (i in 1:nr_imputations) {
   train_nn <- train_processed %>% select(all_of(c("outcome", selected_features)))
   test_nn  <- test_processed  %>% select(all_of(c("outcome", selected_features)))
   
-  # Arrays
-  x_train <- reticulate::np_array(as.matrix(select(train_nn, -outcome)), dtype = "float32")
-  y_train <- reticulate::np_array(as.integer(as.numeric(train_nn$outcome) - 1), dtype = "float32")
-  x_test  <- reticulate::np_array(as.matrix(select(test_nn, -outcome)), dtype = "float32")
+  # Array formulation for Reticulate
+  x_train  <- reticulate::np_array(as.matrix(select(train_nn, -outcome)), dtype = "float32")
+  y_train  <- reticulate::np_array(as.integer(as.numeric(train_nn$outcome) - 1), dtype = "float32")
+  x_test   <- reticulate::np_array(as.matrix(select(test_nn, -outcome)), dtype = "float32")
   y_test_r <- as.numeric(test_nn$outcome) - 1
   
   # ===================== TRAIN ENSEMBLE =====================
@@ -608,6 +641,8 @@ for (i in 1:nr_imputations) {
   
   for (j in 1:10) {
     cat("  Model", j, "of 10\n")
+    
+    # Python-level seed alignment
     tensorflow::tf$random$set_seed(100L + j)
     
     model <- build_model(ncol(x_train), positive_prevalence = positive_prevalence)
@@ -628,9 +663,9 @@ for (i in 1:nr_imputations) {
     preds <- as.numeric(model$predict(x_test, verbose = 0))
     
     results_i[[j]] <- tibble(
-      id    = seq_along(preds),   # ✅ critical fix
+      id    = seq_along(preds),   
       truth = factor(y_test_r, levels = c(0, 1)),
-      pred = preds
+      pred  = preds
     )
   }
   
@@ -641,7 +676,6 @@ for (i in 1:nr_imputations) {
   
   all_imputation_results[[i]] <- pooled_i
 }
-
 # ===================== FINAL POOLING + EVALUATION =====================
 
 # Pool predictions across imputations
@@ -702,7 +736,58 @@ for (t in seq(0.08, 0.25, by = 0.005)) {
 
 # ===================== APPLY CHOSEN THRESHOLD =====================
 # 1. Apply the optimized clinical classification threshold
-best_thresh <- 0.090     
+library(tidyr)
+library(purrr)
+
+# 1. Evaluate thresholds across the full operational spectrum
+threshold_results <- map_df(seq(0.05, 0.95, by = 0.01), function(t) {
+  pred_class <- factor(ifelse(final_pooled$pred > t, 1, 0), levels = c(0, 1))
+  
+  metrics <- conf_mat(final_pooled %>% mutate(pred_class = pred_class), truth, pred_class) %>% 
+    summary()
+  
+  sens <- metrics$.estimate[metrics$.metric == "sens"]
+  spec <- metrics$.estimate[metrics$.metric == "spec"]
+  
+  tibble(
+    threshold   = t,
+    Sensitivity = sens,
+    Specificity = spec,
+    Youden_J    = sens + spec - 1
+  )
+})
+
+# 2. Find the mathematical optimal threshold (Max Youden's J)
+optimal_row <- threshold_results %>% filter(Youden_J == max(Youden_J)) %>% slice(1)
+print(optimal_row)
+
+# Fine-grained scan of the ultra-low probability spectrum
+fine_threshold_results <- map_df(seq(0.001, 0.060, by = 0.002), function(t) {
+  pred_class <- factor(ifelse(final_pooled$pred > t, 1, 0), levels = c(0, 1))
+  
+  metrics <- conf_mat(final_pooled %>% mutate(pred_class = pred_class), truth, pred_class) %>% 
+    summary()
+  
+  sens <- metrics$.estimate[metrics$.metric == "sens"]
+  spec <- metrics$.estimate[metrics$.metric == "spec"]
+  
+  tibble(
+    threshold   = t,
+    Sensitivity = sens,
+    Specificity = spec,
+    Youden_J    = sens + spec - 1
+  )
+})
+
+# View the full curve to make an informed clinical decision
+print(fine_threshold_results, n = 30)
+
+# Extract the absolute mathematical peak
+best_fine_row <- fine_threshold_results %>% filter(Youden_J == max(Youden_J)) %>% slice(1)
+print("Mathematical Optimal:")
+print(best_fine_row)
+
+best_thresh <- best_fine_row[[1]]     
 
 # 2. Re-assign variables with explicit factor ordering
 final_pooled <- final_pooled %>%
