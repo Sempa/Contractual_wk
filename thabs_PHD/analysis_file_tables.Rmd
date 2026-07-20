@@ -124,6 +124,7 @@ final_dataset <- read_excel("hypo_alldata_wide_labels.xls") %>%
     #   UIN...1 %in% c(392) ~ "PAI",
     #   TRUE ~ AI
     # ),
+    AI = ifelse(addisons_disease == 0, 0, AI),
 
     `Adrenal insufficiency` = if_else(!is.na(addisons_disease), addisons_disease, 0),
 
@@ -683,6 +684,91 @@ box_plot_2 <- ggboxplot(
 jpeg('box_plot_2.png', units = "in", width = 8, height = 9, res = 300)
 
 box_plot_2
+
+dev.off()
+
+dt02_2 <- bind_rows(final_dataset %>%
+                    mutate(`AI status` = ifelse(AI == "0", '', AI),
+                           Group = as.factor('Random cortisol')) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = `Random cortisol result`),
+                  final_dataset %>%
+                    mutate(`AI status` = ifelse(AI == "0", '', AI),
+                           Group = as.factor('Basal cortisol')
+                    ) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = `Synacthen: 0 minute cortisol result`), 
+                  final_dataset %>%
+                    mutate(`AI status` = ifelse(AI == "0", '', AI),
+                           Group = as.factor('Stimulated cortisol')
+                    ) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = `Synacthen: 30 minute cortisol result`), 
+                  final_dataset %>%
+                    mutate(`AI status` = ifelse(AI == "0", '', AI),
+                           Group = as.factor('Incremental cortisol')) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = incremental_cortisol)
+) %>%
+  mutate(result = as.numeric(result)) %>%
+  filter(`AI status` %in% c("PAI", "SAI"))
+
+dt02_3 <- dt02_2 %>%
+  group_by(`AI status`, Group) %>%
+  summarise(n(), med_ian = median(result, na.rm = T),
+            p25 = quantile(result, 0.25, na.rm = T),
+            p75 = quantile(result, 0.75, na.rm = T),
+            min = min(result, na.rm = T),
+            max = max(result, na.rm = T))
+write.csv(dt02_3, 'PAI_SAI_labs.csv')
+stat.test <- dt02_2 %>%
+  filter(Group != "ACTH") %>%
+  mutate(
+    AI_status = as.factor(`AI status`),
+    AI_status = forcats::fct_rev(AI_status)
+  ) %>%
+  group_by(Group) %>%
+  t_test(result ~ AI_status) %>%
+  add_significance("p") %>%
+  add_xy_position(x = "Group", dodge = 0.8) %>%
+  mutate(
+    p.label = ifelse(
+      p < 0.0001,
+      "<0.0001",
+      sprintf("%.3f", p)
+    )
+  )
+stat.test
+
+# Assuming dt02 and stat.test already exist as per your code
+
+box_plot_3 <- ggboxplot(
+  dt02_2 %>% filter(as.character(Group) != 'ACTH') %>%
+    mutate(`AI status` = forcats::fct_rev(`AI status`)),
+  x = 'Group', y = 'result',
+  fill = "AI status", 
+  palette = c("PAI" = "gray40", "SAI" = "white"),
+  ylab = 'Serum cortisol concentration (nmol/L)',
+  xlab = 'Laboratory test'#,
+  # position = position_dodge(0.8)
+) +
+  stat_pvalue_manual(
+    stat.test, 
+    label = "{p}", #{p.adj.signif}
+    tip.length = 0, hide.ns = FALSE
+  ) +
+  # coord_cartesian(ylim = c(0, 1500)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+  theme_minimal(base_size = 18) +
+  theme(
+    legend.position = "top",
+    axis.line = element_line(colour = "black"),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 0, hjust = 0.5)
+  )
+
+# box_plot_3
+jpeg('box_plot_3.png', units = "in", width = 8, height = 9, res = 300)
+
+box_plot_3
 
 dev.off()
 
