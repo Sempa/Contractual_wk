@@ -565,41 +565,8 @@ dt02_1 <- dt02 %>%
 View(dt02_1)
 write.csv(dt02_1, 'Cortisol_measurements.csv')
 
-stat.test <- dt02 %>%
-  filter(!(as.character(Group) == 'ACTH')) %>%
-  mutate(AI_status = as.factor(`AI status`),
-         AI_status = forcats::fct_rev(AI_status)) %>%
-  group_by(Group) %>%
-  t_test(result ~ AI_status) %>%
-  adjust_pvalue(method = "bonferroni") %>%
-  add_significance("p.adj") %>%
-  add_xy_position(x = "Group", dodge = 0.8) %>%
-  mutate(p.adj_1 = ifelse(p.adj <0.0001, "<0.0001", '0.768'))
-stat.test
-
-library(ggpubr)
-library(rstatix)
-
-# Assuming dt02 and stat.test already exist as per your code
-
-box_plot_1 <- ggboxplot(
-  dt02 %>% filter(as.character(Group) != 'ACTH') %>%
-    mutate(`AI status` = forcats::fct_rev(`AI status`)),
-  x = 'Group', y = 'result',
-  fill = "AI status", 
-  palette = c("Adrenal insufficiency" = "gray40", "No Adrenal insufficiency" = "white"),
-  ylab = 'Serum cortisol concentration (nmol/L)',
-  xlab = 'Laboratory test'#,
-  # position = position_dodge(0.8)
-) +
-  stat_pvalue_manual(
-    stat.test, 
-    label = "{p.adj_1}", #{p.adj.signif}
-    tip.length = 0, hide.ns = FALSE
-  ) +
-  # coord_cartesian(ylim = c(0, 1500)) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-  theme_minimal(base_size = 18) +
+# Common theme setup for high-res output consistency
+common_theme <- theme_minimal(base_size = 18) +
   theme(
     legend.position = "top",
     axis.line = element_line(colour = "black"),
@@ -609,37 +576,244 @@ box_plot_1 <- ggboxplot(
     axis.text.x = element_text(angle = 0, hjust = 0.5)
   )
 
-box_plot_1
+# Color palette definition
+status_palette <- c(
+  "Adrenal insufficiency" = "gray40", 
+  "No Adrenal insufficiency" = "white"
+)
+
+# ==============================================================================
+# PLOT 1: EXCLUDING ACTH
+# ==============================================================================
+
+# 1. Calculate original unadjusted t-test p-values (Without ACTH)
+stat_test_no_acth <- dt02 %>%
+  filter(as.character(Group) != 'ACTH') %>%
+  mutate(
+    AI_status = as.factor(`AI status`),
+    AI_status = fct_rev(AI_status)
+  ) %>%
+  group_by(Group) %>%
+  t_test(result ~ AI_status) %>%
+  add_xy_position(x = "Group", dodge = 0.8) %>%
+  # Format original unadjusted p-value to 3 decimal places
+  mutate(p_formatted = ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+
+# 2. Build Boxplot 1
+box_plot_no_acth <- ggboxplot(
+  dt02 %>% 
+    filter(as.character(Group) != 'ACTH') %>%
+    mutate(`AI status` = fct_rev(`AI status`)),
+  x = 'Group', 
+  y = 'result',
+  fill = "AI status", 
+  palette = status_palette,
+  ylab = 'Serum cortisol concentration (nmol/L)',
+  xlab = 'Laboratory test'
+) +
+  stat_pvalue_manual(
+    stat_test_no_acth, 
+    label = "{p_formatted}", 
+    tip.length = 0, 
+    hide.ns = FALSE
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  common_theme
+
+# Save Plot 1
+jpeg('boxplot_without_ACTH.png', units = "in", width = 10, height = 9, res = 300)
+print(box_plot_no_acth)
+dev.off()
 
 
-# box_plot_1 <- ggboxplot(
-#   dt02 %>%
-#     filter(!(as.character(Group) == 'ACTH')), x = 'Group', y = 'result',
-#   fill = "AI status", palette = c("#00AFBB", "#E7B800"),
-#   ylab = 'Serum cortisol concentration (nmol/L)',
-#   xlab = 'Laboratory test'
-# ) +
-#   stat_pvalue_manual(
-#     stat.test,  label = "{p.adj_1}{p.adj.signif}", 
-#     tip.length = 0, hide.ns = FALSE
-#   )+ 
-#   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-#   theme(
-#     text = element_text(size = 20),
-#     plot.title = element_text(hjust = 0.5),
-#     axis.line = element_line(colour = "black"),
-#     axis.text = element_text(size = 18),
-#     axis.title = element_text(size = 18),
-#     panel.background = element_blank(),
-#     panel.border = element_blank(),
-#     plot.margin = unit(c(0, 0, 0, 0), "null")#,
-#     # axis.text.x = element_text(angle = 60, hjust = 1)
-#   )
+# ==============================================================================
+# PLOT 2: INCLUDING ACTH
+# ==============================================================================
 
-jpeg('boxplot_1.png', units = "in", width = 10, height = 9, res = 300)
+# 1. Calculate original unadjusted t-test p-values (With ACTH included)
+stat_test_with_acth <- dt02 %>%
+  mutate(
+    AI_status = as.factor(`AI status`),
+    AI_status = fct_rev(AI_status)
+  ) %>%
+  group_by(Group) %>%
+  t_test(result ~ AI_status) %>%
+  add_xy_position(x = "Group", dodge = 0.8) %>%
+  # Format original unadjusted p-value to 3 decimal places
+  mutate(p_formatted = ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
 
-box_plot_1
+# 2. Build Boxplot 2
+box_plot_with_acth <- ggboxplot(
+  dt02 %>% 
+    mutate(`AI status` = fct_rev(`AI status`)),
+  x = 'Group', 
+  y = 'result',
+  fill = "AI status", 
+  palette = status_palette,
+  ylab = 'Serum cortisol concentration (nmol/L)',
+  xlab = 'Laboratory test'
+) +
+  stat_pvalue_manual(
+    stat_test_with_acth, 
+    label = "{p_formatted}", 
+    tip.length = 0, 
+    hide.ns = FALSE
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  common_theme
 
+# Save Plot 2
+jpeg('boxplot_with_ACTH.png', units = "in", width = 12, height = 9, res = 300)
+print(box_plot_with_acth)
+dev.off()
+
+dt02_v2 <- bind_rows(final_dataset %>%
+                    filter(AI !="0") %>%
+                    mutate(`AI status` = AI,
+                           Group = as.factor('Random cortisol')) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = `Random cortisol result`),
+                  final_dataset %>%
+                    filter(AI !="0") %>%
+                    mutate(`AI status` = AI,
+                           Group = as.factor('Basal cortisol')
+                    ) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = `Synacthen: 0 minute cortisol result`), 
+                  final_dataset %>%
+                    filter(AI !="0") %>%
+                    mutate(`AI status` = AI,
+                           Group = as.factor('Stimulated cortisol')
+                    ) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = `Synacthen: 30 minute cortisol result`), 
+                  final_dataset %>%
+                    filter(AI !="0") %>%
+                    mutate(`AI status` = AI,
+                           Group = as.factor('ACTH')) %>%
+                    dplyr::select(id = `Hospital folder number`, `AI status`, Group, result = `ACTH result`)
+) %>%
+  mutate(result = as.numeric(result))
+
+dt02_1_v2 <- dt02_v2 %>%
+  group_by(Group) %>%
+  summarise(med_ian = median(result, na.rm = T),
+            p25 = quantile(result, 0.25, na.rm = T),
+            p75 = quantile(result, 0.75, na.rm = T),
+            min = min(result, na.rm = T),
+            max = max(result, na.rm = T))
+
+# Common theme setup for high-res output consistency
+common_theme <- theme_minimal(base_size = 18) +
+  theme(
+    legend.position = "top",
+    axis.line = element_line(colour = "black"),
+    panel.grid.major = element_line(color = "grey90"),
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 0, hjust = 0.5)
+  )
+
+# Color palette definition
+status_palette <- c(
+  "PAI" = "gray40", 
+  "SAI" = "white"
+)
+
+# ==============================================================================
+# PLOT 1: EXCLUDING ACTH
+# ==============================================================================
+
+# 1. Calculate original unadjusted t-test p-values (Without ACTH)
+stat_test_no_acth_v2 <- dt02_v2 %>%
+  filter(as.character(Group) != 'ACTH') %>%
+  mutate(
+    AI_status = as.factor(`AI status`),
+    AI_status = fct_rev(AI_status)
+  ) %>%
+  group_by(Group) %>%
+  t_test(result ~ AI_status) %>%
+  add_xy_position(x = "Group", dodge = 0.8) %>%
+  # Format original unadjusted p-value and force y.position to 1600
+  mutate(
+    p_formatted = ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)),
+    y.position = 800
+  )
+
+# 2. Build Boxplot 1
+box_plot_no_acth_v2 <- ggboxplot(
+  dt02_v2 %>% 
+    filter(as.character(Group) != 'ACTH') %>%
+    mutate(`AI status` = fct_rev(`AI status`)),
+  x = 'Group', 
+  y = 'result',
+  fill = "AI status", 
+  palette = status_palette,
+  ylab = 'Serum cortisol concentration (nmol/L)',
+  xlab = 'Laboratory test'
+) +
+  stat_pvalue_manual(
+    stat_test_no_acth_v2, 
+    label = "{p_formatted}", 
+    y.position = 800,
+    tip.length = 0.01, 
+    hide.ns = FALSE
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1000),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  common_theme
+
+# Save Plot 1
+jpeg('boxplot_without_ACTH_PAI_SAI.png', units = "in", width = 10, height = 9, res = 300)
+print(box_plot_no_acth_v2)
+dev.off()
+
+
+# ==============================================================================
+# PLOT 2: INCLUDING ACTH
+# ==============================================================================
+
+# 1. Calculate original unadjusted t-test p-values (With ACTH included)
+stat_test_with_acth_v2 <- dt02_v2 %>%
+  mutate(
+    AI_status = as.factor(`AI status`),
+    AI_status = fct_rev(AI_status)
+  ) %>%
+  group_by(Group) %>%
+  t_test(result ~ AI_status) %>%
+  add_xy_position(x = "Group", dodge = 0.8) %>%
+  # Format original unadjusted p-value and force y.position to 1600
+  mutate(
+    p_formatted = ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)),
+    y.position = 800
+  )
+
+# 2. Build Boxplot 2
+box_plot_with_acth_v2 <- ggboxplot(
+  dt02_v2 %>% 
+    mutate(`AI status` = fct_rev(`AI status`)),
+  x = 'Group', 
+  y = 'result',
+  fill = "AI status", 
+  palette = status_palette,
+  ylab = 'Serum cortisol concentration (nmol/L)',
+  xlab = 'Laboratory test'
+) +
+  stat_pvalue_manual(
+    stat_test_with_acth_v2, 
+    label = "{p_formatted}", 
+    y.position = 800,
+    tip.length = 0.01, 
+    hide.ns = FALSE
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1000),
+    expand = expansion(mult = c(0, 0.05))
+  ) +
+  common_theme
+
+# Save Plot 2
+jpeg('boxplot_with_ACTH_PAI_SAI.png', units = "in", width = 12, height = 9, res = 300)
+print(box_plot_with_acth_v2)
 dev.off()
 
 dt06 <- bind_rows(final_dataset %>%
@@ -2157,62 +2331,164 @@ km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04
 # )
 
 # Extract and relabel strata
-dt04_adj <- dt04 %>%
-    mutate(strata = ifelse(strata != "No AI", "AI", strata))
+library(survival)
+library(ggplot2)
+library(dplyr)
+library(ggsurvplot) # for initial data extraction
 
-# Fit KM curve
+# 1. Prepare Data
+dt04_adj <- dt04 %>%
+  mutate(strata = ifelse(Addisons_disease == 2, "AI", 
+                         ifelse(Addisons_disease == 1, "No AI", Addisons_disease)),
+         strata_2 = ifelse(
+           record_id %in% c(53, 70, 212, 229, 236, 275, 322, 477, 488) & strata == "AI", "Not treated", ifelse(strata == "AI", "Treated", "")))
+
+# 2. Fit overall KM curve
 km_fit2 <- survfit(Surv(ttdeath, mortality) ~ strata, data = dt04_adj)
 
-# Generate initial ggsurvplot to access curve data
-km_plot2 <- ggsurvplot(km_fit2, data = dt04_adj)
+# 3. Overall Log-Rank P-value
+overall_diff <- survdiff(Surv(ttdeath, mortality) ~ strata, data = dt04_adj)
+overall_p_val <- 1 - pchisq(overall_diff$chisq, df = length(overall_diff$n) - 1)
+overall_p_txt <- ifelse(overall_p_val < 0.001, "Overall p < 0.001", 
+                        paste0("Overall p = ", sprintf("%.3f", overall_p_val)))
 
-# Extract plotted data
-plot_data <- km_plot2$plot$data
+# 4. Landmark P-values at Months 3, 6, 12
+landmark_times <- c(3, 6, 12)
+landmark_df <- data.frame(time = numeric(), p_val = numeric(), p_txt = character())
 
-# Apply small horizontal jitter to one group (e.g., AI)
-plot_data <- plot_data %>%
-    mutate(time_jittered = ifelse(strata == "AI", time + 0.2, time))
-
-# Plot manually using ggplot2
-km_plot_manual <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
-    geom_step(size = 1.2) +
-    geom_point(size = 1.5) +
-    labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
-    scale_color_manual(values = c("red", "darkgreen")) +
-  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25)) +
-  scale_x_continuous(limits = c(0, 13), breaks = 0:13) +
-    # theme_minimal() +
-    theme(
-      text = element_text(size = 20),
-      plot.title = element_text(hjust = 0.5),
-      axis.line = element_line(colour = "black"),
-      axis.text = element_text(size = 18),
-      axis.title = element_text(size = 18),
-      panel.background = element_blank(),
-      panel.border = element_blank(),
-      plot.margin = unit(c(0, 0, 0, 0), "null"),
-      legend.position = "top")
-
-ggsave("KM_curve_jittered.png", km_plot_manual, width = 8, height = 6, dpi = 300)
-# ggsave("Kaplan_Meier_Curve2.png", plot = km_plot2$plot, width = 8, height = 6, dpi = 300)
-
-# Loop through each time point
-for (i in seq_along(time_points)) {
-  # Survival probabilities at the specific time point
-  surv_probs <- summary(km_fit2, times = time_points[i])$surv
+for (t in landmark_times) {
+  # Subset to patients surviving at least until landmark time 't'
+  sub_data <- dt04_adj %>% filter(ttdeath >= t)
   
-  # Perform a pairwise log-rank test for survival differences
-  surv_diff <- survdiff(Surv(time = ttdeath, event = mortality) ~ strata, 
-                        data = dt04 %>%
-                          mutate(strata = ifelse(strata != "No AI", 'AI', strata )), 
-                        subset = (ttdeath >= time_points[i]))
+  if (length(unique(sub_data$strata)) > 1) {
+    s_diff <- survdiff(Surv(ttdeath, mortality) ~ strata, data = sub_data)
+    pval <- 1 - pchisq(s_diff$chisq, df = length(s_diff$n) - 1)
+    ptxt <- ifelse(pval < 0.001, "p < 0.001", paste0("p = ", sprintf("%.3f", pval)))
+  } else {
+    pval <- NA
+    ptxt <- "p = NA"
+  }
   
-  # Extract the p-value (if groups > 2, chi-squared p-value)
-  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt04$strata)) - 1)
+  landmark_df <- rbind(landmark_df, data.frame(time = t, p_val = pval, p_txt = ptxt))
 }
 
-# Display p-values
-print(p_values)
+# Print summary table to console
+print(landmark_df)
+
+# 5. Extract plot data with horizontal jitter
+km_plot2 <- ggsurvplot(km_fit2, data = dt04_adj)
+plot_data <- km_plot2$plot$data %>%
+  mutate(time_jittered = ifelse(strata == "AI", time + 0.2, time))
+
+# 6. Build the Annotated ggplot
+km_plot_manual <- ggplot(plot_data, aes(x = time_jittered, y = surv, color = strata)) +
+  geom_step(size = 1.2) +
+  geom_point(size = 1.5) +
+  # Vertical dashed lines at key time points
+  geom_vline(xintercept = landmark_times, linetype = "dashed", color = "grey60", alpha = 0.7) +
+  # Landmark p-value annotations positioned at top of vertical lines
+  annotate("text", x = landmark_df$time, y = 0.95, label = landmark_df$p_txt, 
+           size = 4.5, color = "black", fontface = "bold", angle = 0) +
+  # Overall log-rank p-value text box in bottom-left corner
+  annotate("text", x = 0.5, y = 0.1, label = overall_p_txt, 
+           size = 5.5, color = "black", fontface = "bold", hjust = 0) +
+  labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
+  scale_color_manual(values = c("red", "darkgreen")) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25)) +
+  scale_x_continuous(limits = c(0, 13), breaks = 0:13) +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    axis.line = element_line(colour = "black"),
+    axis.text = element_text(size = 18),
+    axis.title = element_text(size = 18),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"),
+    legend.position = "top"
+  )
+
+# Save high-res plot
+ggsave("KM_curve_jittered_annotated.png", km_plot_manual, width = 9, height = 6.5, dpi = 300)
+# km_plot_manual
+
+km_fit2_v2 <- survfit(Surv(ttdeath, mortality) ~ strata_2, data = dt04_adj)
+
+# 3. Overall Log-Rank P-value
+overall_diff <- survdiff(Surv(ttdeath, mortality) ~ strata_2, data = dt04_adj)
+overall_p_val <- 1 - pchisq(overall_diff$chisq, df = length(overall_diff$n) - 1)
+overall_p_txt <- ifelse(overall_p_val < 0.001, "Overall p < 0.001", 
+                        paste0("Overall p = ", sprintf("%.3f", overall_p_val)))
+
+# 4. Landmark P-values at Months 3, 6, 12
+landmark_times <- c(3, 6, 12)
+landmark_df <- data.frame(time = numeric(), p_val = numeric(), p_txt = character())
+
+for (t in landmark_times) {
+  # Subset to patients surviving at least until landmark time 't'
+  sub_data <- dt04_adj %>% filter(ttdeath >= t)
+  
+  if (length(unique(sub_data$strata_2)) > 1) {
+    s_diff <- survdiff(Surv(ttdeath, mortality) ~ strata_2, data = sub_data)
+    pval <- 1 - pchisq(s_diff$chisq, df = length(s_diff$n) - 1)
+    ptxt <- ifelse(pval < 0.001, "p < 0.001", paste0("p = ", sprintf("%.3f", pval)))
+  } else {
+    pval <- NA
+    ptxt <- "p = NA"
+  }
+  
+  landmark_df <- rbind(landmark_df, data.frame(time = t, p_val = pval, p_txt = ptxt))
+}
+
+# Print summary table to console
+print(landmark_df)
+
+# 5. Extract plot data with horizontal jitter
+km_plot2_v2 <- ggsurvplot(km_fit2_v2, data = dt04_adj)
+plot_data_v2 <- km_plot2_v2$plot$data %>%
+  mutate(time_jittered = ifelse(strata_2 == "Treated", time + 0.2, time),
+         Strata = strata_2)
+
+# 6. Build the Annotated ggplot
+km_plot_manual_v2 <- ggplot(plot_data_v2, aes(x = time_jittered, y = surv, color = Strata)) +
+  geom_step(size = 1.2) +
+  geom_point(size = 1.5) +
+  # Vertical dashed lines at key time points
+  geom_vline(xintercept = landmark_times, linetype = "dashed", color = "grey60", alpha = 0.7) +
+  # Landmark p-value annotations positioned at top of vertical lines
+  annotate("text", x = landmark_df$time, y = 0.95, label = landmark_df$p_txt, 
+           size = 4.5, color = "black", fontface = "bold", angle = 0) +
+  # Overall log-rank p-value text box in bottom-left corner
+  annotate("text", x = 0.5, y = 0.1, label = overall_p_txt, 
+           size = 5.5, color = "black", fontface = "bold", hjust = 0) +
+  labs(x = "Time (months)", y = "Survival Probability", color = "Strata") +
+  scale_color_manual(values = c("red", "darkgreen")) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.25)) +
+  scale_x_continuous(limits = c(0, 13), breaks = 0:13) +
+  theme(
+    text = element_text(size = 20),
+    plot.title = element_text(hjust = 0.5),
+    axis.line = element_line(colour = "black"),
+    axis.text = element_text(size = 18),
+    axis.title = element_text(size = 18),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"),
+    legend.position = "top"
+  )
+
+# Save high-res plot
+ggsave("KM_curve_jittered_annotated_treated.png", km_plot_manual_v2, width = 9, height = 6.5, dpi = 300)
+
+prop_result <- prop.test(x = c(5, 162), 
+                         n = c(14, 549), 
+                         alternative = "two.sided")
+
+# Print full results
+prop_result
+
+# Extract two-sided p-value directly
+prop_result$p.value # 0.8369843
 
 ```
 
@@ -2292,7 +2568,7 @@ dt <- table_3 %>% #[, columns_to_impute]
          Opiates = as.numeric(Opiates)
          ) %>%
   mutate(Haemoglobin = ifelse(Haemoglobin ==704, NA, Haemoglobin))
-df_1 <- as.data.frame(df)
+df_1 <- as.data.frame(dt)
 df_clean <- dt[, colSums(is.na(dt)) < nrow(dt)]
 
 # Remove columns with near-zero variance (optional but often helpful)
@@ -2326,7 +2602,7 @@ results_df <- do.call(rbind, univariate_results)
 # 4. Filter models with P < 0.2
 selected_models <- results_df %>%
   filter(term != '(Intercept)') %>%
-  filter(p.value <= 0.2) %>%
+  filter(p.value <= 0.2 | term == "Addisons_disease") %>%
   arrange(p.value)
 
 # 5. Bind your extra clinical tracking columns
@@ -2411,7 +2687,8 @@ investigation_vars <- c(
   "Cryptococcus_neoformans", 
   "Pneumonia", 
   "cd4", 
-  "vl"
+  "vl",
+  "Addisons_disease"
 )
 
 medication_vars <- c(
@@ -2511,22 +2788,22 @@ pred[, c("record_id", "mortality", "ttdeath")] <- 0
 pred["record_id", ] <- 0
 
 # Run mice
-nr_imputations <- 30
-imputedData <- mice(
-  data = imp_data,
-  m = nr_imputations,
-  maxit = 20,
-  method = meth,
-  predictorMatrix = pred,
-  seed = 33,
-  printFlag = FALSE
-)
-
-# 1. Regenerate your clean list of dataframes from the mice workspace
-imp_list <- complete(imputedData, action = "all")
-
-saveRDS(imp_list, file = "imputed_datasets_list.rds")
-
+# nr_imputations <- 30
+# imputedData <- mice(
+#   data = imp_data,
+#   m = nr_imputations,
+#   maxit = 20,
+#   method = meth,
+#   predictorMatrix = pred,
+#   seed = 33,
+#   printFlag = FALSE
+# )
+# 
+# # 1. Regenerate your clean list of dataframes from the mice workspace
+# imp_list <- complete(imputedData, action = "all")
+# 
+# saveRDS(imp_list, file = "imputed_datasets_list.rds")
+# 
 # --- Reload the list later ---
 imp_list <- readRDS("imputed_datasets_list.rds")
 
@@ -2727,7 +3004,7 @@ stable_vars <- selected_vars |>
 
 # Dynamically construct the formula string using the stable variables
 dynamic_mv_formula <- as.formula(
-  paste("mortality ~", paste(stable_vars, collapse = " + "))
+  paste("mortality ~", paste(c(stable_vars, "Addisons_disease"), collapse = " + "))
 )
 
 logistic_fit_list <- lapply(imp_list, function(dat) {
