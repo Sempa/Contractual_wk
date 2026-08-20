@@ -1595,62 +1595,71 @@ library(gt)
 
 # 1. BASE PRE-PROCESSING STEP
 cleaned_mortality_dataset <- table_3 %>%
-  # Filter to look at clinical characteristics only among patients who died
-  filter(mortality == "yes" | mortality == 1) %>% 
+  # Recode the two target comparison groups
   mutate(
+    comparison_group = case_when(
+      (mortality %in% c("yes", 1)) & (`Addisons disease` %in% c("AI", 1)) ~ "Died with AI",
+      (mortality %in% c("no", 0))  & (`Addisons disease` %in% c("no-AI", 0)) ~ "Alive without AI",
+      TRUE ~ NA_character_ # Excludes: Died without AI, Alive with AI
+    )
+  ) %>%
+  # Filter to keep only the two groups of interest
+  filter(!is.na(comparison_group)) %>%
+  mutate(
+    comparison_group = factor(comparison_group, levels = c("Died with AI", "Alive without AI")),
     Ethnicity = as.character(Ethnicity),
     HIV_duration = as.numeric(as.Date(`Date of enrolment in study`, format='%m/%d/%Y') - 
                                 as.Date(`HIV, when diagnosed`, format='%m/%d/%Y')),
-    `Addisons disease` = forcats::fct_rev(as.factor(`Addisons disease`)),
     
-    # Branching logic fix: Convert "Not applicable" to NA so it's excluded from denominator
+    # Branching logic fix for female hair loss variable
     `Loss of axillary and pubic hair, if female` = case_when(
       `Loss of axillary and pubic hair, if female` == "Not applicable" ~ NA_character_,
       TRUE ~ as.character(`Loss of axillary and pubic hair, if female`)
     )
   )
 
-# 2. GENERATE AND STACK SUB-TABLES IN A SINGLE STRUCTURAL PIPE
+# 2. GENERATE AND STACK SUB-TABLES
 table_4 <- tbl_stack(
   list(
     # Sub-table A: Core Demographics
     cleaned_mortality_dataset %>%
       dplyr::select(
-        `Addisons disease`,
+        comparison_group,
         `Age at enrolment, median (IQR) (years)` = Age_at_enrolment,
         `Female gender, n(%)` = `Gender`,
         `Duration of current illness, median (IQR) (days)` = Duration_of_current_illness
       ) %>%
       tbl_summary(
-        by = `Addisons disease`, 
+        by = comparison_group, 
         missing = "no",
         type = all_continuous() ~ "continuous",
         statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
         digits = list(all_categorical() ~ c(0, 1), all_continuous() ~ c(1, 1))
-      ) %>% add_p(),
+      )  %>% 
+      add_p(),
     
-    # Sub-table B: History Subheading Variables (Includes your fixed branching variable)
+    # Sub-table B: History
     cleaned_mortality_dataset %>%
       dplyr::select(
-        `Addisons disease`,
+        comparison_group,
         `Weight loss`, Weakness, Tiredness, `Poor appetite`, `Increased pigmentation of the skin`,
         Nausea, `Loss of consciousness`, Diarrhoea, Dizziness, Shock, Anorexia, 
         `Loss of axillary and pubic hair, if female`
       ) %>%
-      tbl_summary(by = `Addisons disease`, missing = "no") %>% 
+      tbl_summary(by = comparison_group, missing = "no") %>% 
       add_p(),
     
-    # Sub-table C: Clinical Features Subheading Variables
+    # Sub-table C: Clinical Features
     cleaned_mortality_dataset %>%
       dplyr::select(
-        `Addisons disease`,
+        comparison_group,
         `BP (systolic) mmHg` = `BP (systolic)`,
         `BP (diastolic) mmHg` = `BP (diastolic)`,
         `Heart rate beats per minute` = `Heart rate`,
         Hypotension, `Any postural drop in blood pressure`, `Presence of anaemia`
       ) %>%
       tbl_summary(
-        by = `Addisons disease`, 
+        by = comparison_group, 
         missing = "no",
         type = c("BP (systolic) mmHg", "BP (diastolic) mmHg", "Heart rate beats per minute") ~ "continuous",
         statistic = list(all_continuous() ~ "{median} ({p25}, {p75})"),
@@ -1658,10 +1667,10 @@ table_4 <- tbl_stack(
       ) %>% 
       add_p(),
     
-    # Sub-table D: Investigations Subheading Variables
+    # Sub-table D: Investigations
     cleaned_mortality_dataset %>%
       dplyr::select(
-        `Addisons disease`,
+        comparison_group,
         `Sodium mmol/L` = Sodium, 
         `Potassium mmol/L`, 
         `Haemoglobin g/dL` = Haemoglobin,
@@ -1678,7 +1687,7 @@ table_4 <- tbl_stack(
         `Percentage change in cortisol levels*` = incremental_cortisol_percent_increase
       ) %>%
       tbl_summary(
-        by = `Addisons disease`, 
+        by = comparison_group, 
         missing = "no",
         type = c("Sodium mmol/L", "Potassium mmol/L", "Haemoglobin g/dL", "Total CD4 count cells/ mm3",
                  "Viral load (log10 copies/mL)", "Random cortisol nmol/L", "Basal cortisol nmol/L",
@@ -1691,27 +1700,23 @@ table_4 <- tbl_stack(
   group_header = c(NA, "HISTORY", "CLINICAL FEATURES", "INVESTIGATIONS")
 ) %>%
   
-  # 3. GLOBAL MULTIPLE-TESTING FALSE DISCOVERY RATE ADJUSTMENT (B-H Method)
+  # 3. BENJAMINI-HOCHBERG CORRECTION ACROSS P-VALUES
   modify_table_body(
     ~ .x %>%
       mutate(p.value = p.adjust(p.value, method = "BH"))
   ) %>%
   
-  # 4. INLINE LABELS & FORMATTING ENGINE CONVERSION
+  # 4. HEADERS & DISPLAY
   modify_header(
     label = "**Variable**",
-    p.value = "**p-value**"
+    p.value = "**Adj. p-value**"
   ) %>%
   bold_labels() %>%
   as_gt() %>%
   gt::tab_header(
-    title = "Table 3: Comparisons of the clinical characteristics of patients who died with AI versus those without"
-  ) %>%
-  gt::tab_source_note(
-    source_note = "*Difference in the basal, compared to the stimulated cortisol, expressed as a percentage basal cortisol p-value is a comparison of clinical characteristics of patients with AI versus those without AI, among all those who had died"
+    title = "Comparisons of clinical characteristics: Patients who died with AI vs. Patients alive without AI"
   )
 
-# Display final formatted object
 table_4
 
 dt04 <- table_3 %>%
@@ -2235,106 +2240,79 @@ cor_df <- data.frame(
 ```
 
 ```{r, message = FALSE, cache = FALSE, warning=FALSE, echo = FALSE, results='asis'}
-## KM curves
-dt04 <- table_3 %>% 
-  mutate(strata = ifelse(is.na(AI), 'No AI', AI)) %>% 
-  mutate(strata = ifelse(strata == "", 'No AI', strata))
-
-# Fit the Kaplan-Meier survival model
-km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04)
-
-# Plot the Kaplan-Meier curve
-km_plot1 <- ggsurvplot(
-  km_fit,
-  data = dt04,
-  # risk.table = TRUE,           # Add a risk table below the plot
-  pval = TRUE,                 # Show p-value for log-rank test
-  # conf.int = TRUE,             # Add confidence intervals
-  legend.title = "Strata",     # Customize legend title
-  legend.labs = c("No AI", "PAI", "SAI"),  # Customize group labels
-  xlab = "Time",               # Label for x-axis
-  ylab = "Survival Probability", # Label for y-axis
-  ggtheme = theme_minimal()    # Use a minimal theme
-)
-ggsave("Kaplan_Meier_Curve1.png", plot = km_plot1$plot, width = 8, height = 6, dpi = 300)
-
-ggsurvplot(
-  survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04 %>%
-            mutate(strata = ifelse(strata != "No AI", 'AI', strata ))),
-  data = dt04,
-  # risk.table = TRUE,           # Add a risk table below the plot
-  pval = TRUE,                 # Show p-value for log-rank test
-  # conf.int = TRUE,             # Add confidence intervals
-  legend.title = "Strata",     # Customize legend title
-  legend.labs = c("AI", "No AI"),  # Customize group labels
-  xlab = "Time",               # Label for x-axis
-  ylab = "Survival Probability", # Label for y-axis
-  ggtheme = theme_minimal()    # Use a minimal theme
-)
-
-# dev.off()
-
-####P-values at diferent timepoints
-# Define specific time points
-time_points <- c(3, 6, 12)
-
-# Initialize a data frame to store p-values
-p_values <- data.frame(
-  Time = time_points,
-  P_Value = NA
-)
-
-km_fit <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04)
-
-# Loop through each time point
-for (i in seq_along(time_points)) {
-  # Survival probabilities at the specific time point
-  surv_probs <- summary(km_fit, times = time_points[i])$surv
-  
-  # Perform a pairwise log-rank test for survival differences
-  surv_diff <- survdiff(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04, 
-                        subset = (ttdeath >= time_points[i]))
-  
-  # Extract the p-value (if groups > 2, chi-squared p-value)
-  p_values$P_Value[i] <- 1 - pchisq(surv_diff$chisq, df = length(unique(dt04$strata)) - 1)
-}
-
-# Display p-values
-print(p_values)
-
-### for strata of two groups AI vs Non_AI
-# Define specific time points
-time_points <- c(3, 6, 12)
-
-# Initialize a data frame to store p-values
-p_values <- data.frame(
-  Time = time_points,
-  P_Value = NA
-)
-
-km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04 %>%
-            mutate(strata = ifelse(strata != "No AI", 'AI', strata )))
-# Plot the Kaplan-Meier curve
-
-# km_plot2 <- ggsurvplot(
-#   km_fit2,
-#   data = dt04 %>%
-#             mutate(strata = ifelse(strata != "No AI", 'AI', strata )),
-#   # risk.table = TRUE,           # Add a risk table below the plot
-#   pval = TRUE,                 # Show p-value for log-rank test
-#   # conf.int = TRUE,             # Add confidence intervals
-#   legend.title = "Strata",     # Customize legend title
-#   legend.labs = c("AI", "No AI"),  # Customize group labels
-#   xlab = "Time",               # Label for x-axis
-#   ylab = "Survival Probability", # Label for y-axis
-#   ggtheme = theme_minimal()    # Use a minimal theme
-# )
-
-# Extract and relabel strata
 library(survival)
+library(survminer)
 library(ggplot2)
 library(dplyr)
-library(ggsurvplot) # for initial data extraction
+
+# ---------------------------------------------------------
+# 1. THREE-GROUP ANALYSIS ("No AI", "PAI", "SAI")
+# ---------------------------------------------------------
+
+dt04 <- table_3 %>%
+  mutate(
+    # Clean whitespace first to ensure blank strings match ""
+    AI_clean = trimws(as.character(AI)),
+    strata = case_when(
+      is.na(AI_clean) | AI_clean == "" | AI_clean == "NA" ~ "No AI",
+      TRUE ~ AI_clean
+    ),
+    strata = factor(strata, levels = c("No AI", "PAI", "SAI"))
+  ) %>%
+  mutate(strata = droplevels(strata))
+
+# Inspect present groups (Check if 'No AI' appears now)
+print(table(dt04$strata, useNA = "always"))
+
+km_fit1 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata, data = dt04)
+active_labs1 <- levels(dt04$strata)
+
+km_plot1 <- ggsurvplot(
+  km_fit1,
+  data = dt04,
+  pval = TRUE,
+  legend.title = "Strata",
+  legend.labs = active_labs1,
+  xlab = "Time",
+  ylab = "Survival Probability",
+  ggtheme = theme_minimal()
+)
+
+km_plot1
+
+
+# ---------------------------------------------------------
+# 2. TWO-GROUP ANALYSIS (AI vs Non-AI)
+# ---------------------------------------------------------
+
+dt04_2grp <- dt04 %>%
+  mutate(
+    strata_binary = ifelse(strata != "No AI", "AI", "No AI"),
+    strata_binary = factor(strata_binary, levels = c("AI", "No AI"))
+  ) %>%
+  # Drop empty factor levels if 'No AI' is completely missing
+  mutate(strata_binary = droplevels(strata_binary))
+
+# Inspect active binary groups
+print(table(dt04_2grp$strata_binary))
+
+km_fit2 <- survfit(Surv(time = ttdeath, event = mortality) ~ strata_binary, data = dt04_2grp)
+
+# Extract present level labels dynamically (prevents length mismatch crash)
+active_labs2 <- levels(dt04_2grp$strata_binary)
+
+km_plot2 <- ggsurvplot(
+  km_fit2,
+  data = dt04_2grp,
+  pval = TRUE,
+  legend.title = "Strata",
+  legend.labs = active_labs2,
+  xlab = "Time",
+  ylab = "Survival Probability",
+  ggtheme = theme_minimal()
+)
+
+km_plot2
 
 # 1. Prepare Data
 dt04_adj <- dt04 %>%
