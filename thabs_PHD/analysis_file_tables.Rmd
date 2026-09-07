@@ -293,6 +293,7 @@ final_dataset %>%
          total_cd4_count_12 = total_cd4_count_10),
 "final_dataset_02052026.csv"
 )
+# x=final_dataset %>% filter(`Random cortisol result`< 400 & (as.numeric(`Synacthen: 30 minute cortisol result`) < 274 | is.na(as.numeric(`Synacthen: 30 minute cortisol result`)))) %>% select(UIN...1, `Random cortisol result`, `Synacthen: 30 minute cortisol result`)
 ```
 
 # Baseline table
