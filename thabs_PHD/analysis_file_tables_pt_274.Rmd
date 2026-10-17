@@ -410,7 +410,8 @@ tbl_summary(#table_1,
   add_n() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels() %>%
-  modify_caption("**Baseline table**")
+  as_gt() %>%
+  gt::tab_header("**Baseline table**")
 table_1
 
 ```
@@ -500,8 +501,9 @@ tbl_summary(#table_1,
   # add_n() %>%
   # add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
-  bold_labels() %>%
-  modify_caption('Table 2: ARV status')
+  bold_labels()  %>%
+  as_gt() %>%
+  gt::tab_header('Table 2: ARV status')
 table_1_2
 
 pai <- unique(final_dataset$UIN...1[final_dataset$AI == 'PAI'])
@@ -1091,7 +1093,8 @@ dt08 <- final_dataset %>%
   add_overall() %>%
   modify_header(label = "Variable") %>% # update the column header
   bold_labels()  %>%
-  modify_caption('Table 3.1: addisons disease and medication')
+  as_gt() %>%
+  gt::tab_header('Table 3.1: addisons disease and medication')
 
 dt08
 
@@ -2061,7 +2064,8 @@ dt04 <- table_3 %>%
   # add_n() %>%
   modify_header(label = "Variable") %>%
   bold_labels() %>%
-  modify_caption('Mortality: Non-AI vs AI')
+  as_gt() %>%
+  gt::tab_header('Mortality: Non-AI vs AI')
 dt04
 
 table_5 <- table_3 %>%
@@ -2123,7 +2127,8 @@ table_5 <- table_3 %>%
     q.value = "**p-value (B-H adjusted)**" 
   ) %>%
   bold_labels() %>%
-  modify_caption('**Mortality in AI**')
+  as_gt() %>%
+  gt::tab_header('**Mortality in AI**')
 
 table_5
 
@@ -2488,9 +2493,9 @@ completeData_mort <- bind_cols(data_reduced %>%
                                                   # ifelse(Loss_of_axillary_and_pubic_hair >= 1.5 & Loss_of_axillary_and_pubic_hair <2.5, 2,3))
          ) %>% dplyr::select(-Group.1, -Tiredness, -Loss_of_consciousness, -Diarrhoea)
 
-# saveRDS(completeData_mort, 'completeData_mort.rds')
+saveRDS(completeData_mort, 'completeData_mort_274.rds')
 
-completeData_mort <- readRDS('completeData_mort.rds') %>%
+completeData_mort <- readRDS('completeData_mort_274.rds') %>%
   dplyr::select(mortality, selected_models$term)
 
 control <- rfeControl(functions = lmFuncs, # random forest
@@ -3222,166 +3227,170 @@ pred["record_id", ] <- 0
 #   seed = 33,
 #   printFlag = FALSE
 # )
-# 
-# # 1. Regenerate your clean list of dataframes from the mice workspace
-# imp_list <- complete(imputedData, action = "all")
-# 
-# saveRDS(imp_list, file = "imputed_datasets_list.rds")
-# 
-# --- Reload the list later ---
-imp_list <- readRDS("imputed_datasets_list.rds")
-
-# 2. Extract BOTH true target vectors directly from regression_data
-true_time_vector  <- regression_data$ttdeath
-true_event_vector <- regression_data$mortality
-
-# 3. Force-inject both vectors into every single dataframe within your list
-imp_list <- lapply(imp_list, function(dat) {
-  dat$ttdeath   <- true_time_vector
-  dat$mortality <- true_event_vector
-  return(dat)
-})
-
-# 4. Execute the cross-validated Elastic Net loop safely
-lasso_results <- lapply(imp_list, function(dat) {
-  
-  # Remove BOTH outcome targets from the right-hand side of the formula 
-  # so model.matrix treats them purely as vectors and not predictors
-  x <- model.matrix(
-    mortality ~ . - ttdeath, 
-    data = dat
-  )[ , -1]  # remove intercept
-  
-  # Capture the row indices that survived the design matrix filter
-  kept_rows <- as.numeric(rownames(x))
-  
-  # Align and build your true survival target object safely
-  y <- Surv(
-    time  = dat$ttdeath[kept_rows], 
-    event = dat$mortality[kept_rows]
-  )
-  
-  # Fit the cross-validated Cox Elastic Net safely
-  glmnet::cv.glmnet(
-    x = x,
-    y = y,
-    family = "cox",
-    alpha = 0.5,          # Elastic Net
-    nfolds = 10
-  )
-})
-
-selected_vars <- lapply(lasso_results, function(fit) {
-  beta <- coef(fit, s = "lambda.min")
-  
-  tibble::tibble(
-    var  = rownames(beta),
-    coef = as.numeric(beta)
-  ) %>%
-    dplyr::filter(abs(coef) > 0) %>%
-    dplyr::pull(var)
-})
-
-# Modern tidyverse stability aggregation
-stable_vars <- selected_vars |>
-  unlist() |>
-  tibble::enframe(name = NULL, value = "variable") |> 
-  dplyr::count(variable, name = "freq") |> 
-  dplyr::filter(freq >= 0.6 * length(imp_list)) |>
-  dplyr::pull(variable)
-
-# Search your dataset for the exact column names matching your table features
-colnames(regression_data_clean)[grep("acth|opiate|cortisol|addison",
-                                     colnames(regression_data_clean), ignore.case = TRUE)]
-# 1. Fallback definition based on your table features
-# ADJUST these strings if your column search from Step 1 shows different spelling!
-if (length(stable_vars) == 0) {
-  stable_vars <- c("acth_level", "opiate_exposure", "random_cortisol", "addisons_status")
-}
-
-# 2. Build the structural formula string cleanly
-formula_string <- paste("survival::Surv(ttdeath, mortality) ~", paste(stable_vars, collapse = " + "))
-
-# 3. Parse into a usable formula object for your pooling model
-final_formula <- as.formula(formula_string)
-
-# # Print the final formula to confirm
-# print(final_formula)
 
 # 1. Regenerate your clean list of dataframes from the mice workspace
 # imp_list <- complete(imputedData, action = "all")
 
-# 2. Extract vectors for outcomes AND all required clinical predictors
-true_time     <- regression_data_clean$ttdeath
-true_mort     <- regression_data_clean$mortality
-true_acth     <- regression_data_clean$ACTH
-true_opiates  <- regression_data_clean$Opiates
-true_cortisol <- regression_data_clean$Random_cortisol
+# saveRDS(imp_list, file = "imputed_datasets_list_274.rds")
 
-# 3. Force-inject everything into every data frame slice within your list
-imp_list <- lapply(imp_list, function(dat) {
-  dat$ttdeath         <- true_time
-  dat$mortality       <- true_mort
-  dat$ACTH            <- true_acth
-  dat$Opiates         <- true_opiates
-  dat$Random_cortisol <- true_cortisol
-  return(dat)
-})
+# --- Reload the list later ---
+imp_list <- readRDS("imputed_datasets_list_274.rds")
 
-# =====================================================================
-# 4. FIT THE UNPOOLED COX MODELS ACROSS IMP_LIST SAFELY
-# =====================================================================
-fit_list <- lapply(imp_list, function(dat) {
-  survival::coxph(
-    survival::Surv(ttdeath, mortality) ~ ACTH + Opiates + Random_cortisol,
-    data = dat
-  )
-})
-
-# 5. Convert to 'mira' object and pool estimates via Rubin's Rules
-mira_fits <- mice::as.mira(fit_list)
-pooled_output <- mice::pool(mira_fits)
-
-# 1. Pass the unpooled mira object directly to tbl_regression
-library(gtsummary)
-
-# 1. Build Multivariable table WITHOUT modifying individual labels first
-pooled_table_cox <- tbl_regression(
-  mira_fits,                           
-  exponentiate = TRUE
-  # REMOVED: label = list(...) to keep names matching univariate_cox_table
-) %>%
-  modify_header(
-    estimate = "**Pooled HR**",
-    ci       = "**95% CI**",
-    p.value  = "**p-value**"
-  )
-
-# 2. Merge the tables (They will now align on the exact same rows)
-merged_cox_report <- tbl_merge(
-  tbls        = list(univariate_cox_table, pooled_table_cox),
-  tab_spanner = c("**Univariable Analysis**", "**Multivariable (Pooled) Model**")
-) %>%
-  # 3. Clean up labels safely on the merged object
-  modify_table_body(~ .x %>% dplyr::mutate(
-    label = dplyr::case_when(
-      variable == "ACTH" ~ "ACTH Level",
-      variable == "Opiates" ~ "Opiate Exposure",
-      variable == "Random_cortisol" ~ "Random Cortisol",
-      TRUE ~ label # Keep all other univariable rows as they are
-    )
-  )) %>%
-  # 4. Add the table title
-  modify_caption("**Table 3: Cox Proportional Hazards Regression for Mortality**")
-
-merged_cox_report
+# ------------------------------------------------------------------------------
+# Survival
+# ------------------------------------------------------------------------------
+# # 2. Extract BOTH true target vectors directly from regression_data
+# true_time_vector  <- regression_data$ttdeath
+# true_event_vector <- regression_data$mortality
+# 
+# # 3. Force-inject both vectors into every single dataframe within your list
+# imp_list <- lapply(imp_list, function(dat) {
+#   dat$ttdeath   <- true_time_vector
+#   dat$mortality <- true_event_vector
+#   return(dat)
+# })
+# 
+# # 4. Execute the cross-validated Elastic Net loop safely
+# lasso_results <- lapply(imp_list, function(dat) {
+#   
+#   # Remove BOTH outcome targets from the right-hand side of the formula 
+#   # so model.matrix treats them purely as vectors and not predictors
+#   x <- model.matrix(
+#     mortality ~ . - ttdeath, 
+#     data = dat
+#   )[ , -1]  # remove intercept
+#   
+#   # Capture the row indices that survived the design matrix filter
+#   kept_rows <- as.numeric(rownames(x))
+#   
+#   # Align and build your true survival target object safely
+#   y <- Surv(
+#     time  = dat$ttdeath[kept_rows], 
+#     event = dat$mortality[kept_rows]
+#   )
+#   
+#   # Fit the cross-validated Cox Elastic Net safely
+#   glmnet::cv.glmnet(
+#     x = x,
+#     y = y,
+#     family = "cox",
+#     alpha = 0.5,          # Elastic Net
+#     nfolds = 10
+#   )
+# })
+# 
+# selected_vars <- lapply(lasso_results, function(fit) {
+#   beta <- coef(fit, s = "lambda.min")
+#   
+#   tibble::tibble(
+#     var  = rownames(beta),
+#     coef = as.numeric(beta)
+#   ) %>%
+#     dplyr::filter(abs(coef) > 0) %>%
+#     dplyr::pull(var)
+# })
+# 
+# # Modern tidyverse stability aggregation
+# stable_vars <- selected_vars |>
+#   unlist() |>
+#   tibble::enframe(name = NULL, value = "variable") |> 
+#   dplyr::count(variable, name = "freq") |> 
+#   dplyr::filter(freq >= 0.6 * length(imp_list)) |>
+#   dplyr::pull(variable)
+# 
+# # Search your dataset for the exact column names matching your table features
+# colnames(regression_data_clean)[grep("acth|opiate|cortisol|addison",
+#                                      colnames(regression_data_clean), ignore.case = TRUE)]
+# # 1. Fallback definition based on your table features
+# # ADJUST these strings if your column search from Step 1 shows different spelling!
+# if (length(stable_vars) == 0) {
+#   stable_vars <- c("acth_level", "opiate_exposure", "random_cortisol", "addisons_status")
+# }
+# 
+# # 2. Build the structural formula string cleanly
+# formula_string <- paste("survival::Surv(ttdeath, mortality) ~", paste(stable_vars, collapse = " + "))
+# 
+# # 3. Parse into a usable formula object for your pooling model
+# final_formula <- as.formula(formula_string)
+# 
+# # # Print the final formula to confirm
+# # print(final_formula)
+# 
+# # 1. Regenerate your clean list of dataframes from the mice workspace
+# # imp_list <- complete(imputedData, action = "all")
+# 
+# # 2. Extract vectors for outcomes AND all required clinical predictors
+# true_time     <- regression_data_clean$ttdeath
+# true_mort     <- regression_data_clean$mortality
+# true_acth     <- regression_data_clean$ACTH
+# true_opiates  <- regression_data_clean$Opiates
+# true_cortisol <- regression_data_clean$Random_cortisol
+# 
+# # 3. Force-inject everything into every data frame slice within your list
+# imp_list <- lapply(imp_list, function(dat) {
+#   dat$ttdeath         <- true_time
+#   dat$mortality       <- true_mort
+#   dat$ACTH            <- true_acth
+#   dat$Opiates         <- true_opiates
+#   dat$Random_cortisol <- true_cortisol
+#   return(dat)
+# })
+# 
+# # =====================================================================
+# # 4. FIT THE UNPOOLED COX MODELS ACROSS IMP_LIST SAFELY
+# # =====================================================================
+# fit_list <- lapply(imp_list, function(dat) {
+#   survival::coxph(
+#     survival::Surv(ttdeath, mortality) ~ ACTH + Opiates + Random_cortisol,
+#     data = dat
+#   )
+# })
+# 
+# # 5. Convert to 'mira' object and pool estimates via Rubin's Rules
+# mira_fits <- mice::as.mira(fit_list)
+# pooled_output <- mice::pool(mira_fits)
+# 
+# # 1. Pass the unpooled mira object directly to tbl_regression
+# library(gtsummary)
+# 
+# # 1. Build Multivariable table WITHOUT modifying individual labels first
+# pooled_table_cox <- tbl_regression(
+#   mira_fits,                           
+#   exponentiate = TRUE
+#   # REMOVED: label = list(...) to keep names matching univariate_cox_table
+# ) %>%
+#   modify_header(
+#     estimate = "**Pooled HR**",
+#     ci       = "**95% CI**",
+#     p.value  = "**p-value**"
+#   )
+# 
+# # 2. Merge the tables (They will now align on the exact same rows)
+# merged_cox_report <- tbl_merge(
+#   tbls        = list(univariate_cox_table, pooled_table_cox),
+#   tab_spanner = c("**Univariable Analysis**", "**Multivariable (Pooled) Model**")
+# ) %>%
+#   # 3. Clean up labels safely on the merged object
+#   modify_table_body(~ .x %>% dplyr::mutate(
+#     label = dplyr::case_when(
+#       variable == "ACTH" ~ "ACTH Level",
+#       variable == "Opiates" ~ "Opiate Exposure",
+#       variable == "Random_cortisol" ~ "Random Cortisol",
+#       TRUE ~ label # Keep all other univariable rows as they are
+#     )
+#   )) %>%
+#   # 4. Add the table title
+#   modify_caption("**Table 3: Cox Proportional Hazards Regression for Mortality**")
+# 
+# merged_cox_report
+# ------------------------------------------------------------------------------
 # =====================================================================
 # 1. VARIABLE SELECTION VIA ELASTIC NET ON IMPUTED DATASETS
 # =====================================================================
 lasso_results <- lapply(imp_list, function(dat) {
   # Build design matrix based on the binary target
   x <- model.matrix(
-    mortality ~ .,  # Explicitly tracking binary outcome 
+    mortality ~ . - ttdeath - ACTH,  # Explicitly tracking binary outcome 
     data = dat
   )[ , -1]  # remove intercept
   
@@ -3417,7 +3426,8 @@ stable_vars <- selected_vars %>%
   tibble::enframe(name = NULL, value = "variable") %>%
   dplyr::count(variable, name = "freq") %>%
   dplyr::filter(freq >= 0.6 * length(imp_list)) %>%
-  dplyr::pull(variable)
+  dplyr::pull(variable) %>%
+  as.character()
 
 # 2. Dynamically construct the formula
 dynamic_mv_formula <- as.formula(
@@ -3431,7 +3441,10 @@ print(dynamic_mv_formula)
 logistic_fit_list <- lapply(imp_list, function(dat) {
   stats::glm(
     formula = dynamic_mv_formula,
-    data = dat,
+    data = dat %>%
+      mutate(BP_diastolic = BP_diastolic / 10,
+             cd4 = cd4 / 50,
+             Random_cortisol = Random_cortisol / 50),
     family = binomial
   )
 })
@@ -3532,16 +3545,16 @@ merged_logistic_report <- tbl_stack(
       variable == "Poor_appetite"               ~ "Poor appetite",
       variable == "Liking_for_salt"             ~ "Liking for salt",
       variable == "Nausea"                      ~ "Nausea",
-      variable == "BP_systolic"                 ~ "Systolic Blood Pressure",
-      variable == "BP_diastolic"                ~ "Diastolic Blood Pressure",
+      variable == "BP_systolic"                 ~ "Systolic Blood Pressure (10 units)",
+      variable == "BP_diastolic"                ~ "Diastolic Blood Pressure (10 units)",
       variable == "Haemoglobin"                 ~ "Haemoglobin (Drop)",
       variable == "GE_c_diff"                   ~ "Clostridium difficile",
-      variable == "Random_cortisol"             ~ "Increased Random cortisol",
+      variable == "Random_cortisol"             ~ "Random cortisol (50 units)",
       variable == "Basal_cortisol"              ~ "Basal_cortisol",
-      variable == "ACTH"                        ~ "Increased ACTH",
+      variable == "ACTH"                        ~ "ACTH",
       variable == "Cryptococcus_neoformans"     ~ "Cryptococcus neoformans",
       variable == "Pneumonia"                   ~ "Pneumonia",
-      variable == "cd4"                         ~ "CD4 count",
+      variable == "cd4"                         ~ "CD4 count (50 cells/ml)",
       variable == "vl"                          ~ "Viral load",
       variable == "Opiates"                     ~ "Opiate use",
       variable == "Fluconazole"                 ~ "Fluconazole",
